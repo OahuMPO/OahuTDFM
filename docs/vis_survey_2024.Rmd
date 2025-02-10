@@ -16,6 +16,8 @@ library(knitr)
 library(scales)
 library(kableExtra)
 library(lubridate)
+library(hms)
+library(readxl)
 source("R/translate_table.R")
 ```
 
@@ -26,62 +28,73 @@ This is for surveys delivered with a trip table (and not a place table).
 ## Translate Variables
 
 ```{r}
-hh <- read_csv("data/_private/trm_survey/input/hh.csv")
-per <- read_csv("data/_private/trm_survey/input/person.csv")
-trip <- read_csv("data/_private/trm_survey/input/trip.csv")
-loc <- read_csv("data/_private/trm_survey/input/location.csv")
+per <- read_excel("data/_private/vis_survey_2024/Oahu 2024 Visitor Survey Database Final Version Submitted with data dictionary_Revised Jan 15.xlsx", sheet = 2)
+loc <- read_excel("data/_private/vis_survey_2024/Oahu 2024 Visitor Survey Database Final Version Submitted with data dictionary_Revised Jan 15.xlsx", sheet = 4)
 ```
 
 
 ```{r}
-equiv_tbl <- read_csv("data/input/trm_survey/trm_equiv_table.csv") %>%
-  mutate(VARIABLE = tolower(VARIABLE))
-translate_hh <- translate_table(hh, equiv_tbl)
-translate_per <- translate_table(per, equiv_tbl)
-translate_trip <- translate_table(trip, equiv_tbl)
+equiv_tbl <- read_csv("data/input/vis_survey_2024/vis2024_equiv_table.csv")
+# translate_hh <- translate_table(hh, equiv_tbl)
+translate_per <- per
+# translate_trip <- translate_table(trip, equiv_tbl)
+translate_loc <- translate_table(loc, equiv_tbl)
 ```
 
 # Standardize fields
 
 ```{r}
-hh_standard <- translate_hh %>%
-  mutate(
-    hh_id = hh_id,
-    income_midpt = income_detailed,
-    income_midpt = ifelse(is.na(income_midpt), income_broad, income_midpt),
-    hhsize = num_people,
-    hh_weight = hh_weight
-  )
+# hh_standard <- translate_hh %>%
+#   mutate(
+#     hh_id = hh_id,
+#     income_midpt = income_detailed,
+#     income_midpt = ifelse(is.na(income_midpt), income_broad, income_midpt),
+#     hhsize = num_people,
+#     hh_weight = hh_weight
+#   )
 
 per_standard <- translate_per %>%
   mutate(
-    hh_id = hh_id,
-    person_id = person_id,
-    employed = ifelse(employment == "unemployed", "No", "Yes"),
-    age2 = ifelse(age_detailed == 999, 45, age_detailed),
-    age = ifelse(is.na(age2), age, age2),
-    license = can_drive
-  ) %>%
-  select(-age2)
+    # hh_id = hh_id,
+    person_id = PERSONID,
+    employed = ifelse(`Employment Status` == "No", "No", "Yes"),
+    age = `What is your age?`
+  )
 
-trip_standard <- translate_trip %>%
+# trip_standard <- translate_trip %>%
+#   mutate(
+#     hh_id = hh_id,
+#     person_id = person_id,
+#     trip_num = trip_num,
+#     trip_id = trip_id,
+#     party = num_travelers,
+#     HH_Members = num_hh_travelers,
+#     Non_HH_Members = num_non_hh_travelers,
+#     arr_hr = arrive_hour,
+#     arr_min = arrive_minute,
+#     dep_hr = depart_hour,
+#     dep_min = depart_minute,
+#     activity_duration = duration_minutes,
+#     mode = mode_type,
+#     orig_purp = o_purpose_category,
+#     dest_purp = d_purpose_category,
+#     trip_weight = trip_weight
+#   )
+
+loc_standard <- translate_loc %>%
+  select(-MODE, -PURPOSE) %>%
   mutate(
-    hh_id = hh_id,
-    person_id = person_id,
-    trip_num = trip_num,
-    trip_id = trip_id,
-    party = num_travelers,
-    HH_Members = num_hh_travelers,
-    Non_HH_Members = num_non_hh_travelers,
-    arr_hr = arrive_hour,
-    arr_min = arrive_minute,
-    dep_hr = depart_hour,
-    dep_min = depart_minute,
-    activity_duration = duration_minutes,
-    mode = mode_type,
-    orig_purp = o_purpose_category,
-    dest_purp = d_purpose_category,
-    trip_weight = trip_weight
+    person_id = PERSONID,
+    trip_num = TRIPNUMBER,
+    arr_time = parse_date_time(`ARRIVE TIME`, orders = "h:M p"),
+    arr_hr = hour(arr_time),
+    arr_min = minute(arr_time),
+    dep_time = parse_date_time(`DEPART TIME`, orders = "h:M p"),
+    dep_hr = hour(dep_time),
+    dep_min = minute(dep_time),
+    mode = `MODE Code`,
+    party_size = `How many others traveled with you?`,
+    purpose = `PURPOSE Code`
   )
 ```
 
@@ -90,81 +103,64 @@ trip_standard <- translate_trip %>%
 
 ```{r, include=FALSE}
 # Use this table in TransCAD to geocode points to TAZs
-home_pts <- hh_standard %>%
-  select(lon = home_lon, lat = home_lat)
-work_pts <- per_standard %>%
-  select(lon = work_lon, lat = work_lat)
-school_pts <- per_standard %>%
-  select(lon = school_lon, lat = school_lat)
-o_pts <- trip_standard %>%
-  select(lon = o_lon, lat = o_lat)
-d_pts <- trip_standard %>%
-  select(lon = d_lon, lat = d_lat)
+per_pts <- per_standard %>%
+  select(lon = `Place Stayed LON`, lat = `Place Stayed LAT`)
+loc_pts <- loc_standard %>%
+  select(lon = `DESTINATION LON`, lat = `DESTINATION LAT`)
 
-to_geocode <- bind_rows(home_pts, work_pts, school_pts, o_pts, d_pts) %>%
+to_geocode <- bind_rows(per_pts, loc_pts) %>%
   mutate(unique_id = paste0(lon, "_", lat)) %>%
   group_by(unique_id) %>%
   slice(1)
-write_csv(to_geocode, "data/_private/trm_survey/output/to_geocode.csv")
+write_csv(to_geocode, "data/_private/vis_survey_2024/output/to_geocode.csv")
 
 # once geocoded externally, read it back in
-geocoded_pts <- read_csv("data/_private/trm_survey/output/geocoded_points.csv") %>%
+geocoded_pts <- read_csv(
+  "data/_private/vis_survey_2024/output/geocoded_points.csv") %>%
   select(unique_id, TAZ)
 
-hh_with_tazs <- hh_standard %>%
-  mutate(unique_id = paste0(home_lon, "_", home_lat)) %>%
+per_with_taz <- per_standard %>%
+  mutate(unique_id = paste0(`Place Stayed LON`, "_", `Place Stayed LAT`)) %>%
+  select(-TAZ) %>%
   left_join(geocoded_pts, by = "unique_id") %>%
   rename(HomeTAZ = TAZ) %>%
   select(-unique_id)
 
-per_with_taz <- per_standard %>%
-  mutate(unique_id = paste0(work_lon, "_", work_lat)) %>%
+loc_with_taz <- loc_standard %>%
+  select(-TAZ) %>%
+  mutate(unique_id = paste0(`DESTINATION LON`, "_", `DESTINATION LAT`)) %>%
   left_join(geocoded_pts, by = "unique_id") %>%
-  rename(WorkTAZ = TAZ) %>%
-  mutate(unique_id = paste0(school_lon, "_", school_lat)) %>%
-  left_join(geocoded_pts, by = "unique_id") %>%
-  rename(SchoolTAZ = TAZ) %>%
-  select(-unique_id)
-
-
-trip_with_taz <- trip_standard %>%
-  select(-o_taz, -d_taz) %>%
-  mutate(unique_id = paste0(o_lon, "_", o_lat)) %>%
-  left_join(geocoded_pts, by = "unique_id") %>%
-  rename(o_taz = TAZ) %>%
-  mutate(unique_id = paste0(d_lon, "_", d_lat)) %>%
-  left_join(geocoded_pts, by = "unique_id") %>%
-  rename(d_taz = TAZ) %>%
+  # rename(d_taz = TAZ) %>%
   select(-unique_id)
 ```
 
 ## Create Trip File
 
-Optional step if the survey came with a place file that needs to be converted
-into a trip file.
+Optional step if the survey came with a place/location file that needs to be 
+converted into a trip file.
 
 ```{r}
-# trip_file <- remove_xfers %>%
-#   group_by(hh_id, person_id) %>%
-#   arrange(hh_id, person_id, trip_num) %>%
-#   transmute(
-#     trip_number = lead(trip_num),
-#     dep_hr = dep_hr,
-#     dep_min = dep_min,
-#     arr_hr = lead(arr_hr),
-#     arr_min = lead(arr_min),
-#     activity_duration = lead(activity_duration),
-#     mode = lead(mode_model),
-#     HH_Members = lead(HH_Members),
-#     Non_HH_Members = lead(Non_HH_Members),
-#     orig_purp = dest_purp,
-#     dest_purp = lead(dest_purp),
-#     o_taz = TAZ,
-#     d_taz = lead(TAZ)
-#   ) %>%
-#   filter(!is.na(dep_hr) & !is.na(arr_hr))
-
-trip_file <- trip_with_taz
+trip_file <- loc_with_taz %>%
+  group_by(person_id) %>%
+  arrange(person_id, trip_num) %>%
+  transmute(
+    trip_num = lead(trip_num),
+    dep_hr = dep_hr,
+    dep_min = dep_min,
+    arr_hr = lead(arr_hr),
+    arr_min = lead(arr_min),
+    dep_mins = dep_hr * 60 + dep_min,
+    arr_mins = arr_hr * 60 + arr_min,
+    activity_duration = lead(dep_mins) - arr_mins,
+    mode = lead(mode),
+    party_size = lead(party_size),
+    orig_purp = purpose,
+    dest_purp = lead(purpose),
+    o_taz = TAZ,
+    d_taz = lead(TAZ)
+  ) %>%
+  select(-dep_mins, -arr_mins) %>%
+  filter(!is.na(dep_hr) & !is.na(arr_hr))
 ```
 
 ## Convert auto mode to sov/hov
@@ -172,10 +168,10 @@ trip_file <- trip_with_taz
 ```{r}
 convert_modes <- trip_file %>%
   mutate(
-    mode_model = case_when(
-      mode == "auto" & party == 1 ~ "sov",
-      mode == "auto" & party == 2 ~ "hov2",
-      mode == "auto" & party >= 3 ~ "hov3",
+    mode = case_when(
+      mode == "auto" & party_size == 1 ~ "sov",
+      mode == "auto" & party_size == 2 ~ "hov2",
+      mode == "auto" & party_size >= 3 ~ "hov3",
       TRUE ~ mode
     )
   )
@@ -185,8 +181,8 @@ convert_modes <- trip_file %>%
 
 ```{r}
 id_tours <- convert_modes %>%
-  arrange(hh_id, person_id, trip_num) %>%
-  group_by(hh_id, person_id) %>%
+  arrange(person_id, trip_num) %>%
+  group_by(person_id) %>%
   mutate(
     tour_start = case_when(
       dest_purp == "H" & trip_num == max(trip_num) ~ 0,
@@ -196,39 +192,28 @@ id_tours <- convert_modes %>%
     ),
     tour_num = cumsum((tour_start))
   ) %>%
-  group_by(hh_id, person_id, tour_num) %>%
+  group_by(person_id, tour_num) %>%
   mutate(
     tour_type = case_when(
       "W" %in% dest_purp ~ "work",
+      "Shop" %in% dest_purp ~ "shop",
+      "Rec" %in% dest_purp ~ "rec",
       TRUE ~ "other"
     ),
-    tour_id = paste(hh_id, person_id, tour_num, sep = "_")
+    tour_id = paste(person_id, tour_num, sep = "_")
   )
 
 # determine tour anchor place using the max duration, but break ties by
 # purpose. For any remaining ties (same purpose and duration) just make the
 # first one the anchor.
 mark_anchor <- id_tours %>%
-  group_by(hh_id, person_id) %>%
+  group_by(person_id) %>%
   mutate(
-    activity_arr_mins = arr_hr * 60 + arr_min,
-    activity_dep_mins = dep_hr * 60 + dep_min,
-    # For people working 3rd shift, their last location is not home and does
-    # not have a departure time. Give that a time of midnight for anchor calcs.
-    activity_dep_mins = ifelse(
-      dest_purp != "H" & trip_num == max(trip_num),
-      24 * 60, activity_dep_mins
-    ),
-    activity_duration = ifelse(
-      activity_arr_mins < activity_dep_mins,
-      activity_dep_mins - activity_arr_mins,
-      activity_dep_mins + 24 * 60 - activity_arr_mins
-    ),
-    activity_duration = ifelse(is.na(activity_duration), 0, activity_duration),
-    activity_duration = as.integer(activity_duration),
+    arr_mins = arr_hr * 60 + arr_min,
+    dep_mins = dep_hr * 60 + dep_min,
     temp_dur = ifelse(dest_purp == "H", 0, activity_duration)
   ) %>%
-  group_by(hh_id, person_id, tour_num) %>%
+  group_by(person_id, tour_num) %>%
   mutate(
     anchor = ifelse(temp_dur == max(temp_dur), 100, 0),
     anchor = case_when(
@@ -258,25 +243,19 @@ mark_anchor <- id_tours %>%
 id_tour_mode <- mark_anchor %>%
   mutate(
     primary_mode = case_when(
-      "airplane" %in% mode_model ~ "airplane",
-      "rail" %in% mode_model ~ "rail",
-      "school_bus" %in% mode_model ~ "school_bus",
-      "bus" %in% mode_model ~ "bus",
-      "tnc" %in% mode_model ~ "tnc",
-      "hov3" %in% mode_model ~ "hov3",
-      "hov2" %in% mode_model ~ "hov2",
-      "sov" %in% mode_model ~ "sov",
-      "bike" %in% mode_model ~ "bike",
-      "walk" %in% mode_model ~ "walk",
-      "other" %in% mode_model ~ "other",
+      "transit" %in% mode ~ "transit",
+      "tnc" %in% mode ~ "tnc",
+      "hov3" %in% mode ~ "hov3",
+      "hov2" %in% mode ~ "hov2",
+      "sov" %in% mode ~ "sov",
+      "bike" %in% mode ~ "bike",
+      "walk" %in% mode ~ "walk",
+      "other" %in% mode ~ "other",
       TRUE ~ "other"
     ),
-    temp = ifelse(mode_model == primary_mode, NA, mode_model),
+    temp = ifelse(mode == primary_mode, NA, mode),
     secondary_mode = case_when(
-      "airplane" %in% mode_model ~ "airplane",
-      "rail" %in% temp ~ "rail",
-      "school_bus" %in% temp ~ "school_bus",
-      "bus" %in% temp ~ "bus",
+      "transit" %in% temp ~ "transit",
       "tnc" %in% temp ~ "tnc",
       "hov3" %in% temp ~ "hov3",
       "hov2" %in% temp ~ "hov2",
@@ -304,9 +283,10 @@ trip_add_fields <- id_tour_mode %>%
       tour_type == "work" & p_purp == "H" & a_purp == "W" ~ "W_HBW",
       tour_type == "work" & p_purp == "H" ~ "W_HBO",
       tour_type == "work" ~ "W_NHB",
+      tour_type != "work" & p_purp == "H" & a_purp == "Rec" ~ "N_HBRec",
+      tour_type != "work" & p_purp == "H" & a_purp == "Shop" ~ "N_HBShop",
       tour_type != "work" & p_purp == "H" & a_purp == "Sch" ~ "N_HBSch",
-      tour_type != "work" & p_purp == "H" & activity_duration < 30 ~ "N_HBOS",
-      tour_type != "work" & p_purp == "H" ~ "N_HBOL",
+      tour_type != "work" & p_purp == "H" ~ "N_HBO",
       TRUE ~ "N_NHB"
     ),
     ix_type = case_when(
@@ -323,19 +303,19 @@ trip_add_tod <- trip_add_fields %>%
     trip_arr_mins = arr_hr * 60 + arr_min,
     midpoint = (trip_arr_mins - trip_dep_mins) / 2 + trip_dep_mins,
     tod = case_when(
-      trip_dep_mins < 420 ~ "NT",
+      trip_dep_mins < 360 ~ "NT",
       trip_dep_mins < 540 ~ "AM",
       trip_dep_mins < 900 ~ "MD",
-      trip_dep_mins < 1080 ~ "PM",
+      trip_dep_mins < 1140 ~ "PM",
       TRUE ~ "NT",
     )) %>%
   select(-trip_dep_mins, trip_arr_mins, midpoint)
 
 # Add skim data
-skim <- read_csv("data/input/skims/skim.csv") %>%
-  rename(skim_length = Length, skim_time = Time)
+skim <- read_csv("data/input/skims/auto_skim_am.csv") %>%
+  rename(skim_length = auto_distance, skim_time = auto_time)
 trip_add_skim <- trip_add_tod %>%
-  left_join(skim, by = c("p_taz" = "Origin", "a_taz" = "Destination"))
+  left_join(skim, by = c("p_taz", "a_taz"))
 ```
 
 # Create Tours/Stops
@@ -345,7 +325,6 @@ tour_file <- trip_add_skim %>%
   group_by(tour_id) %>%
   filter(!all(is.na(anchor_taz))) %>%
   summarize(
-    hh_id = first(hh_id),
     person_id = first(person_id),
     tour_num = first(tour_num),
     tour_type = first(tour_type),
@@ -360,18 +339,16 @@ tour_file <- trip_add_skim %>%
     int_stop_ret = sum(int_stop_ret),
     primary_mode = first(primary_mode),
     secondary_mode = first(secondary_mode),
-    HH_Members_Max = max(HH_Members, na.rm = TRUE),
-    HH_Members_Min = min(HH_Members, na.rm = TRUE),
-    Non_HH_Members_Max = max(Non_HH_Members, na.rm = TRUE),
-    Non_HH_Members_Min = min(Non_HH_Members, na.rm = TRUE)
+    party_size_max = max(party_size, na.rm = TRUE),
+    party_size_min = min(party_size, na.rm = TRUE)
   ) %>%
   mutate(
     anchor_taz = ifelse(anchor_taz == -Inf, NA, anchor_taz),
     # members max/min can be inf/-inf. This is mostly for home tours
     # (people who make no tours), but it also affects open tours at the start
     # of the day. Set them all to 1 person.
-    across(HH_Members_Max:HH_Members_Min, ~ ifelse(is.finite(.x), .x, 1)),
-    across(Non_HH_Members_Max:Non_HH_Members_Min, ~ ifelse(is.finite(.x), .x, 0))
+    across(party_size_max:party_size_min, ~ ifelse(is.finite(.x), .x, 1)),
+    across(party_size_max:party_size_min, ~ ifelse(is.finite(.x), .x, 0))
   ) %>%
   ungroup()
 
@@ -395,211 +372,68 @@ stops_file <- trip_add_skim %>%
   relocate(stop_id, .after = tour_id)
 ```
 
-
-# Household Processing
-
-## Calculate HHStructure
-
-```{r}
-per_calc_ptypes <- per_with_taz %>%
-  mutate(
-    WAdult = ifelse(employed == "Yes" & age >= 18, 1, 0),
-    NWAdult = ifelse(employed == "No" & age >= 18, 1, 0),
-    Kid = ifelse(age < 18, 1, 0),
-    PreSch = ifelse(age < 5, 1, 0),
-    Senior = ifelse(age >= 65, 1, 0),
-    Licensed_Driver = ifelse(license == "Yes", 1, 0)
-  )
-
-hhstructure <- per_calc_ptypes %>%
-  group_by(hh_id) %>%
-  summarise(
-    WAdults = sum(WAdult), NWAdults = sum(NWAdult), HHKids = sum(Kid), 
-    HHPreSchs = sum(PreSch), HHSeniors = sum(Senior),
-    HHDrvLic = sum(Licensed_Driver)
-  ) %>%
-  mutate(HHStructure = paste0("HH_", WAdults, NWAdults, HHKids))
-
-hh_add_strct <- hh_with_tazs %>%
-  left_join(hhstructure, by = "hh_id")
-  
-```
-
-```{r}
-# Update household file with numbers of workers who took a work tour that day
-tours_by_hh <- tour_file %>%
-  group_by(hh_id, person_id, tour_type) %>%
-  summarize(count = n()) %>%
-  pivot_wider(
-    id_cols = c(hh_id, person_id), names_from = tour_type, 
-    values_from = count, values_fill = 0
-  ) %>%
-  mutate(WorkersThatDay = ifelse(work > 0, 1, 0)) %>%
-  group_by(hh_id) %>%
-  summarize(across(-person_id, ~ sum(.x))) %>%
-  rename_with(~ paste0(.x, "_tours"), -c("hh_id", "WorkersThatDay"))
-  
-
-hh_add_tours <- hh_add_strct %>%
-  left_join(tours_by_hh, by = "hh_id") %>%
-  mutate(across(ends_with("_tours"), ~ifelse(is.na(.), 0, .))) %>%
-  mutate(WorkersThatDay = ifelse(is.na(WorkersThatDay), 0, WorkersThatDay)) %>%
-  relocate(WorkersThatDay, .after = WAdults) %>%
-  mutate(
-    BasicPattern = paste0(
-      "P_",
-      WorkersThatDay,
-      pmax(hhsize - HHKids - WorkersThatDay, 0), # adults not working that day,
-      HHKids
-    )
-  )
-```
-
 # Person Processing
 
 ## Add tour summary to person file
 
 ```{r}
 tours_by_per <- tour_file %>%
-  group_by(hh_id, person_id, tour_type) %>%
+  group_by(person_id, tour_type) %>%
   summarize(count = n()) %>%
   pivot_wider(
-    id_cols = hh_id:person_id, names_from = tour_type, 
+    id_cols = person_id, names_from = tour_type, 
     values_from = count, values_fill = 0
   ) %>%
-  rename_with(~ paste0(.x, "_tours"), -c(hh_id, person_id))
+  rename_with(~ paste0(.x, "_tours"), -c(person_id))
 
-per_add_tour_counts <- per_calc_ptypes %>%
-  left_join(
-    hh_add_strct %>% select(hh_id, year, HomeTAZ), by = c("hh_id", "year")
-  ) %>%
-  left_join(tours_by_per, by = c("hh_id", "person_id")) %>%
+per_add_tour_counts <- per_with_taz %>%
+  left_join(tours_by_per, by = "person_id") %>%
   mutate(across(ends_with("_tours"), ~ifelse(is.na(.), 0, .)))
-```
-
-```{r}
-per_calc_iz <- per_add_tour_counts %>%
-  mutate(
-    IZ_Work = ifelse(HomeTAZ == WorkTAZ, 1, 0),
-    IZ_School = ifelse(HomeTAZ == SchoolTAZ, 1, 0)
-  )
 ```
 
 # Handle weights/filtering
 
 ```{r}
-# only keep households from 2022
-hh_weights <- hh_add_tours %>% 
-  mutate(hh_weight = ifelse(year == 2022, hh_weight, NA)) %>%
-  filter(!is.na(hh_weight))
-
-per_weights <- per_calc_iz %>% 
-  left_join(hh_weights %>% select(hh_id, hh_weight), by = "hh_id") %>%
-  filter(!is.na(hh_weight))
+per_weights <- per_add_tour_counts %>% 
+  mutate(weight = `Weight Factor to Avg Daily Visitors Per Weekday on Oahu in July 2024`) %>%
+  filter(weight != 0)
 
 tour_weights <- tour_file %>% 
-  left_join(hh_weights %>% select(hh_id, hh_weight), by = "hh_id") %>%
-  filter(!is.na(hh_weight))
+  left_join(per_weights %>% select(person_id, weight), by = "person_id") %>%
+  filter(weight != 0)
 
 stop_weights <- stops_file %>%
-  left_join(tour_weights %>% select(tour_id, hh_weight), by = "tour_id") %>%
-  filter(!is.na(hh_weight))
+  left_join(tour_weights %>% select(tour_id, weight), by = "tour_id") %>%
+  filter(!is.na(weight))
 
 trip_weights <- trip_add_skim %>% 
-  left_join(hh_weights %>% select(hh_id, hh_weight), by = "hh_id") %>%
-  filter(!is.na(hh_weight))
+  left_join(per_weights %>% select(person_id, weight), by = "person_id") %>%
+  filter(weight != 0)
+```
+
+```{r}
+per_weights %>%
+  group_by(`COUNTY ORIGIN GROUP`) %>%
+  summarize(across(ends_with("_tours"), ~weighted.mean(., w = weight)))
+
+per_weights %>%
+  group_by(`MAIN PURPOSE GROUPED`) %>%
+  summarize(across(ends_with("_tours"), ~weighted.mean(., w = weight)))
 ```
 
 # Final tables
 
 ```{r}
-# finalize columns
-hh_final <- hh_weights %>%
-  select(
-    hh_id = hh_id,
-    hh_weight,
-    HomeTAZ,
-    WAdults,
-    WorkersThatDay,
-    NWAdults,
-    HHKids,
-    HHPreSchs,
-    HHSeniors,
-    HHDrvLic,
-    HHStructure,
-    income_midpt,
-    other_tours,
-    work_tours,
-    BasicPattern
-  )
-
-tour_final <- tour_weights %>%
-  transmute(
-    tour_id,
-    hh_id = hh_id,
-    person_id = person_id,
-    tour_id,
-    tour_type,
-    num_trips,
-    anchor_taz,
-    anchor_start_hr,
-    anchor_start_min,
-    anchor_duration,
-    int_stop_fwd,
-    int_stop_ret,
-    primary_mode,
-    secondary_mode,
-    HH_Members_Max,
-    HH_Members_Min,
-    Non_HH_Members_Max = NA,
-    Non_HH_Members_Min = NA,
-    hh_weight
-  )
-
-stop_final <- stop_weights %>%
-  transmute(
-    tour_id,
-    stop_id,
-    int_stop_fwd,
-    int_stop_ret,
-    stop_taz,
-    a_purp = dest_purp,
-    duration,
-    primary_stop,
-    hh_weight
-  )
-
-trip_final <- trip_weights %>%
-  transmute(
-    hh_id = hh_id,
-    person_id = person_id,
-    trip_id = trip_id,
-    trip_weight = trip_weight,
-    hh_weight,
-    p_purp = p_purp,
-    a_purp = a_purp,
-    p_taz,
-    a_taz,
-    tour_id = tour_num,
-    tour_type,
-    trip_purpose,
-    arrive_hour = arr_hr,
-    arrive_minute = arr_min,
-    duration_minutes = activity_duration,
-    mode = mode,
-    ix_type,
-    skim_length,
-    skim_time
-  )
+# same as weight tables in this case
 ```
 
 
 # Write out
 
 ```{r, eval=FALSE}
-write_csv(hh_final, "data/_private/trm_survey/output/output_households.csv", na = "")
-write_csv(tour_final, "data/_private/trm_survey/output/output_tours.csv", na = "")
-write_csv(stop_final, "data/_private/trm_survey/output/output_stops.csv", na = "")
-write_csv(trip_final, "data/_private/trm_survey/output/output_trips.csv", na = "")
+write_csv(per_weights, "data/_private/vis_survey_2024/output/output_persons.csv", na = "")
+write_csv(tour_weights, "data/_private/vis_survey_2024/output/output_tours.csv", na = "")
+write_csv(stop_weights, "data/_private/vis_survey_2024/output/output_stops.csv", na = "")
+write_csv(trip_weights, "data/_private/vis_survey_2024/output/output_trips.csv", na = "")
 ```
 

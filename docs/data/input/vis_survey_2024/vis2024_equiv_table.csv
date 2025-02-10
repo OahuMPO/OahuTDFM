@@ -1,0 +1,146 @@
+﻿VARIABLE,CODE,TEXT,EQUIV
+MODE Code,1,Walk,walk
+MODE Code,2,Bike,bike
+MODE Code,3,Wheelchair/Mobility Scooter,other
+MODE Code,4,Commercial Vehicle/Truck Driver,cv
+MODE Code,5,Personal Auto/Motorcycle/Van/Truck,auto
+MODE Code,6,Rental car/vehicle,auto
+MODE Code,7,Hired car/taxi/limo/Uber/Lyft,tnc
+MODE Code,8,E-Scooter,scooter
+MODE Code,9,Personal E-Scooter / One-wheel,scooter
+MODE Code,11,"Private shuttle (SuperShuttle, employer, hotel, etc.)",other
+MODE Code,12,Other Private Transit (please specify),other
+MODE Code,13,Public Transit/The Bus/Rail,transit
+MODE Code,21,Other (specify),other
+MODE Code,99,Not Provided,
+PURPOSE Code,0,Starting Place for the Day,H
+PURPOSE Code,1,Return to Home/Lodging,H
+PURPOSE Code,2,Work,W
+PURPOSE Code,3,Work-related or business meeting,W
+PURPOSE Code,4,Beach / Sunbathing / Snorkeling / Swimming,Rec
+PURPOSE Code,5,Entertainment or cultural activity,Ent
+PURPOSE Code,6,Restaurant / Dining out,EO
+PURPOSE Code,7,"School, including day-care or pre-school",Sch
+PURPOSE Code,8,Visiting friends or relatives,O
+PURPOSE Code,9,Medical or health services,O
+PURPOSE Code,10,Shopping,Shop
+PURPOSE Code,11,"Personal business (e.g. laundry, barber, bank, etc.)",O
+PURPOSE Code,12,Civic or religious activity,O
+PURPOSE Code,13,"Sports, nature activity, hiking, stroll",Rec
+PURPOSE Code,14,"Passenger drop-off or pick-up, accompanying other",PUDO
+PURPOSE Code,15,Transfer of travel mode or transit line,X
+PURPOSE Code,16,Parking,O
+PURPOSE Code,17,Other (specify),O
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,Less than 1,1
