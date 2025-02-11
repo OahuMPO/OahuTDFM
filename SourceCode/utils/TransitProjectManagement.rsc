@@ -425,11 +425,9 @@ Macro "Import from GTFS" (MacroOpts)
   }})
   // Add back stop attributes from master
   fields = {
-    {FieldName: "shape_stop", Type: "integer"}//,
-    // TODO: transfer these fields once they exist on the stop layer
-    // {FieldName: "dwell_on", Type: "real"},
-    // {FieldName: "dwell_off", Type: "real"},
-    // {FieldName: "xfer_pen", Type: "real"}
+    {FieldName: "shape_stop", Type: "integer"},
+    {FieldName: "dwell_on", Type: "real"},
+    {FieldName: "dwell_off", Type: "real"}
   }
   stop_tbl.AddFields({Fields: fields})
   stop_tbl.RenameField({FieldName: "GTFS_Stop_ID", NewName:"Master_Stop_ID"})
@@ -470,6 +468,7 @@ Macro "Merge Route Systems" (MacroOpts)
   // Create route and stop field arrays to merge attributes
   tbl = CreateObject("Table", rlyr)
   field_names = tbl.GetFieldNames()
+  tbl = null
   dont_include = {"Route_ID", "Length"}
   for field_name in field_names do
     if dont_include.position(field_name) > 0 then continue
@@ -563,6 +562,7 @@ Macro "Check Scenario Route System" (MacroOpts)
   master_rts = MacroOpts.master_rts
   scen_hwy = MacroOpts.scen_hwy
   proj_list = MacroOpts.proj_list
+  centroid_qry = MacroOpts.centroid_qry
   output_rts_file = MacroOpts.output_rts_file
   out_dir = MacroOpts.out_dir
 
@@ -604,18 +604,21 @@ Macro "Check Scenario Route System" (MacroOpts)
     opts.llyr = llyr_m
     opts.lookup_field = "Route_ID"
     opts.id = rid_m
-    {length_m, num_stops_m} = RunMacro("Get Route Length and Stops", opts)
+    opts.speed_field = "PostedSpeed"
+    {length_m, num_stops_m, time_m} = RunMacro("Get Route Length and Stops", opts)
     // Calculate the route length in the scenario rts
     opts = null
     opts.rlyr = rlyr_s
     opts.llyr = llyr_s
     opts.lookup_field = "Route_ID"
     opts.id = rid_s
-    {length_s, num_stops_s} = RunMacro("Get Route Length and Stops", opts)
+    opts.speed_field = "PostedSpeed"
+    {length_s, num_stops_s, time_s} = RunMacro("Get Route Length and Stops", opts)
 
     // calculate difference and percent difference
     diff = length_s - length_m
     pct_diff = round(diff / length_m * 100, 2)
+    time_diff_mins = time_s - time_m
 
     // store this information in a named array
     data.projid = data.projid + {pid}
@@ -625,6 +628,7 @@ Macro "Check Scenario Route System" (MacroOpts)
     data.scenario_length = data.scenario_length + {length_s}
     data.length_diff = data.length_diff + {diff}
     data.pct_diff = data.pct_diff + {pct_diff}
+    data.time_diff_mins = data.time_diff_mins + {time_diff_mins}
     data.master_stops = data.master_stops + {num_stops_m}
     data.scenario_stops = data.scenario_stops + {num_stops_s}
     data.missing_stops = data.missing_stops + {num_stops_m - num_stops_s}
@@ -719,7 +723,7 @@ Macro "Convert ProjID to RouteID" (MacroOpts)
 
   CloseFile(file)
   if num_notfound > 0 then Throw(
-    "Projects not found in the master route system. See error log in the scenario folder."
+    "Projects not found in the master route system. See error log (TransitBuildingError.csv) in the scenario input>networks folder."
   )
   //remove error log once scenario created successfully
   if num_notfound = 0 and GetFileInfo(error_file) <> null then DeleteFile(error_file)
@@ -735,6 +739,7 @@ EndMacro
 /*
 Helper function for "Check Scenario Route System".
 Determines the length of the links that make up a route and number of stops.
+Now also returns running time.
 If this ends being used by multiple macros in different scripts, move it
 to the ModelUtilities.rsc file.
 
@@ -757,10 +762,15 @@ MacroOpts
     String or Integer
     ID to look for in lookup_field
 
+  speed_Field
+    String
+    Field name in the link layer that contains the speed of the link
+
 Returns
-  Array of two items
+  Array of three items
     * Length of route
     * Number of stops on route
+    * Running time of route
 */
 
 Macro "Get Route Length and Stops" (MacroOpts)
@@ -770,6 +780,7 @@ Macro "Get Route Length and Stops" (MacroOpts)
   llyr = MacroOpts.llyr
   lookup_field = MacroOpts.lookup_field
   id = MacroOpts.id
+  speed_field = MacroOpts.speed_Field
 
   // Determine the current layer before doing work to set it back after the
   // macro finishes.
@@ -798,11 +809,14 @@ Macro "Get Route Length and Stops" (MacroOpts)
   if n = 0 then Throw("Route links not found in layer '" + llyr + "'")
   v_length = GetDataVector(llyr + "|route_links", "Length", )
   length = VectorStatistic(v_length, "Sum", )
+  v_speed = GetDataVector(llyr + "|route_links", speed_field, )
+  v_time_mins = v_length / v_speed * 60
+  time_mins = VectorStatistic(v_time_mins, "Sum", )
 
   // Set the layer back to the original if there was one.
   if cur_layer <> null then SetLayer(cur_layer)
 
-  return({length, num_stops})
+  return({length, num_stops, time_mins})
 EndMacro
 
 /*

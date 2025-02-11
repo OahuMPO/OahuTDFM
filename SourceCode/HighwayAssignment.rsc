@@ -3,7 +3,7 @@
 */
 
 Macro "Highway Assignment AM OP PM" (Args)
-    periods = {"AM", "PM", "OP"}
+    periods = {"AM", "OP", "PM"}
     RunMacro("Highway Assignment", Args, periods)
     return(1)
 endmacro
@@ -53,7 +53,7 @@ Macro "Highway Assignment" (Args, periods)
             Demand: "drivealone",
             PCE: 1,
             VOI: Args.auto_vot,
-            ExclusionFilter: "HOV = 'HOV'",
+            ExclusionFilter: "HOV = 'HOV' and TollType <> 'HOT'",
             LinkTollField: "TollCostSOV"
         })
         // hov

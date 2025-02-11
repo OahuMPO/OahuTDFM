@@ -1,5 +1,5 @@
 Oahu Network 102907
-279,codepage=1252
+279
 "ID",I,1,4,0,4,0,,"","",,"Sum",
 "Road Name",C,5,21,0,21,0,,"","New Road Name including centroid designation|",,"Copy",
 "Road_Name2",C,26,21,0,21,0,,"","Contains secondary information (like if it is a zipper lane)",,"Copy",
@@ -10,9 +10,9 @@ Oahu Network 102907
 "DTWB",C,83,9,0,9,0,,"","Which access modes can use the link.|D: Drive|T: Transit|W: Walk|B: Bike",,"Copy",
 "HOV",C,92,4,0,4,0,,"","HOV status",,"Copy",
 "TollType",C,96,4,0,4,0,,"","Free: no no tolls|HOT: tolls but HOV is free|Toll: everyone pays the toll|",,"Copy",
-"TollRateAM",R,100,8,0,10,2,,"","Toll Rate ($/mi) paid while traveling on link|AM period",,"Sum",
-"TollRateOP",R,108,8,0,10,2,,"","Toll Rate ($/mi) paid while traveling on link|Off-Peak period",,"Sum",
-"TollRatePM",R,116,8,0,10,2,,"","Toll Rate ($/mi) paid while traveling on link|PM period",,"Sum",
+"TollRateAM",R,100,8,0,10,2,,"","Toll Rate ($/mi) paid while traveling on link|AM period",,"Copy",
+"TollRateOP",R,108,8,0,10,2,,"","Toll Rate ($/mi) paid while traveling on link|Off-Peak period",,"Copy",
+"TollRatePM",R,116,8,0,10,2,,"","Toll Rate ($/mi) paid while traveling on link|PM period",,"Copy",
 "AB_LANEAM",I,124,4,0,10,0,,"","Forward # of Lanes in the AM Period|",,"Copy",
 "BA_LANEAM",I,128,4,0,10,0,,"","Reverse # of Lanes in the AM Period|",,"Copy",
 "AB_LANEOP",I,132,4,0,10,0,,"","Forward # of Lanes in the off-peak|",,"Copy",

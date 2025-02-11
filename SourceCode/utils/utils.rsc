@@ -1789,11 +1789,15 @@ Macro "Link Summary" (MacroOpts)
   for field in summary_fields do
     fieldstats.(field) = "sum"
   end
-  hwy_tbl = hwy_tbl.Aggregate({
+  agg_tbl = hwy_tbl.Aggregate({
     GroupBy: grouping_fields,
     FieldStats: fieldstats
   })
-  hwy_tbl.Export({FileName: output_file})
+  export = agg_tbl.Export({FileName: output_file})
+  
+  export = null
+  agg_tbl = null
+  hwy_tbl = null
 EndMacro
 
 /*
@@ -2500,20 +2504,20 @@ Macro "Roadway Count Comparison Tables" (MacroOpts)
   if n = 0 then Throw("No links with counts found.")
 
   // Counts split across paired 1-way links are duplicated. Keep only 1.
-  tbl = tbl.Aggregate({
+  agg = tbl.Aggregate({
     GroupBy: {count_id_field, class_field, area_field, median_field, screenline_field},
     FieldStats: {
       (count_field): "max",
       (volume_field): "max"
     }
   })
-  tbl.RenameField({FieldName: "max_" + volume_field, NewName: volume_field})
-  tbl.RenameField({FieldName: "max_" + count_field, NewName: count_field})
+  agg.RenameField({FieldName: "max_" + volume_field, NewName: volume_field})
+  agg.RenameField({FieldName: "max_" + count_field, NewName: count_field})
 
   // overall/total fields
-  v_count = tbl.(count_field)
-  v_volume = tbl.(volume_field)
-  v_class = tbl.(class_field)
+  v_count = agg.(count_field)
+  v_volume = agg.(volume_field)
+  v_class = agg.(class_field)
 
   n = v_count.length
   total_count = VectorStatistic(v_count, "Sum", )
@@ -2537,10 +2541,10 @@ Macro "Roadway Count Comparison Tables" (MacroOpts)
     class_set = "class"
     if TypeOf(class_name) <> "string" then class_name = String(class_name)
     query = "Select * where " + class_field + " = '" + class_name + "'"
-    n = tbl.SelectByQuery({SetName: class_set, Query: query})
+    n = agg.SelectByQuery({SetName: class_set, Query: query})
     if n = 0 then continue
-    v_count = tbl.(count_field)
-    v_volume = tbl.(volume_field)
+    v_count = agg.(count_field)
+    v_volume = agg.(volume_field)
     total_count = VectorStatistic(v_count, "Sum", )
     total_volume = VectorStatistic(v_volume, "Sum", )
     pct_diff = round((total_volume - total_count) / total_count * 100, 2)
@@ -2559,7 +2563,7 @@ Macro "Roadway Count Comparison Tables" (MacroOpts)
   // Facility type and area type table
   if area_field <> null then do
     lines = null
-    v_area = tbl.(area_field)
+    v_area = agg.(area_field)
     v_area = SortVector(v_area, {Unique: "true"})
     for class_name in v_class do
       for area in v_area do
@@ -2567,10 +2571,10 @@ Macro "Roadway Count Comparison Tables" (MacroOpts)
         if TypeOf(class_name) <> "string" then class_name = String(class_name)
         if TypeOf(area) <> "string" then area = String(area)
         query = "Select * where " + class_field + " = '" + class_name + "' and " + area_field + " = '" + area + "'"
-        n = tbl.SelectByQuery({SetName: set_name, Query: query})
+        n = agg.SelectByQuery({SetName: set_name, Query: query})
         if n = 0 then continue
-        v_count = tbl.(count_field)
-        v_volume = tbl.(volume_field)
+        v_count = agg.(count_field)
+        v_volume = agg.(volume_field)
         total_count = VectorStatistic(v_count, "Sum", )
         total_volume = VectorStatistic(v_volume, "Sum", )
         pct_diff = round((total_volume - total_count) / total_count * 100, 2)
@@ -2591,7 +2595,7 @@ Macro "Roadway Count Comparison Tables" (MacroOpts)
   // Add median
   if median_field <> null then do
     lines = null
-    v_median = tbl.(median_field)
+    v_median = agg.(median_field)
     v_median = SortVector(v_median, {Unique: "true"})
     for class_name in v_class do
       for area in v_area do
@@ -2603,10 +2607,10 @@ Macro "Roadway Count Comparison Tables" (MacroOpts)
           query = "Select * where " + class_field + " = '" + class_name + "' and " + 
             area_field + " = '" + area + "' and " + 
             median_field + " = '" + med + "'"
-          n = tbl.SelectByQuery({SetName: set_name, Query: query})
+          n = agg.SelectByQuery({SetName: set_name, Query: query})
           if n = 0 then continue
-          v_count = tbl.(count_field)
-          v_volume = tbl.(volume_field)
+          v_count = agg.(count_field)
+          v_volume = agg.(volume_field)
           total_count = VectorStatistic(v_count, "Sum", )
           total_volume = VectorStatistic(v_volume, "Sum", )
           pct_diff = round((total_volume - total_count) / total_count * 100, 2)
@@ -2623,6 +2627,8 @@ Macro "Roadway Count Comparison Tables" (MacroOpts)
     lines = lines + area_total_line
     file = out_dir + "/count_comparison_by_ft_and_at_and_med.csv"
     RunMacro("Write CSV by Line", file, lines)
+
+    agg = null
   end
 
   // Volume group table

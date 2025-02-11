@@ -29,7 +29,7 @@ Macro "Create Scenario" (Args)
     RunMacro("Create Scenario Transit", Args)
   end
 
-  ShowMessage("Scenario Created")
+  if !Args.silent then ShowMessage("Scenario Created")
 EndMacro
 
 /*

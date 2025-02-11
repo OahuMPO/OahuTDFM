@@ -50,8 +50,8 @@ Macro "Load Link Layer" (Args)
             })
 
             // Get data vectors
-            v_fft = nz(tbl.ABFreeFlowTime)
-            v_ct = nz(tbl.(dir + period + "Time"))
+            v_fft = nz(tbl.(dir + "FreeFlowTime"))
+            v_ct = nz(tbl.(dir + "_Time_" + period))
             v_vol = nz(tbl.(dir + "_Flow_" + period))
 
             // Calculate delay
@@ -364,7 +364,7 @@ Macro "Speed Maps" (Args)
   hwy_dbd = Args.HighwayDatabase
   periods = {"AM", "PM", "OP"}
   output_dir = Args.[Output Folder] + "/_reports/maps"
-  RunMacro("Create Directory", output_dir)
+  if GetDirectoryInfo(output_dir, "All") = null then CreateDirectory(output_dir)
 
   for period in periods do
 
@@ -390,20 +390,20 @@ Macro "Speed Maps" (Args)
     ShowTheme(, theme_name)
 
     // Apply color theme based on the % speed reduction
-    ab_expr_field = CreateExpression(
-      llyr, "AB" + period + "SpeedRedux",
-      "min((AB_Speed_" + period + " - PostedSpeed) / PostedSpeed * 100, 0)",
-      {Type: "Real", Decimals: 0}
-    )
-    ba_expr_field = CreateExpression(
-      llyr, "BA" + period + "SpeedRedux",
-      "min((BA_Speed_" + period + " - PostedSpeed) / PostedSpeed * 100, 0)",
-      {Type: "Real", Decimals: 0}
-    )
+    tbl = null
+    tbl = CreateObject("Table", {View: llyr})
+    dirs = {"AB", "BA"}
+    for dir in dirs do
+      tbl.AddField({FieldName: dir + period + "SpeedRedux", Type: "integer"})
+      v_cong_speed = tbl.(dir + "_Speed_" + period)
+      v_posted_speed = tbl.PostedSpeed
+      tbl.(dir + period + "SpeedRedux") = min((v_cong_speed - v_posted_speed) / v_posted_speed * 100, 0)
+    end
     num_classes = 5
     theme_title = period + " Speed Reduction %"
+    ab_field = "AB" + period + "SpeedRedux"
     cTheme = CreateTheme(
-      theme_title, llyr + "." + ab_expr_field, "Manual",
+      theme_title, llyr + "." + ab_field, "Manual",
       num_classes,
       {
         {"Values",{

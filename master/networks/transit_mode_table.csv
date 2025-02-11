@@ -3,4 +3,4 @@ Non-Transit,1,nt,WalkTime,0.25,0.25,.---->,1,1,1,The net_def fields specify
 Local Bus,4,lb,bus_time,0.25,0.25,.---->,1,1,1,1: mode is active in network
 Express Bus 1,5,eb1,bus_time,0.25,0.25,.---->,1,1,1,2: mode is required in the network
 Express Bus 2,6,eb2,bus_time,0.25,0.25,.---->,1,1,1,
-Rail,7,rail,rail_time,0.5,0.5,.---->,,2,1,
+Rail,7,rail,rail_time,0,0,.---->,,2,1,

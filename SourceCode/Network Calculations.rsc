@@ -906,6 +906,8 @@ Macro "Create Transit Networks" (Args)
 
             // stop attributes
             o.StopToNodeTagField = "Node_ID"
+            o.AddStopField({Name: "dwell_on", Field: "dwell_on"})
+            o.AddStopField({Name: "dwell_off", Field: "dwell_off"})
 
             // link attributes
             o.AddLinkField({Name: "bus_time", TransitFields: {"ABTransitTime" + period, "BATransitTime" + period},
@@ -1026,7 +1028,12 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     o.Combination(
         {CombinationFactor: .1
         })
-
+    o.StopTimeFields({
+        InitialPenalty: null,
+        //TransferPenalty: "xfer_pen",
+        DwellOn: "dwell_on",
+        DwellOff: "dwell_off"
+    })
     o.TimeGlobals(
         {Headway:         14,
          InitialPenalty:  0,
@@ -1052,8 +1059,7 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
         // in turn point to the AB/BA fields on the link layer.
          TimeByMode:          "IVTT",
          ModesUsedField:      ModeUseFld,
-         OnlyCombineSameMode: true,
-         FreeTransfers:       2
+         OnlyCombineSameMode: "true"
         })
     
     o.ModeTimeFields({
@@ -1087,9 +1093,9 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     o.Fare(
         {Type:              "Flat",
          RouteFareField:    "Fare",
-         RouteXFareField:   "Fare",
-         FareValue:         0.0,
-         TransferFareValue: 0.0
+        //  RouteXFareField:   "XferFare",
+         FareValue:         0.0, // default value
+         TransferFareValue: 0.0 // defaul value
         })
 
     if currTransMode <> null then

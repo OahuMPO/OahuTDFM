@@ -727,12 +727,13 @@ Macro "JointTours Mode Eval"(Args, MCOpts)
     obj.AddPrimarySpec({Name: "HH", Filter: MCOpts.Filter, OField: "TAZID", DField: "Joint_" + p + "_Destination"})
     
     // Filter out modes that aren't present
-    {util, avail} = RunMacro(
-        "Filter Mode Utility Spec",
-        Args.("JointTourMode" + purpose + "Utility"),
-        Args.("JointTourMode" + purpose + "Avail"),
-        Args
-    )
+    ret = RunMacro("Filter Mode Utility Spec", {
+        util: Args.("JointTourMode" + purpose + "Utility"),
+        avail: Args.("JointTourMode" + purpose + "Avail"),
+        Args: Args
+    })
+    util = ret.Utility
+    avail = ret.Availability
 
     utilOpts = null
     utilOpts.UtilityFunction = util

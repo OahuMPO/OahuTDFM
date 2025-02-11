@@ -10,3 +10,27 @@ Scenario "2050"
     [Master SE] = "%Master Folder%\\sedata\\se_2045.bin"
 EndScenario
     
+    
+Scenario "2050\\2050_baseline"
+    
+    [Scenario Folder] = "%Base Folder%\\Scenarios\\2050_baseline"
+EndScenario
+    
+    
+Scenario "2050\\ortp_rail"
+    
+    [Scenario Folder] = "%Base Folder%\\scenarios\\ortp\\rail"
+EndScenario
+    
+    
+Scenario "2050\\ortp_brt"
+    
+    [Scenario Folder] = "%Base Folder%\\scenarios\\ortp\\brt"
+EndScenario
+    
+    
+Scenario "2050\\ortp_highway"
+    
+    [Scenario Folder] = "%Base Folder%\\scenarios\\ortp\\highway"
+EndScenario
+    

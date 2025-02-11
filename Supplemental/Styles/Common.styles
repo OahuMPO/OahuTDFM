@@ -223,6 +223,7 @@
                                                           {"Name":"Walk","Type":"boolean","Align":"center"},
                                                           {"Name":"Bike","Type":"boolean","Align":"center"},
                                                           {"Name":"W_Bus","Type":"boolean","Align":"center"},
+                                                          {"Name":"W_Rail","Type":"boolean","Align":"center"},
                                                           {"Name":"SchoolBus","Type":"boolean","Align":"center"},
                                                           {"Name":"NonHHAuto","Type":"boolean","Align":"center"}}
                                             })
@@ -365,7 +366,8 @@
 															                              {Name: "Carpool",   Type: "boolean",    Fixed: "false"},
                                                             {Name: "Walk",   Type: "boolean",    Fixed: "false"},
                                                             {Name: "Bike",   Type: "boolean",    Fixed: "false"},
-                                                            {Name: "Other",   Type: "boolean",    Fixed: "false"}}
+                                                            {Name: "Other",   Type: "boolean",    Fixed: "false"},
+                                                            {Name: "W_Rail",   Type: "boolean",    Fixed: "false"}}
                                         })
 
     Styles.PatternChoice = Pme.Table({Height: 18, Autosize: "True", Values: "Columns", 

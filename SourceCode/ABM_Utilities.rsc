@@ -688,7 +688,7 @@ Macro "Create Daily OD Matrix"(Args)
     day = CreateObject("Matrix", Args.DAY_OD)
     names = day.GetCoreNames()
     for name in names do
-        day.(name) := nz(day.(name))
+        day.(name) := 0
     end
     for p in periods do
         mobj = CreateObject("Matrix", Args.(p + "_OD"))

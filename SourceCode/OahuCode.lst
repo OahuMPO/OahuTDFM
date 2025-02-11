@@ -22,6 +22,7 @@ Commercial Vehicles.rsc
 utils/utils.rsc
 utils/RoadwayProjectManagement.rsc
 utils/TransitProjectManagement.rsc
+utils/FixedODAssignment.rsc
 utils/mc.rsc
 utils/df.rsc
 utils/NestedDC.rsc

@@ -1533,6 +1533,9 @@ Macro "Generate ABM Trip File"(Args)
         modify.ChangeField(fld, {Type: "Time", Format: "hh:mm tt"})
     end
     modify.Apply()
+
+    objT = null
+    CloseView(vwM)
     
     Return(true)
 endMacro
