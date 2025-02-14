@@ -1188,5 +1188,31 @@ Macro "Create Microtransit Access Matrix" (Args)
             DeleteFile(out_file)
             RenameFile(t_file, out_file)
         end
+
+        // Create a parking usage table of just the matrix records that aren't null.
+        // This will list which parking nodes are available for each origin.
+        m = null
+        m = CreateObject("Matrix", out_file)
+        mtx_view = OpenTable("mtx view", "Matrix", {m.GetFileName(), m.__data.rowindex, m.__data.colindex})
+        tbl = CreateObject("Table", mtx_view)
+        tbl.SelectByQuery({
+            SetName: "temp",
+            Filter: "Time <> null"
+        })
+        table_file = Substitute(out_file, ".mtx", "_parking_usage.bin", )
+        tbl.Export({
+            FileName: table_file,
+            FieldNames: {"Row", "Column"}
+        })
+        tbl = null
+        tbl = CreateObject("Table", table_file)
+        tbl.AddField({FieldName: "CLASS", Type: "integer"})
+        tbl.MoveField({FieldName: "CLASS", Before: "Row"})
+        tbl.RenameField({FieldName: "Row", NewName: "ORIGIN"})
+        tbl.AddField({FieldName: "DESTINATION", Type: "integer"})
+        tbl.MoveField({FieldName: "DESTINATION", After: "ORIGIN"})
+        tbl.RenameField({FieldName: "Column", NewName: "ACCESS_PARK"})
+        tbl.AddField({FieldName: "WEIGHT", Type: "integer"})
+        tbl = null
     end
 endmacro
