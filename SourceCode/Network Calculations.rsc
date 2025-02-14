@@ -862,8 +862,8 @@ Macro "Check Highway Network" (Args)
     obj.Convergence = .01
     obj.DemandMatrix ({MatrixFile: mtx_file})
     obj.AddClass({Demand: "SOV"})
-    obj.FlowTable = GetRandFileName("*.bin")
     for period in periods do
+        obj.FlowTable = GetRandFileName("*.bin")
         obj.Network = skim_dir + "/highwaynet_" + period + ".net"
         obj.DelayFunction = {Function: "bpr.vdf", Fields : {"FreeFlowTime",
             "Capacity", "Alpha", "Beta", "None"}}
