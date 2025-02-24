@@ -44,57 +44,43 @@ translate_loc <- translate_table(loc, equiv_tbl)
 # Standardize fields
 
 ```{r}
-# hh_standard <- translate_hh %>%
-#   mutate(
-#     hh_id = hh_id,
-#     income_midpt = income_detailed,
-#     income_midpt = ifelse(is.na(income_midpt), income_broad, income_midpt),
-#     hhsize = num_people,
-#     hh_weight = hh_weight
-#   )
+# simplify field names
+clean_column_names <- function(df) {
+  colnames(df) <- colnames(df) %>%
+    tolower() %>%                     # Convert to lowercase
+    gsub("[^a-z0-9 ]", "", .) %>%      # Remove special characters except spaces
+    gsub("\\s+", "_", .)               # Replace spaces with underscores
+  return(df)
+}
 
-per_standard <- translate_per %>%
+per_simple <- clean_column_names(translate_per)
+loc_simple <- clean_column_names(translate_loc)
+```
+
+
+```{r}
+per_standard <- per_simple %>%
   mutate(
     # hh_id = hh_id,
-    person_id = PERSONID,
-    employed = ifelse(`Employment Status` == "No", "No", "Yes"),
-    age = `What is your age?`
+    person_id = personid,
+    employed = ifelse(employment_status == "No", "No", "Yes"),
+    age = what_is_your_age
   )
 
-# trip_standard <- translate_trip %>%
-#   mutate(
-#     hh_id = hh_id,
-#     person_id = person_id,
-#     trip_num = trip_num,
-#     trip_id = trip_id,
-#     party = num_travelers,
-#     HH_Members = num_hh_travelers,
-#     Non_HH_Members = num_non_hh_travelers,
-#     arr_hr = arrive_hour,
-#     arr_min = arrive_minute,
-#     dep_hr = depart_hour,
-#     dep_min = depart_minute,
-#     activity_duration = duration_minutes,
-#     mode = mode_type,
-#     orig_purp = o_purpose_category,
-#     dest_purp = d_purpose_category,
-#     trip_weight = trip_weight
-#   )
-
-loc_standard <- translate_loc %>%
-  select(-MODE, -PURPOSE) %>%
+loc_standard <- loc_simple %>%
+  select(-mode, -purpose) %>%
   mutate(
-    person_id = PERSONID,
-    trip_num = TRIPNUMBER,
-    arr_time = parse_date_time(`ARRIVE TIME`, orders = "h:M p"),
+    person_id = personid,
+    trip_num = tripnumber,
+    arr_time = parse_date_time(arrive_time, orders = "h:M p"),
     arr_hr = hour(arr_time),
     arr_min = minute(arr_time),
-    dep_time = parse_date_time(`DEPART TIME`, orders = "h:M p"),
+    dep_time = parse_date_time(depart_time, orders = "h:M p"),
     dep_hr = hour(dep_time),
     dep_min = minute(dep_time),
-    mode = `MODE Code`,
-    party_size = `How many others traveled with you?`,
-    purpose = `PURPOSE Code`
+    mode = mode_code,
+    party_size = how_many_others_traveled_with_you,
+    purpose = purpose_code
   )
 ```
 
@@ -104,9 +90,9 @@ loc_standard <- translate_loc %>%
 ```{r, include=FALSE}
 # Use this table in TransCAD to geocode points to TAZs
 per_pts <- per_standard %>%
-  select(lon = `Place Stayed LON`, lat = `Place Stayed LAT`)
+  select(lon = place_stayed_lon, lat = place_stayed_lat)
 loc_pts <- loc_standard %>%
-  select(lon = `DESTINATION LON`, lat = `DESTINATION LAT`)
+  select(lon = destination_lon, lat = destination_lat)
 
 to_geocode <- bind_rows(per_pts, loc_pts) %>%
   mutate(unique_id = paste0(lon, "_", lat)) %>%
@@ -120,15 +106,15 @@ geocoded_pts <- read_csv(
   select(unique_id, TAZ)
 
 per_with_taz <- per_standard %>%
-  mutate(unique_id = paste0(`Place Stayed LON`, "_", `Place Stayed LAT`)) %>%
-  select(-TAZ) %>%
+  mutate(unique_id = paste0(place_stayed_lon, "_", place_stayed_lat)) %>%
+  select(-taz) %>%
   left_join(geocoded_pts, by = "unique_id") %>%
   rename(HomeTAZ = TAZ) %>%
   select(-unique_id)
 
 loc_with_taz <- loc_standard %>%
-  select(-TAZ) %>%
-  mutate(unique_id = paste0(`DESTINATION LON`, "_", `DESTINATION LAT`)) %>%
+  select(-taz) %>%
+  mutate(unique_id = paste0(destination_lon, "_", destination_lat)) %>%
   left_join(geocoded_pts, by = "unique_id") %>%
   # rename(d_taz = TAZ) %>%
   select(-unique_id)
@@ -395,7 +381,7 @@ per_add_tour_counts <- per_with_taz %>%
 
 ```{r}
 per_weights <- per_add_tour_counts %>% 
-  mutate(weight = `Weight Factor to Avg Daily Visitors Per Weekday on Oahu in July 2024`) %>%
+  mutate(weight = weight_factor_to_avg_daily_visitors_per_weekday_on_oahu_in_july_2024) %>%
   filter(weight != 0)
 
 tour_weights <- tour_file %>% 
@@ -413,11 +399,11 @@ trip_weights <- trip_add_skim %>%
 
 ```{r}
 per_weights %>%
-  group_by(`COUNTY ORIGIN GROUP`) %>%
+  group_by(county_origin_group) %>%
   summarize(across(ends_with("_tours"), ~weighted.mean(., w = weight)))
 
 per_weights %>%
-  group_by(`MAIN PURPOSE GROUPED`) %>%
+  group_by(main_purpose_grouped) %>%
   summarize(across(ends_with("_tours"), ~weighted.mean(., w = weight)))
 ```
 
