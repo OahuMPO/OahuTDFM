@@ -31,116 +31,25 @@ PURPOSE Code,14,"Passenger drop-off or pick-up, accompanying other",PUDO
 PURPOSE Code,15,Transfer of travel mode or transit line,X
 PURPOSE Code,16,Parking,O
 PURPOSE Code,17,Other (specify),O
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,,
-,,Less than 1,1
+Household Income Code,1,"Less than $9,999",5000
+Household Income Code,2,"$10,000 to $14,999",12500
+Household Income Code,3,"$15,000 to $19,999",17500
+Household Income Code,4,"$20,000 to $24,999",22500
+Household Income Code,5,"$25,000 to $29,999",27500
+Household Income Code,6,"$30,000 to $34,999",32500
+Household Income Code,7,"$35,000 to $39,999",37500
+Household Income Code,8,"$40,000 to $44,999",42500
+Household Income Code,9,"$45,000 to $49,999",47500
+Household Income Code,10,"$50,000 to $54,999",52500
+Household Income Code,11,"$55,000 to $59,999",57500
+Household Income Code,12,"$60,000 to $64,999",62500
+Household Income Code,13,"$65,000 to $69,999",67500
+Household Income Code,14,"$70,000 to $74,999",72500
+Household Income Code,15,"$75,000 to $79,999",77500
+Household Income Code,16,"$80,000 to $99,999",85000
+Household Income Code,17,"$100,000 to $124,999",112500
+Household Income Code,18,"$125,000 to $149,999",137500
+Household Income Code,19,"$150,000 to $199,999",175000
+Household Income Code,20,"$200,000 or more",250000
+Household Income Code,98,Don’t Know,45000
+Household Income Code,99,Refused,45000

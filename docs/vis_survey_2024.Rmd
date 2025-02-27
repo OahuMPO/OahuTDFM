@@ -28,15 +28,15 @@ This is for surveys delivered with a trip table (and not a place table).
 ## Translate Variables
 
 ```{r}
-per <- read_excel("data/_private/vis_survey_2024/Oahu 2024 Visitor Survey Database Final Version Submitted with data dictionary_Revised Jan 15.xlsx", sheet = 2)
-loc <- read_excel("data/_private/vis_survey_2024/Oahu 2024 Visitor Survey Database Final Version Submitted with data dictionary_Revised Jan 15.xlsx", sheet = 4)
+per <- read_excel("data/_private/vis_survey_2024/Oahu 2024 Visitor Survey Database Final Version Submitted with data dictionary_Revised Feb 26 2025.xlsx", sheet = 2)
+loc <- read_excel("data/_private/vis_survey_2024/Oahu 2024 Visitor Survey Database Final Version Submitted with data dictionary_Revised Feb 26 2025.xlsx", sheet = 4)
 ```
 
 
 ```{r}
 equiv_tbl <- read_csv("data/input/vis_survey_2024/vis2024_equiv_table.csv")
 # translate_hh <- translate_table(hh, equiv_tbl)
-translate_per <- per
+translate_per <- translate_table(per, equiv_tbl)
 # translate_trip <- translate_table(trip, equiv_tbl)
 translate_loc <- translate_table(loc, equiv_tbl)
 ```
@@ -62,10 +62,11 @@ loc_simple <- clean_column_names(translate_loc)
 per_standard <- per_simple %>%
   mutate(
     # hh_id = hh_id,
-    person_id = personid,
+    person_id = personid2,
     employed = ifelse(employment_status == "No", "No", "Yes"),
     age = what_is_your_age
-  )
+  ) %>%
+  rename(hh_income = household_income_code)
 
 loc_standard <- loc_simple %>%
   select(-mode, -purpose) %>%
