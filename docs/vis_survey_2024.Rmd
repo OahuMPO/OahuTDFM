@@ -66,7 +66,38 @@ per_standard <- per_simple %>%
     employed = ifelse(employment_status == "No", "No", "Yes"),
     age = what_is_your_age
   ) %>%
-  rename(hh_income = household_income_code)
+  rename(
+    hh_income = household_income_code,
+    prepay = did_you_prepay_for_any_transportation_services_such_as_trolley_tickets_tour_groups_etc_before_you_arrived_in_oahu,
+    days_outside_oahu = how_many_days_did_you_stay_on_islands_outside_oahu_during_this_trip_to_hawaii,
+    overnight_outside_oahu = did_you_stay_overnight_on_any_islands_outside_oahu_during_this_trip_to_hawaii,
+    travel_other_islands = did_you_travel_to_any_islands_other_than_oahu_during_your_visit_to_hawaii,
+    freq_pt_athome= how_often_do_you_use_public_transportation_bus_tram_metrosubway_train_etc_in_the_area_where_you_live,
+    help_env = use_if_it_helped_with_environmental_and_energy_issues,
+    dont_like_strangers = why_not_i_prefer_not_to_be_in_close_proximity_to_strangers,
+    trouble_holocard = why_not_had_trouble_getting_a_holo_card_bus_card,
+    too_complicated = why_not_understanding_how_to_use_the_bus_seemed_too_complicated,
+    unfamiliar = why_not_lack_of_familiarity_with_public_transit_system,
+    not_convenient = why_not_convenience_of_other_transportation_options,
+    use_pt = during_your_stay_on_oahu_did_you_use_public_transit_services_bus_or_rail,
+    how_from_airport = how_did_you_travel_from_the_airport_to_the_place_you_stayed_on_oahu,
+    number_hh_members = how_many_of_these_people_are_members_of_your_household,
+    party_size = including_you_how_many_people_traveled_with_you_on_this_trip_to_oahu,
+    time_arrive = what_time_did_you_arrive_on_oahu,
+    nights = how_many_nights_did_you_will_you_spend_on_oahu_during_this_visit,
+    main_purpose = what_is_the_main_purpose_of_your_trip_to_oahu,
+    how_many_visits = including_this_trip_how_many_times_have_you_visited_oahu
+  ) %>%
+  select(
+    -did_you_prepay_for_any_transportation_services_such_as_trolley_tickets_tour_groups_etc_before_you_arrived_in_oahu_code,
+    -did_you_stay_overnight_on_any_islands_outside_oahu_during_this_trip_to_hawaii_code,
+    -did_you_travel_to_any_islands_other_than_oahu_during_your_visit_to_hawaii_code,
+    -how_often_do_you_use_public_transportation_bus_tram_metrosubway_train_etc_in_the_area_where_you_livecode,
+    -during_your_stay_on_oahu_did_you_use_public_transit_services_bus_or_railcode,
+    -how_did_you_trvel_from_the_airport_to_the_plce_you_styed_on_oahu_code,
+    -what_time_did_you_arrive_on_oahu_code,
+    -what_is_the_main_purpose_of_your_trip_to_oahu_code
+  )
 
 loc_standard <- loc_simple %>%
   select(-mode, -purpose) %>%
@@ -82,6 +113,12 @@ loc_standard <- loc_simple %>%
     mode = mode_code,
     party_size = how_many_others_traveled_with_you,
     purpose = purpose_code
+  ) %>%
+  rename(
+    paid_fees = did_you_pay_any_fees_for_the_service_taxi_uber_etc_you_used
+  ) %>%
+  select(
+    -did_you_pay_any_fees_for_the_service_taxi_uber_etc_you_used_code
   )
 ```
 
@@ -383,6 +420,7 @@ per_add_tour_counts <- per_with_taz %>%
 ```{r}
 per_weights <- per_add_tour_counts %>% 
   mutate(weight = weight_factor_to_avg_daily_visitors_per_weekday_on_oahu_in_july_2024) %>%
+  select(-weight_factor_to_avg_daily_visitors_per_weekday_on_oahu_in_july_2024) %>%
   filter(weight != 0)
 
 tour_weights <- tour_file %>% 
