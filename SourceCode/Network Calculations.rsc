@@ -1087,7 +1087,7 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
          TransferWait:    3.0,
          Dwelling:        2.0,
          WalkTimeFactor:  3.0,
-         DriveTimeFactor: 1.0
+         DriveTimeFactor: 2.0
         })
 
     o.Fare(
