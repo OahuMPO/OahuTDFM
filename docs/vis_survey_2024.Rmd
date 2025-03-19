@@ -211,7 +211,7 @@ id_tours <- convert_modes %>%
     tour_start = case_when(
       dest_purp == "H" & trip_num == max(trip_num) ~ 0,
       trip_num == min(trip_num) ~ 1,
-      dest_purp == "H" ~ 1,
+      orig_purp == "H" ~ 1,
       TRUE ~ 0
     ),
     tour_num = cumsum((tour_start))
