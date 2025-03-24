@@ -356,8 +356,6 @@ tour_file <- trip_add_skim %>%
     anchor_taz = max(anchor_taz, na.rm = TRUE),
     anchor_start_hr = sum(arr_hr[anchor == 1]),
     anchor_start_min = sum(arr_min[anchor == 1]),
-    anchor_end_hr = sum(dep_hr[anchor == 1]),
-    anchor_end_min = sum(dep_min[anchor == 1]),
     anchor_duration = max(anchor_duration, na.rm = TRUE),
     int_stop_fwd = sum(int_stop_fwd),
     int_stop_ret = sum(int_stop_ret),
@@ -367,6 +365,9 @@ tour_file <- trip_add_skim %>%
     party_size_min = min(party_size, na.rm = TRUE)
   ) %>%
   mutate(
+    anchor_end_mins = anchor_start_hr * 60 + anchor_start_min + anchor_duration,
+    anchor_end_hr = anchor_end_mins %/% 60,
+    anchor_end_min = anchor_end_mins %% 60,
     anchor_taz = ifelse(anchor_taz == -Inf, NA, anchor_taz),
     # members max/min can be inf/-inf. This is mostly for home tours
     # (people who make no tours), but it also affects open tours at the start
@@ -374,6 +375,8 @@ tour_file <- trip_add_skim %>%
     across(party_size_max:party_size_min, ~ ifelse(is.finite(.x), .x, 1)),
     across(party_size_max:party_size_min, ~ ifelse(is.finite(.x), .x, 0))
   ) %>%
+  select(-anchor_end_mins) %>%
+  relocate(anchor_end_hr:anchor_end_min, .after = anchor_start_min) %>%
   ungroup()
 
 stops_file <- trip_add_skim %>%
