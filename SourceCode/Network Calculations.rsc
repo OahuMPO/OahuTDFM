@@ -1202,6 +1202,7 @@ Macro "Create Microtransit Access Matrix" (Args)
         if period = "PM" then do
             tbl.DESTINATION = tbl.ORIGIN
             tbl.ORIGIN = null
+            tbl.RenameField({FieldName: "ACCESS_PARK", NewName: "EGRESS_PARK"})
         end
         tbl = null
     end
