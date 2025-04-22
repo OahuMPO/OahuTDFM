@@ -127,17 +127,17 @@
         Args.WorkCarpoolOccupancy = {
             "Type":"double",
             "Caption":"Occupancy factor for work carpool trips",
-            "Value":2.2
+            "Value":2
         }
         Args.NonHHAutoOccupancy = {
             "Type":"double",
             "Caption":"Occupancy factor for Inter-HH (NonHHAuto) School Carpool trips",
-            "Value":2
+            "Value":2.25
         }
         Args.NMCarpoolOccupancy = {
             "Type":"double",
             "Caption":"Occupancy factor for non-mandatory carpool trips",
-            "Value":2
+            "Value":2.25
         }
         Args.MandTimeUseMatrix = {
             "Type":"hidden",
