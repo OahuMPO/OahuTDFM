@@ -1983,7 +1983,7 @@ Macro "Summarize Transit" (MacroOpts)
   cols_to_summarize = onoff.colnames({start: "On", stop: "EgressOff"})
   onoff.summarize(cols_to_summarize, "sum")
   opts = null
-  opts.new_names = {"route", "access", "mode", "period"} + cols_to_summarize
+  opts.new_names = {"route", "mode", "period", "access"} + cols_to_summarize
   onoff.colnames(opts)
   onoff.left_join(rts, "route", "Route_ID")
   onoff.write_csv(output_dir + "/boardings_and_alightings_by_period.csv")
