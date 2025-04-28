@@ -989,6 +989,9 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
             if acceMode = "mt" then do
                 ParkFilter = ParkFilter + {"MTDist <> null"}
                 ParkingUsageTable = ParkingUsageTable + {parking_usage_file}
+                // make it so only origins/destinations listed in the parking usage
+                // table can find paths.
+                RestrictToUsageTable = RestrictToUsageTable + {"true"}
             end
         end // else (if acceMode)
     end // for transMode
@@ -1002,6 +1005,7 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     DrvOpts.AllowWalkAccess = AllowWacc
     DrvOpts.ParkingNodes = ParkFilter
     DrvOpts.ParkingUsageTable = ParkingUsageTable
+    DrvOpts.RestrictToUsageTable = RestrictToUsageTable
     if period = "PM" then
         o.DriveEgress(DrvOpts)
     else
