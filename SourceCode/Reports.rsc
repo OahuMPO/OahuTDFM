@@ -7,6 +7,7 @@ Macro "Reports" (Args)
     RunMacro("Count PRMSEs", Args)
     RunMacro("Summarize Links", Args)
     RunMacro("Transit Summary", Args)
+    RunMacro("Commutes by Planning Area", Args)
     return(1)
 endmacro
 
@@ -563,4 +564,81 @@ Macro "Transit Summary" (Args)
     loaded_network: Args.HighwayDatabase,
     scen_rts: Args.TransitRoutes
   })
+EndMacro
+
+/*
+Creates summary tables by planning area
+*/
+
+Macro "Commutes by Planning Area" (Args)
+
+    taz_file = Args.TAZGeography
+    tour_file = Args.MandatoryTours
+    skim_file = Args.HighwaySkimAM
+
+    tours = CreateObject("Table", tour_file)
+    taz = CreateObject("Table", taz_file)
+    skim = CreateObject("Matrix", skim_file)
+
+    tours.AddField({FieldName: "PlanningArea", Type: "string", Width: 36})
+    tours.AddField("skim_time")
+
+    // Fill in planning area
+    tour_specs = tours.GetFieldSpecs({NamedArray: true})
+    taz_specs = taz.GetFieldSpecs({NamedArray: true})
+    join = tours.Join({
+      Table: taz,
+      LeftFields: "Origin",
+      RightFields: "TAZID"
+    })
+    join.(tour_specs.PlanningArea) = join.(taz_specs.PlanningArea)
+    join = null
+
+    // Fill in skim time
+    FillViewFromMatrix(
+      tours.GetView() + "|", 
+      tour_specs.Origin, 
+      tour_specs.Destination, 
+      {{tour_specs.skim_time, skim.Time}}
+    )
+
+    // Select commute tours only and aggregate by planning area
+    // Also don't include walk tours because their times are too short
+    tours.SelectByQuery({
+      SetName: "work_tours",
+      Query: "Select * where TourPurpose = 'Work' and ForwardMode <> 'Walk'"
+    })
+    agg = tours.Aggregate({
+      GroupBy: {"PlanningArea", "ForwardMode"},
+      FieldStats: {
+        skim_time: {"average"},
+        TourID: {"count"}
+      }
+    })
+    agg.RenameField({FieldName: "average_skim_time", NewName: "avg_commute_time"})
+    agg.RenameField({FieldName: "count_TourID", NewName: "num_tours"})
+
+    // Write out the table
+    dir = Args.[Output Folder] + "/_reports/commute_by_planning_area"
+    if GetDirectoryInfo(dir, "All") = null then CreateDirectory(dir)
+    out_file = dir + "/commute_by_planning_area_and_mode.csv"
+    agg.Export({FileName: out_file})
+
+    // Do the same thing but this time only grouped by planning area
+    tours.SelectByQuery({
+      SetName: "work_tours",
+      Query: "Select * where TourPurpose = 'Work' and ForwardMode <> 'Walk'"
+    })
+    agg = null
+    agg = tours.Aggregate({
+      GroupBy: {"PlanningArea"},
+      FieldStats: {
+        skim_time: {"average"},
+        TourID: {"count"}
+      }
+    })
+    agg.RenameField({FieldName: "average_skim_time", NewName: "avg_commute_time"})
+    agg.RenameField({FieldName: "count_TourID", NewName: "num_tours"})
+    out_file = dir + "/commute_by_planning_area.csv"
+    agg.Export({FileName: out_file})
 EndMacro
