@@ -7,7 +7,7 @@ Macro "Reports" (Args)
     RunMacro("Count PRMSEs", Args)
     RunMacro("Summarize Links", Args)
     RunMacro("Transit Summary", Args)
-    RunMacro("Commutes by Planning Area", Args)
+    RunMacro("Planning Area Summaries", Args)
     return(1)
 endmacro
 
@@ -570,11 +570,12 @@ EndMacro
 Creates summary tables by planning area
 */
 
-Macro "Commutes by Planning Area" (Args)
+Macro "Planning Area Summaries" (Args)
 
     taz_file = Args.TAZGeography
     tour_file = Args.MandatoryTours
     skim_file = Args.HighwaySkimAM
+    hwy_file = Args.HighwayDatabase
 
     tours = CreateObject("Table", tour_file)
     taz = CreateObject("Table", taz_file)
@@ -641,4 +642,57 @@ Macro "Commutes by Planning Area" (Args)
     agg.RenameField({FieldName: "count_TourID", NewName: "num_tours"})
     out_file = dir + "/commute_by_planning_area.csv"
     agg.Export({FileName: out_file})
+    
+    agg = null
+    tours = null
+    taz = null
+    skim = null
+
+    // ***********
+    // Summarize total transit boardings/alightings by planning area
+    // ***********
+
+    out_dir  = Args.[Output Folder] + "/_reports/transit"
+    if GetDirectoryInfo(out_dir, "All") = null then CreateDirectory(out_dir)
+    transit_asn_dir = Args.[Output Folder] + "/Assignment/Transit"
+    tables = RunMacro("Get Transit Output Tables", transit_asn_dir)
+    onoff = tables.onoff
+    temp_file = out_dir + "/temp.bin"
+    onoff.write_bin(temp_file)
+    onoff = null
+    onoff = CreateObject("Table", temp_file)
+    onoff.AddField({FieldName: "PlanningArea", Type: "string", Width: 36})
+
+    // Tag node layer with planning area
+    map = CreateObject("Map", hwy_file)
+    {nlyr, llyr} = map.GetLayerNames()
+    {tlyr} = map.AddLayer({FileName: taz_file})
+    node_tbl = CreateObject("Table", nlyr)
+    node_tbl.AddField({FieldName: "PlanningArea", Type: "string", Width: 36})
+    taz_tbl = CreateObject("Table", tlyr)
+    node_specs = node_tbl.GetFieldSpecs({NamedArray: true})
+    onoff_specs = onoff.GetFieldSpecs({NamedArray: true})
+    taz_specs = taz_tbl.GetFieldSpecs({NamedArray: true})
+    SetLayer(nlyr)
+    TagLayer(
+      "Value", 
+      nlyr + "|", 
+      node_specs.PlanningArea, 
+      tlyr, 
+      taz_specs.PlanningArea
+    )
+
+    // Join the planning area to the on-off table and xfer data
+    join = onoff.Join({
+      Table: node_tbl,
+      LeftFields: "TaggedNode",
+      RightFields: "ID"
+    })
+    join.(onoff_specs.PlanningArea) = join.(node_specs.PlanningArea)
+    join = null
+    onoff.Export({FileName: out_dir + "/all_onoff.csv"})
+    
+    onoff = null
+    DeleteFile(temp_file)
+    DeleteFile(Substitute(temp_file, ".bin", ".dcb", ))
 EndMacro
