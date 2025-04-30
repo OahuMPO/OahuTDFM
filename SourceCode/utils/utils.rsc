@@ -2333,17 +2333,20 @@ Macro "Create Intra Cluster Matrix"(Args)
   outMtx = Args.[Output Folder] + "/skims/IntraCluster.mtx"
   // Create empty matrix
   obj = CreateObject("Matrix", {Empty: TRUE}) 
-  obj.SetMatrixOptions({Compressed: 1, DataType: "Short", FileName: outMtx, MatrixLabel: "IntraCluster"})
-  opts.RowIds = v2a(vTAZ) 
-  opts.ColIds = v2a(vTAZ)
-  opts.MatrixNames = {"IC", "IC_vis"}
-  opts.RowIndexName = "All Zones"
-  opts.ColIndexName = "All Zones"
-  mat = obj.CreateFromArrays(opts)
+  opts = {
+      RowIDs: v2a(vTAZ), ColIDs: v2a(vTAZ), MatrixNames: {"IC", "IC_vis"}, RowIndexName: "All Zones", ColIndexName: "All Zones",
+      NewMatrixInfo: {
+          FileName: outMtx,
+          Compressed: 1, 
+          DataType: "Short", 
+          MatrixLabel: "IntraCluster"
+      }
+  }
+  obj.CreateFromArrays(opts)
   obj = null
   
   // Intialize IC cores
-  mtx = CreateObject("Matrix", mat)
+  mtx = CreateObject("Matrix", outMtx)
   mc = mtx.GetCore("IC")
   mc := 0
   mc = mtx.GetCore("IC_vis")

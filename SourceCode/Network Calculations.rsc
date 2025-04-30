@@ -862,8 +862,8 @@ Macro "Check Highway Network" (Args)
     obj.Convergence = .01
     obj.DemandMatrix ({MatrixFile: mtx_file})
     obj.AddClass({Demand: "SOV"})
-    obj.FlowTable = GetRandFileName("*.bin")
     for period in periods do
+        obj.FlowTable = GetRandFileName("*.bin")
         obj.Network = skim_dir + "/highwaynet_" + period + ".net"
         obj.DelayFunction = {Function: "bpr.vdf", Fields : {"FreeFlowTime",
             "Capacity", "Alpha", "Beta", "None"}}
@@ -943,10 +943,10 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     skim_dir = Args.OutputSkims
     tnwFile = skim_dir + "\\transit\\" + period + "_" + acceMode + ".tnw"
 
-    // If this is microtransit access, open the parking/access matrix file
+    // If this is microtransit access, open the parking access table
     if acceMode = "mt" then do
         mt_access_mtx = Args.("MTAccessMatrix" + period)
-        mt_park = CreateObject("Matrix", mt_access_mtx)
+        parking_usage_file = Substitute(mt_access_mtx, ".mtx", "_parking_usage.bin", )
     end
 
     o = CreateObject("Network.SetPublicPathFinder", {RS: rsFile, NetworkName: tnwFile})
@@ -987,10 +987,11 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
             if acceMode = "pnr" 
                 then ParkFilter = ParkFilter + {"PNR = 1"}
             if acceMode = "mt" then do
-                // ParkFilter = ParkFilter + {"MTDist <> null"}
-                ParkTimeMatrix = ParkTimeMatrix + {mt_park.TotalTime}
-                ParkCostMatrix = ParkCostMatrix + {mt_park.Fare}
-                ParkDistanceMatrix = ParkDistanceMatrix + {mt_park.Distance}
+                ParkFilter = ParkFilter + {"MTDist <> null"}
+                ParkingUsageTable = ParkingUsageTable + {parking_usage_file}
+                // make it so only origins/destinations listed in the parking usage
+                // table can find paths.
+                RestrictToUsageTable = RestrictToUsageTable + {"true"}
             end
         end // else (if acceMode)
     end // for transMode
@@ -1003,9 +1004,8 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     DrvOpts.PermitAllWalk = PermitAllW
     DrvOpts.AllowWalkAccess = AllowWacc
     DrvOpts.ParkingNodes = ParkFilter
-    DrvOpts.ParkTimeMatrix = ParkTimeMatrix
-    DrvOpts.ParkCostMatrix = ParkCostMatrix
-    DrvOpts.ParkDistanceMatrix = ParkDistanceMatrix
+    DrvOpts.ParkingUsageTable = ParkingUsageTable
+    DrvOpts.RestrictToUsageTable = RestrictToUsageTable
     if period = "PM" then
         o.DriveEgress(DrvOpts)
     else
@@ -1176,17 +1176,38 @@ Macro "Create Microtransit Access Matrix" (Args)
         for core in core_names do
             m.(core) := m.(core) * m.IntraDist
         end
-        
-        // Transpose PM matrix. The result of the above skim is a drive accesss
-        // matrix, but the PM network is set to drive egress. 
+
+        // Create a parking usage table of just the matrix records that aren't null.
+        // This will list which parking nodes are available for each origin.
+        m = null
+        m = CreateObject("Matrix", out_file)
+        mtx_view = OpenTable("mtx view", "Matrix", {m.GetFileName(), m.__data.rowindex, m.__data.colindex})
+        tbl = CreateObject("Table", mtx_view)
+        tbl.SelectByQuery({
+            SetName: "temp",
+            Filter: "Time <> null"
+        })
+        table_file = Substitute(out_file, ".mtx", "_parking_usage.bin", )
+        tbl.Export({
+            FileName: table_file,
+            FieldNames: {"Row", "Column"}
+        })
+        tbl = null
+        tbl = CreateObject("Table", table_file)
+        tbl.AddField({FieldName: "CLASS", Type: "integer"})
+        tbl.MoveField({FieldName: "CLASS", Before: "Row"})
+        tbl.RenameField({FieldName: "Row", NewName: "ORIGIN"})
+        tbl.AddField({FieldName: "DESTINATION", Type: "integer"})
+        tbl.MoveField({FieldName: "DESTINATION", After: "ORIGIN"})
+        tbl.RenameField({FieldName: "Column", NewName: "ACCESS_PARK"})
+        tbl.AddField({FieldName: "WEIGHT", Type: "integer"})
+
+        // if PM, the the ORIGIN and DESTINATION fields need to switch
         if period = "PM" then do
-            t_file = Substitute(out_file, ".mtx", "_transposed.mtx", )
-            t = m.Transpose({OutputFile: t_file})
-            t = null
-            m = null
-            obj = null
-            DeleteFile(out_file)
-            RenameFile(t_file, out_file)
+            tbl.DESTINATION = tbl.ORIGIN
+            tbl.ORIGIN = null
+            tbl.RenameField({FieldName: "ACCESS_PARK", NewName: "EGRESS_PARK"})
         end
+        tbl = null
     end
 endmacro

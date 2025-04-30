@@ -105,21 +105,22 @@ Class "ABM.TimeManager"(opts)
 
         // Create empty matrix: Current limitation of 'CreateFromArrays': Cannot accept InMemory Matrix
         obj = CreateObject("Matrix", {Empty: TRUE})
-        obj.SetMatrixOptions({Compressed: 0, 
-                                DataType: "Short",
-                                FileName: GetTempPath() + "TimeUse1.mtx",
-                                MatrixLabel: "test",
-                                ColumnMajor: 1})
-        opts.RowIds = v2a(vP)
-        opts.ColIds = v2a(vT)
-        opts.MatrixNames = {"TimeUsed"}
-        opts.RowIndexName = "Rows"
-        opts.ColIndexName = "Cols"
-        opts.ColumnMajor = True
-        mOut1 = obj.CreateFromArrays(opts)
+        file_name = GetTempPath() + "TimeUse1.mtx"
+        opts = {
+            RowIDs: v2a(vP), ColIDs: v2a(vT), MatrixNames: {"TimeUsed"}, RowIndexName: "Rows", ColIndexName: "Cols",
+            NewMatrixInfo: {
+                FileName: file_name,
+                Compressed: 0, 
+                DataType: "Short", 
+                MatrixLabel: "test",
+                ColumnMajor: 1
+            }
+        }
+        obj.CreateFromArrays(opts)
+        mOut1 = CreateObject("Matrix", file_name)
 
         // Export to In-Memory Matrix in lieu of above limitations
-        mcOut1 = CreateMatrixCurrency(mOut1,,,,)
+        mcOut1 = CreateMatrixCurrency(mOut1.GetMatrixHandle(),,,,)
         mOut = CopyMatrixStructure({mcOut1}, {Label: "TimeUsed", Tables: {"TimeUsed"}, "Memory Only": "True"})
         baseIndices = GetMatrixBaseIndex(mOut)
         SetMatrixIndexName(mOut, baseIndices[1], "Persons")
