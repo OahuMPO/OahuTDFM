@@ -12,6 +12,7 @@ Body:
     FlowChartNode(model,"Preprocess and Build Networks",,,)
     FlowChartNode(model,"Skims and Accessibilities",,,)
     FlowChartNode(model,"ABM Core",,,)
+    FlowChartNode(model,"Visitor ABM",,,)
     FlowChartNode(model,"Auto Assignments",,,)
     FlowChartNode(model,"Convergence",,,)
     FlowChartNode(model,"Public Transit Assignments",,,)
@@ -29,7 +30,8 @@ Body:
     FlowChartLink(model,"Convergence","Skims and Accessibilities",2,,1)
     FlowChartLink(model,"Convergence","Public Transit Assignments",True,,)
     FlowChartLink(model,"Public Transit Assignments","Reports",True,,)
-    FlowChartLink(model,"ABM Core","Supplementary Models",True,,)
+    FlowChartLink(model,"ABM Core","Visitor ABM",True,,)
+    FlowChartLink(model,"Visitor ABM","Supplementary Models",True,,)
     FlowChartLink(model,"Supplementary Models","Auto Assignments",True,,)
     Return(model)
 EndMacro
@@ -874,7 +876,7 @@ Macro "ABM Postprocess" (Args,Result)
 EndMacro
 
 
-Macro "Other Models" (Args, Result)
+Macro "Supplementary Models" (Args, Result)
     Attributes = {
         {"MacroNames",{"Airport Model","Commercial Vehicles"}}
     }
@@ -933,34 +935,186 @@ Macro "Convergence" (Args, Result)
 EndMacro
 
 
-Macro "Visitor Model" (Args,Result)
+Macro "Visitor Party Sythesis" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", {"Visitor Model"}}
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
     }
 EndMacro
 
 
-Macro "Supplementary Models" (Args,Result)
+Macro "Visitor Tour Models" (Args,Result)
     Attributes = {
-        {"Description", "Stage 1"}
+        {"Description", "Visitor Tour Models"}
     }
 Body:
     // model = FlowChart( { StartNodes } , { EndNodes } , Description)
-    model = FlowChart({"Visitor Model"},{"Other Models"},"Group steps")
+    model = FlowChart({"Visitor Tour Frequency"},{"Visitor Tour Scheduling"},"Group steps")
     //
     // Nodes
     //
     // FlowChartNode(model,NodeName,MacroName,UI,Description)
     //
-    FlowChartNode(model,"Other Models",,,)
-    FlowChartNode(model,"Visitor Model",,,)
+    FlowChartNode(model,"Visitor Tour Frequency",,,)
+    FlowChartNode(model,"Visitor Tour Dest Choice",,,)
+    FlowChartNode(model,"Visitor Tour Mode Choice",,,)
+    FlowChartNode(model,"Visitor Tour Time of Day",,,)
+    FlowChartNode(model,"Visitor Tour Scheduling",,,)
     //
     // Links
     //
     // FlowChartLink(model , FromNode , ToNode , Condition , Description , IsFeedbackLoop)
     //
-    FlowChartLink(model,"Visitor Model","Other Models",True,,)
+    FlowChartLink(model,"Visitor Tour Dest Choice","Visitor Tour Mode Choice",True,,)
+    FlowChartLink(model,"Visitor Tour Time of Day","Visitor Tour Scheduling",True,,)
+    FlowChartLink(model,"Visitor Tour Frequency","Visitor Tour Dest Choice",True,,)
+    FlowChartLink(model,"Visitor Tour Mode Choice","Visitor Tour Time of Day",True,,)
+    Return(model)
+EndMacro
+
+
+Macro "Visitor Tour Frequency" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Tour Dest Choice" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Tour Mode Choice" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Tour Time of Day" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Tour Scheduling" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Stop Models" (Args,Result)
+    Attributes = {
+        {"Description", "Visitor Stop Models"}
+    }
+Body:
+    // model = FlowChart( { StartNodes } , { EndNodes } , Description)
+    model = FlowChart({"Visitor Stop Frequency"},{"Visitor Stop Scheduling"},"Group steps")
+    //
+    // Nodes
+    //
+    // FlowChartNode(model,NodeName,MacroName,UI,Description)
+    //
+    FlowChartNode(model,"Visitor Stop Frequency",,,)
+    FlowChartNode(model,"Visitor Stop Dest Choice",,,)
+    FlowChartNode(model,"Visitor Stop Mode Choice",,,)
+    FlowChartNode(model,"Visitor Stop Time of Day",,,)
+    FlowChartNode(model,"Visitor Stop Scheduling",,,)
+    //
+    // Links
+    //
+    // FlowChartLink(model , FromNode , ToNode , Condition , Description , IsFeedbackLoop)
+    //
+    FlowChartLink(model,"Visitor Stop Dest Choice","Visitor Stop Mode Choice",True,,)
+    FlowChartLink(model,"Visitor Stop Time of Day","Visitor Stop Scheduling",True,,)
+    FlowChartLink(model,"Visitor Stop Frequency","Visitor Stop Dest Choice",True,,)
+    FlowChartLink(model,"Visitor Stop Mode Choice","Visitor Stop Time of Day",True,,)
+    Return(model)
+EndMacro
+
+
+Macro "Visitor Stop Frequency" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Stop Dest Choice" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Stop Mode Choice" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Stop Time of Day" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor Stop Scheduling" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor OD" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+    }
+EndMacro
+
+
+Macro "Visitor ABM" (Args,Result)
+    Attributes = {
+        {"Description", "Visitor ABM"}
+    }
+Body:
+    // model = FlowChart( { StartNodes } , { EndNodes } , Description)
+    model = FlowChart({"Visitor Party Sythesis"},{"Visitor OD"},"Group steps")
+    //
+    // Nodes
+    //
+    // FlowChartNode(model,NodeName,MacroName,UI,Description)
+    //
+    FlowChartNode(model,"Visitor Party Sythesis",,,)
+    FlowChartNode(model,"Visitor Tour Models",,,)
+    FlowChartNode(model,"Visitor Stop Models",,,)
+    FlowChartNode(model,"Visitor OD",,,)
+    //
+    // Links
+    //
+    // FlowChartLink(model , FromNode , ToNode , Condition , Description , IsFeedbackLoop)
+    //
+    FlowChartLink(model,"Visitor Party Sythesis","Visitor Tour Models",True,,)
+    FlowChartLink(model,"Visitor Tour Models","Visitor Stop Models",True,,)
+    FlowChartLink(model,"Visitor Stop Models","Visitor OD",True,,)
     Return(model)
 EndMacro
 
