@@ -3187,7 +3187,30 @@
             "Value":"%Input Folder%\\visitors\\vis_occupancy.csv"
         }
 	
-	Section = "Commercial Vehicles/Trucks"
+	Section = "Visitor ABM"
+
+        Args.VisitorSeed = {
+            "Type":"File",
+            "Caption":"Visitor survey seed data",
+            "Description":"VisitorSeed",
+            "Value":"%Input Folder%\\visitors\\seed\\visitor_survey_seed.bin"
+        }
+
+        Args.VisitorMarginals = {
+            "Type":"File",
+            "Caption":"Visitor marginal totals",
+            "Description":"VisitorMarginals",
+            "Value":"%Input Folder%\\visitors\\seed\\VisitorMarginals.bin"
+        }
+
+        Args.SynthesizedVisitors = {
+            "Type":"File",
+            "Caption":"Visitor output synthesized data",
+            "Description":"SynthesizedVisitors",
+            "Value":"%Output Folder%\\visitors\\SynthesizedVisitors.bin"
+        }
+
+    Section = "Commercial Vehicles/Trucks"
 	
         Args.[CV Trip Rates] = {
             "Type":"File",

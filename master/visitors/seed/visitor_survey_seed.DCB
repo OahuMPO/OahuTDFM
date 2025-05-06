@@ -1,0 +1,15 @@
+
+114,codepage=65001
+"id1",I,1,4,0,12,0,,"","",,"Sum",
+"what_is_your_country_of_residence",C,5,24,0,24,0,,"","",,"Copy",
+"main_purpose_grouped",C,29,23,0,23,0,,"","",,"Copy",
+"party_size",I,52,4,0,12,0,,"","",,"Sum",
+"weight",R,56,8,0,10,2,,"","",,"Copy",
+"how_many_are_under_age_18",I,64,4,0,12,0,,"","",,"Sum",
+"Imputed_HHIncCode",I,68,4,0,8,0,,"","",,"Sum",
+"Imputed_HHIncome",C,72,25,0,25,0,,"","",,"Copy",
+"CountryCat",I,97,4,0,12,0,,"","",,"Sum",
+"PurposeCat",I,101,4,0,12,0,,"","",,"Sum",
+"PartyCat",I,105,4,0,12,0,,"","",,"Sum",
+"HHID",I,109,4,0,12,0,,"","",,"Sum",
+"Region",S,113,2,0,12,0,,"","",,"Sum",
