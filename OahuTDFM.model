@@ -935,11 +935,15 @@ Macro "Convergence" (Args, Result)
 EndMacro
 
 
-Macro "Visitor Party Sythesis" (Args,Result)
+Macro "Visitor Party Synthesis" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+        {"MacroNames", {"Visitor Synthesis"}},
+        {"Picture", "bmp\\planpeoplehouse_v3.bmp"},
+        {"PicturePosition", "CenterRight"},
+        {"TextStyle", "Left"}
     }
+Data:
 EndMacro
 
 
@@ -1097,13 +1101,13 @@ Macro "Visitor ABM" (Args,Result)
     }
 Body:
     // model = FlowChart( { StartNodes } , { EndNodes } , Description)
-    model = FlowChart({"Visitor Party Sythesis"},{"Visitor OD"},"Group steps")
+    model = FlowChart({"Visitor Party Synthesis"},{"Visitor OD"},"Group steps")
     //
     // Nodes
     //
     // FlowChartNode(model,NodeName,MacroName,UI,Description)
     //
-    FlowChartNode(model,"Visitor Party Sythesis",,,)
+    FlowChartNode(model,"Visitor Party Synthesis",,,)
     FlowChartNode(model,"Visitor Tour Models",,,)
     FlowChartNode(model,"Visitor Stop Models",,,)
     FlowChartNode(model,"Visitor OD",,,)
@@ -1112,7 +1116,7 @@ Body:
     //
     // FlowChartLink(model , FromNode , ToNode , Condition , Description , IsFeedbackLoop)
     //
-    FlowChartLink(model,"Visitor Party Sythesis","Visitor Tour Models",True,,)
+    FlowChartLink(model,"Visitor Party Synthesis","Visitor Tour Models",True,,)
     FlowChartLink(model,"Visitor Tour Models","Visitor Stop Models",True,,)
     FlowChartLink(model,"Visitor Stop Models","Visitor OD",True,,)
     Return(model)
