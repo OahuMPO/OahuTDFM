@@ -3187,30 +3187,59 @@
             "Value":"%Input Folder%\\visitors\\vis_occupancy.csv"
         }
 	
-	Section = "Visitor ABM"
-
+	Section = "Visitor ABM|Synthesis"
+	
         Args.VisitorSeed = {
             "Type":"File",
             "Caption":"Visitor survey seed data",
             "Description":"VisitorSeed",
             "Value":"%Input Folder%\\visitors\\seed\\visitor_survey_seed.bin"
         }
-
         Args.VisitorMarginals = {
             "Type":"File",
             "Caption":"Visitor marginal totals",
             "Description":"VisitorMarginals",
             "Value":"%Input Folder%\\visitors\\seed\\VisitorMarginals.bin"
         }
-
         Args.SynthesizedVisitors = {
             "Type":"File",
             "Caption":"Visitor output synthesized data",
             "Description":"SynthesizedVisitors",
             "Value":"%Output Folder%\\visitors\\SynthesizedVisitors.bin"
         }
-
-    Section = "Commercial Vehicles/Trucks"
+	
+	Section = "Visitor ABM|Models|Presence of Kids"
+	
+        Args.KidsPresenceUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Presence of kids in visitor group",
+            "Style":"KidsPresenceUtility",
+            "Value":{
+                {"ASC","Constant",-4.1273,0,1},
+                {"Household income is $60,000+",null,0.5353,0,1},
+                {"Visit purpose is Vacation",null,0.5392,0,1},
+                {"Group has 3+ people",null,3.8806,0,1}}
+        }
+	
+	Section = "Visitor ABM|Models|Rental Car Choice"
+	
+        Args.RentalCarUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Rental Car Choice",
+            "Style":"RentalCarUtility",
+            "Value":{
+                {"ASC","Constant",2.0443,0,1},
+                {"Household income is $65,000+",null,0.2369,0,1},
+                {"Group staying in Honolulu",null,2.9382,1,0},
+                {"Group staying in Urban Center",null,1.3766,1,0},
+                {"Group staying in EWA",null,1.2396,1,0},
+                {"5 <= Group Size <= 7",null,0.2867,0,1},
+                {"Group is from Japan",null,2.0454,1,0},
+                {"Group is from USA",null,0.7275,0,1},
+                {"Group has kids and staying at major resort",null,0.1524,1,0}}
+        }
+	
+	Section = "Commercial Vehicles/Trucks"
 	
         Args.[CV Trip Rates] = {
             "Type":"File",

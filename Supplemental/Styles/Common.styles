@@ -580,6 +580,26 @@
                                                             {Name: "W_Bus",   Type: "boolean",    Fixed: "false"}}
                                             })
 
+  Styles.KidsPresenceUtility = Pme.Table({Height: 11, Autosize: "True", Values: "Columns",
+                                                Columns:{
+                                                    {Name: "Description", Type: "string",  Fixed: "false", Width: "25%"},
+															                      {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                    {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                    {"Name":"No","Type":"boolean","Align":"center"},
+                                                    {"Name":"Yes","Type":"boolean","Align":"center"}
+                                                }
+                                            })
+
+  Styles.RentalCarUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns:{
+                                                    {Name: "Description", Type: "string",  Fixed: "false", Width: "25%"},
+															                      {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                    {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                    {"Name":"No","Type":"boolean","Align":"center"},
+                                                    {"Name":"Yes","Type":"boolean","Align":"center"}
+                                                }
+                                            })
+
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 
   Styles.lanecapStyle = Pme.Table(RunMacro("Extend Object", all_tables,
