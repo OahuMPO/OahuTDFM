@@ -99,3 +99,15 @@ Macro "VisitorPopSynth"(spec)
     ok = o.Run()
     Return(ok)
 endmacro
+
+
+// Run choice model to predict prsence of kids in the visitor party
+Macro "Kids Presence Model"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+
+
+    Return(ok)
+endMacro
