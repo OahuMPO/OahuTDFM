@@ -3216,9 +3216,9 @@
             "Style":"KidsPresenceUtility",
             "Value":{
                 {"ASC","Constant",-4.1273,0,1},
-                {"Household income is $60,000+",null,0.5353,0,1},
-                {"Visit purpose is Vacation",null,0.5392,0,1},
-                {"Group has 3+ people",null,3.8806,0,1}}
+                {"Household income is $60,000+","VisitorData.HHIncCode >= 12",0.5353,0,1},
+                {"Visit purpose is Vacation","VisitorData.PurposeCat = 1",0.5392,0,1},
+                {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,0,1}}
         }
 	
 	Section = "Visitor ABM|Models|Rental Car Choice"
@@ -3229,14 +3229,14 @@
             "Style":"RentalCarUtility",
             "Value":{
                 {"ASC","Constant",2.0443,0,1},
-                {"Household income is $65,000+",null,0.2369,0,1},
-                {"Group staying in Honolulu",null,2.9382,1,0},
-                {"Group staying in Urban Center",null,1.3766,1,0},
-                {"Group staying in EWA",null,1.2396,1,0},
-                {"5 <= Group Size <= 7",null,0.2867,0,1},
-                {"Group is from Japan",null,2.0454,1,0},
-                {"Group is from USA",null,0.7275,0,1},
-                {"Group has kids and staying at major resort",null,0.1524,1,0}}
+                {"Household income is $65,000+","VisitorData.HHIncCode >= 13",0.2369,0,1},
+                {"Group staying in Honolulu","TAZData.VisitorDistrict.O = 6",2.9382,1,0},
+                {"Group staying in Urban Center","TAZData.VisitorDistrict.O = 5",1.3766,1,0},
+                {"Group staying in EWA","TAZData.VisitorDistrict.O = 3",1.2396,1,0},
+                {"5 <= Group Size <= 7","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 7",0.2867,0,1},
+                {"Group is from Japan","VisitorData.CountryCat = 2",2.0454,1,0},
+                {"Group is from USA","VisitorData.CountryCat = 1",0.7275,0,1},
+                {"Group has kids and staying at major resort","VisitorData.Kids > 0 and TAZData.VisitorClusterLodging.O = 1",0.1524,1,0}}
         }
 	
 	Section = "Commercial Vehicles/Trucks"
