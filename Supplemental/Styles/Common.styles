@@ -600,6 +600,14 @@
                                                 }
                                             })
 
+  Styles.ClusterInfo = Pme.Table({Height: 20, Autosize: "True", Values: "Columns",
+                                                Columns:    {{Name: "Cluster", Type: "int",  Fixed: "true", Width: "13%"},
+                                                             {Name: "ClusterName", Type: "string",  Fixed: "true", Width:  "35%"},
+                                                             {Name: "Theta",  Type: "real", "Decimals":"3"},
+                                                             {Name: "ASC",  Type: "real", "Decimals":"3"},
+                                                             {Name: "IC",  Type: "real", "Decimals":"3"}}
+                                    })
+
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 
   Styles.lanecapStyle = Pme.Table(RunMacro("Extend Object", all_tables,

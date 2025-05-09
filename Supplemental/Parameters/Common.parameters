@@ -3231,6 +3231,33 @@
                 {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,0,1}}
         }
 	
+	Section = "Visitor ABM|Models|Lodging Choice|Clusters"
+	
+        Args.LodgingLocClusters = {
+            "Type":"array",
+            "Caption":"Lodging Location Model: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"MajorResorts",null,null,null},
+                {2,"MinorResorts",null,null,null},
+                {3,"Other",null,null,null}}
+        }
+	
+	Section = "Visitor ABM|Models|Lodging Choice|Utility"
+	
+        Args.LodgingLocUtility = {
+            "Type":"array",
+            "Caption":"Lodging Location Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"High Income 100K+: Major Resort","VisitorData.HHIncCode >= 17 and TAZBin.VisitorClusterLodging.D = 1",null},
+                {"Party Size <= 2: Other zones","VisitorData.PartySize <= 2 and TAZBin.VisitorClusterLodging.D = 3",null},
+                {"HH with kids+: Major Resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.D = 1",null},
+                {"Party Size >= 3: Major Resort","VisitorData.PartySize >= 3 and TAZBin.VisitorClusterLodging.D = 1",null},
+                {"Walk Index","TAZData.WalkIndex.D",null},
+                {"Size Variable","Size term: log(1 + TAZData.HR.D + 0.0019*TAZData.OccupiedHH.D + 0.5207*TAZData.RC.D)",null}}
+        }
+	
 	Section = "Visitor ABM|Models|Rental Car Choice"
 	
         Args.RentalCarUtility = {
