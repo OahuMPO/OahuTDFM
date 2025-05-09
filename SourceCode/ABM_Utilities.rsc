@@ -24,6 +24,24 @@ endMacro
 
 /*
     ABM Manager Utilities:
+    'Get Visitor ABM Manager' returns the Visitor ABM manager object
+    If the object does not exist, the object is created
+    If the views pertaining to the object are closed (For e.g. the flowchart automatically closes all view when you start), the views are added
+*/
+Macro "Get Visitor ABM Manager"(Args)
+    abm = RunMacro("GetSingleton", "ABM_Manager")
+
+    if !abm.IsHHDataLoaded() then
+        abm.SetHouseholdData({File: Args.SynthesizedVisitors, ID: "HouseholdID"})
+
+    abm.ClearHHSets()
+    
+    Return(abm)
+endMacro
+
+
+/*
+    ABM Manager Utilities:
     'Export ABM Data' exports the in-memory tables from the abm manager object back to the population and household files
 */
 Macro "Export ABM Data"(Args, opts)
@@ -74,6 +92,37 @@ endMacro
 
 /*
     ABM Manager Utilities:
+    'Export Visitor ABM Data' exports the in-memory table from the visitor abm manager object back to the visitor synthesized file
+*/
+Macro "Export Visitor ABM Data"(Args, opts)
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    iter = String(Args.Iteration)
+    if iter = null then
+        iter = "1"
+    
+    // Export HH (i.e. Visitor Party) Data
+    if visabm.IsHHDataLoaded() then do
+        if opts.Overwrite then
+            outFile = Args.SynthesizedVisitors
+        else do
+            pth = SplitPath(Args.SynthesizedVisitors)
+            outFile = pth[1] + pth[2] + pth[3] + "_OutputIter" + iter + ".bin"
+        end
+
+        hhOpts = {File: outFile} 
+        if opts.HHFields <> null then
+            hhOpts = hhOpts + {Fields: opts.HHFields}
+        if opts.HHFilter <> null then
+            hhOpts = hhOpts + {Filter: opts.HHFilter}
+        if opts.UseActiveHHSet = 1 then
+            hhOpts = hhOpts + {UseActiveSet: 1}
+        visabm.ExportHHView(hhOpts)
+    end
+endMacro
+
+
+/*
+    ABM Manager Utilities:
     Macro to create an empty ABM object and return it. Will be called by the flowchart plugin macros.
 */
 Macro "Get Time Manager"(abm)
@@ -98,13 +147,14 @@ Macro "Close ABM Manager"(Args)
     Return(true)
 endmacro
 
-
 /*
     ABM Preprocessor. 
     Remove and add all ABM related fields to the In-Memory Person and HH tables.
     Ideally called in each feedback loop.
 */
 Macro "ABM Preprocess"(Args)
+    Args.ABMFlag = 1    // Reset it so that the flag is correct if this is run immediately after running the skims/accessibilities
+    
     // Person File
     abm = RunMacro("Get ABM Manager", Args)
     flds = {{Name: "AttendDaycare", Type: "Short", Width: 2, Description: "Does child attend daycare?|1: Yes|2: No.|Filled for Age < 5"},
@@ -538,6 +588,7 @@ endMacro
     Apply carpool occupancy as necessary and merge Taxi trips with carpool.
 */
 Macro "Create Assignment OD Matrices"(Args)
+    Args.ABMFlag = 0
     RunMacro("Write ABM OD", Args)
     RunMacro("Add Visitor OD", Args)
     RunMacro("Add Truck OD", Args)

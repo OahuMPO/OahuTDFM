@@ -1,6 +1,7 @@
 
 macro "CalculateAccessibilities" (Args, Results)
     ret_value = 1
+    Args.ABMFlag = 0
     ret_value = RunMacro("Determine Intersections", Args)
     if !ret_value then goto quit
     // input data files

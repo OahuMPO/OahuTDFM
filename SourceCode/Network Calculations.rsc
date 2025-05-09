@@ -3,6 +3,7 @@
 */
 
 Macro "Network Calculations" (Args)
+    Args.ABMFlag = 0
     RunMacro("CopyDataToOutputFolder", Args)
     RunMacro("Filter Transit Modes", Args)
     RunMacro("Expand DTWB", Args)
@@ -775,7 +776,7 @@ endmacro
 */
 
 macro "BuildNetworks Oahu" (Args, Result)
-
+    Args.ABMFlag = 0
     RunMacro("BuildHighwayNetwork Oahu", Args)
     RunMacro("Check Highway Network", Args)
     if RunMacro("MT Districts Exist?", Args) then do

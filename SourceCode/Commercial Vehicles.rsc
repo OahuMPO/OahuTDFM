@@ -3,6 +3,7 @@ Called by flowchart
 */
 
 Macro "Commercial Vehicles" (Args)
+    Args.ABMFlag = 0
     RunMacro("CV Productions/Attractions", Args)
     RunMacro("CV TOD", Args)
     RunMacro("CV Gravity", Args)
