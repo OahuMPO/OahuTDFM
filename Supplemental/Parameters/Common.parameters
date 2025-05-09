@@ -55,6 +55,10 @@
             "Type":"hidden",
             "Value":"%Common Folder%\\FlowMapStyle.stg"
         }
+        Args.[Disable Steps] = {
+            "Type":"array",
+            "Value":null
+        }
 	
 	Section = "Parameters|Feedback"
 	
@@ -124,6 +128,12 @@
 	
 	Section = "Parameters|ABM"
 	
+        Args.ABMFlag = {
+            "Type":"hidden",
+            "Caption":"ABMFlag for flowchart purposes",
+            "Description":"ABMFlag for flowchart purposes: 0 - None, 1 - Resident, 2 - Visitor",
+            "Value":1
+        }
         Args.WorkCarpoolOccupancy = {
             "Type":"double",
             "Caption":"Occupancy factor for work carpool trips",
@@ -3230,13 +3240,13 @@
             "Value":{
                 {"ASC","Constant",2.0443,0,1},
                 {"Household income is $65,000+","VisitorData.HHIncCode >= 13",0.2369,0,1},
-                {"Group staying in Honolulu","TAZData.VisitorDistrict.O = 6",2.9382,1,0},
-                {"Group staying in Urban Center","TAZData.VisitorDistrict.O = 5",1.3766,1,0},
-                {"Group staying in EWA","TAZData.VisitorDistrict.O = 3",1.2396,1,0},
+                {"Group staying in Honolulu","TAZBin.VisitorDistrict.O = 6",2.9382,1,0},
+                {"Group staying in Urban Center","TAZBin.VisitorDistrict.O = 5",1.3766,1,0},
+                {"Group staying in EWA","TAZBin.VisitorDistrict.O = 3",1.2396,1,0},
                 {"5 <= Group Size <= 7","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 7",0.2867,0,1},
                 {"Group is from Japan","VisitorData.CountryCat = 2",2.0454,1,0},
                 {"Group is from USA","VisitorData.CountryCat = 1",0.7275,0,1},
-                {"Group has kids and staying at major resort","VisitorData.Kids > 0 and TAZData.VisitorClusterLodging.O = 1",0.1524,1,0}}
+                {"Group has kids and staying at major resort","VisitorData.Kids > 0 and TAZBin.VisitorClusterLodging.O = 1",0.1524,1,0}}
         }
 	
 	Section = "Commercial Vehicles/Trucks"

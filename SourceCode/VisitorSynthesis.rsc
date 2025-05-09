@@ -4,6 +4,8 @@ Macro "Visitor Synthesis"(Args)
         return(0)
     end
 
+    Args.ABMFlag = 2    // Indicate that the visitor abm step is active
+
     // Process HH Seed
     RunMacro("Process Visitor Seed Data", Args.VisitorSeed)
 
@@ -13,6 +15,10 @@ Macro "Visitor Synthesis"(Args)
     // Run Synthesis
     spec = {HHSeed: Args.VisitorSeed, PersonSeed: pp_file, MarginalTotals: Args.VisitorMarginals, Synthesized_Visitors: Args.SynthesizedVisitors}
     ret = RunMacro("VisitorPopSynth", spec)
+
+    // Add fields to the synthesized file
+    RunMacro("Visitor ABM Preprocess", Args)
+
     Return(ret)
 endMacro
 
@@ -95,10 +101,20 @@ Macro "VisitorPopSynth"(spec)
     o.ReportExtraHouseholdField("how_many_are_under_age_18", "N18AndUnder")
     o.ReportExtraHouseholdField("Party_Size", "PartySize")
     o.ReportExtraHouseholdField("Imputed_HHIncome", "HHIncome")
-    o.ReportExtraHouseholdField("Imputed_HHIncCode", "HHInCode")
+    o.ReportExtraHouseholdField("Imputed_HHIncCode", "HHIncCode")
     ok = o.Run()
     Return(ok)
 endmacro
+
+
+Macro "Visitor ABM Preprocess"(Args)
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    
+    // Party File
+    flds = {{Name: "HasKids", Type: "Short", Description: "Does the visitor party have kids? Outcome of 'Kids Presence' model"},
+            {Name: "HasRentalCar", Type: "Short", Description: "Does the visitor party have a rental car? Outcome of 'Rental Car' model"}}
+    visabm.AddHHFields(flds)
+endMacro
 
 
 // Run choice model to predict prsence of kids in the visitor party
@@ -108,6 +124,56 @@ Macro "Kids Presence Model"(Args)
         return(0)
     end
 
+    Args.ABMFlag = 2
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
 
+    // Run Model and populate results
+    obj = CreateObject("PMEChoiceModel", {ModelName: "Kids Presence"})
+    obj.OutputModelFile = Args.[Output Folder] + "\\Intermediate\\VisitorKidsPresence.mdl"
+    obj.AddTableSource({SourceName: "VisitorData", View: visabm.HHView, IDField: visabm.HHID})
+    obj.AddPrimarySpec({Name: "VisitorData"})
+    obj.AddUtility({UtilityFunction: Args.KidsPresenceUtility})
+    obj.AddOutputSpec({ChoicesField: "HasKids"})
+    obj.ReportShares = 1
+    obj.RandomSeed = 99991
+    ret = obj.Evaluate()
+    if !ret then
+        Throw("Running 'Kids Presence' choice model failed.")
+    Args.[KidsPresence Spec] = CopyArray(ret) // For calibration purposes
+
+    objT = null
+    Return(ok)
+endMacro
+
+
+// Run choice model to predict prsence of kids in the visitor party
+Macro "Rental Car Model"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+
+    Args.ABMFlag = 2
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    TAZDB = Args.TAZGeography
+    TAZBin = Substitute(TAZDB, ".dbd", ".bin",) 
+    objT = CreateObject("Table", TAZBin)  
+
+    // Run Model and populate results
+    obj = CreateObject("PMEChoiceModel", {ModelName: "Kids Presence"})
+    obj.OutputModelFile = Args.[Output Folder] + "\\Intermediate\\VisitorKidsPresence.mdl"
+    obj.AddTableSource({SourceName: "VisitorData", View: visabm.HHView, IDField: visabm.HHID})
+    obj.AddTableSource({SourceName: "TAZBin", View: objT.GetView(), IDField: "TAZID"})
+    obj.AddPrimarySpec({Name: "VisitorData"})
+    obj.AddUtility({UtilityFunction: Args.RentalCarUtility})
+    obj.AddOutputSpec({ChoicesField: "HasRentalCar"})
+    obj.ReportShares = 1
+    obj.RandomSeed = 199997
+    ret = obj.Evaluate()
+    if !ret then
+        Throw("Running 'Rental Car' choice model failed.")
+    Args.[RentalCar Spec] = CopyArray(ret) // For calibration purposes
+
+    objT = null
     Return(ok)
 endMacro

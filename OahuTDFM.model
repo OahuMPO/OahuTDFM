@@ -938,7 +938,7 @@ EndMacro
 Macro "Visitor Party Synthesis" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", {"Visitor Synthesis"}},
+        {"MacroNames", {"Visitor Synthesis", "Kids Presence Model", "Rental Car Model"}},
         {"Picture", "bmp\\planpeoplehouse_v3.bmp"},
         {"PicturePosition", "CenterRight"},
         {"TextStyle", "Left"}
