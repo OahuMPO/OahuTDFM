@@ -938,12 +938,14 @@ EndMacro
 Macro "Visitor Party Synthesis" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", {"Visitor Synthesis", "Kids Presence Model", "Rental Car Model"}},
-        {"Picture", "bmp\\planpeoplehouse_v3.bmp"},
-        {"PicturePosition", "CenterRight"},
-        {"TextStyle", "Left"}
+        {"MacroNames",{"Visitor Synthesis",
+                        "Kids Presence Model",
+                        "Visitor Lodging Choice",
+                        "Rental Car Model"}},
+                    {"Picture", "bmp\\planpeoplehouse_v3.bmp"},
+                    {"PicturePosition", "CenterRight"},
+                    {"TextStyle", "Left"}
     }
-Data:
 EndMacro
 
 
@@ -980,7 +982,7 @@ EndMacro
 Macro "Visitor Tour Frequency" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+        {"MacroNames", {"Visitor Tour Frequencies"}}
     }
 EndMacro
 

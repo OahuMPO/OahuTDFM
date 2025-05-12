@@ -585,8 +585,8 @@
                                                     {Name: "Description", Type: "string",  Fixed: "false", Width: "25%"},
 															                      {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
                                                     {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
-                                                    {"Name":"No","Type":"boolean","Align":"center"},
-                                                    {"Name":"Yes","Type":"boolean","Align":"center"}
+                                                    {"Name":"Yes","Type":"boolean","Align":"center"},
+                                                    {"Name":"No","Type":"boolean","Align":"center"}
                                                 }
                                             })
 
@@ -595,8 +595,8 @@
                                                     {Name: "Description", Type: "string",  Fixed: "false", Width: "25%"},
 															                      {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
                                                     {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
-                                                    {"Name":"No","Type":"boolean","Align":"center"},
-                                                    {"Name":"Yes","Type":"boolean","Align":"center"}
+                                                    {"Name":"Yes","Type":"boolean","Align":"center"},
+                                                    {"Name":"No","Type":"boolean","Align":"center"}
                                                 }
                                             })
 
@@ -606,7 +606,25 @@
                                                              {Name: "Theta",  Type: "real", "Decimals":"3"},
                                                              {Name: "ASC",  Type: "real", "Decimals":"3"},
                                                              {Name: "IC",  Type: "real", "Decimals":"3"}}
-                                    })
+                                            })
+
+  Styles.OneTourFreqUtility = Pme.Table({Height: 20, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "None", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "One", "Type": "boolean", "Align": "center"}}
+                                            })
+
+
+  Styles.TwoTourFreqUtility = Pme.Table({Height: 20, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "None", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "One", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "Two", "Type": "boolean", "Align": "center"}}
+                                            })                                          
 
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 

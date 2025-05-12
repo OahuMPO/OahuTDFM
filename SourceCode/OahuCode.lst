@@ -17,6 +17,7 @@ NonMandatorySoloTours.rsc
 NonMandatoryStops.rsc
 TimeManager.rsc
 VisitorSynthesis.rsc
+VisitorTours.rsc
 NonresidentDistribution.rsc
 HighwayAssignment.rsc
 Commercial Vehicles.rsc

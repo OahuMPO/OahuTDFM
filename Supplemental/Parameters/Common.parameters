@@ -3225,10 +3225,10 @@
             "Caption":"Utility Specification: Presence of kids in visitor group",
             "Style":"KidsPresenceUtility",
             "Value":{
-                {"ASC","Constant",-4.1273,0,1},
-                {"Household income is $60,000+","VisitorData.HHIncCode >= 12",0.5353,0,1},
-                {"Visit purpose is Vacation","VisitorData.PurposeCat = 1",0.5392,0,1},
-                {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,0,1}}
+                {"ASC","Constant",-4.1273,1,0},
+                {"Household income is $60,000+","VisitorData.HHIncCode >= 12",0.5353,1,0},
+                {"Visit purpose is Vacation","VisitorData.PurposeCat = 1",0.5392,1,0},
+                {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,1,0}}
         }
 	
 	Section = "Visitor ABM|Models|Lodging Choice|Clusters"
@@ -3238,9 +3238,9 @@
             "Caption":"Lodging Location Model: Clusters (Nests)",
             "Style":"ClusterInfo",
             "Value":{
-                {1,"MajorResorts",null,null,null},
-                {2,"MinorResorts",null,null,null},
-                {3,"Other",null,null,null}}
+                {1,"MajorResorts",0.735,2.493,null},
+                {2,"MinorResorts",1,1.552,null},
+                {3,"Other",0.947,null,null}}
         }
 	
 	Section = "Visitor ABM|Models|Lodging Choice|Utility"
@@ -3250,12 +3250,11 @@
             "Caption":"Lodging Location Utility",
             "Style":"DestUtility",
             "Value":{
-                {"High Income 100K+: Major Resort","VisitorData.HHIncCode >= 17 and TAZBin.VisitorClusterLodging.D = 1",null},
-                {"Party Size <= 2: Other zones","VisitorData.PartySize <= 2 and TAZBin.VisitorClusterLodging.D = 3",null},
-                {"HH with kids+: Major Resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.D = 1",null},
-                {"Party Size >= 3: Major Resort","VisitorData.PartySize >= 3 and TAZBin.VisitorClusterLodging.D = 1",null},
-                {"Walk Index","TAZData.WalkIndex.D",null},
-                {"Size Variable","Size term: log(1 + TAZData.HR.D + 0.0019*TAZData.OccupiedHH.D + 0.5207*TAZData.RC.D)",null}}
+                {"High Income 100K+: Major Resort","VisitorData.HHIncCode >= 17 and TAZBin.VisitorClusterLodging.D = 1",0.2013},
+                {"Party Size <= 2: Other zones","VisitorData.PartySize <= 2 and TAZBin.VisitorClusterLodging.D = 3",0.5925},
+                {"HH with kids+: Major Resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.D = 1",0.1895},
+                {"Walk Index","TAZAccessibilities.WalkIndex.D",0.1028},
+                {"Size Variable","log(1 + TAZData.HR.D + 0.0019*TAZData.OccupiedHH.D + 0.5207*TAZData.RC.D)",0.5256}}
         }
 	
 	Section = "Visitor ABM|Models|Rental Car Choice"
@@ -3265,15 +3264,96 @@
             "Caption":"Utility Specification: Rental Car Choice",
             "Style":"RentalCarUtility",
             "Value":{
-                {"ASC","Constant",2.0443,0,1},
-                {"Household income is $65,000+","VisitorData.HHIncCode >= 13",0.2369,0,1},
-                {"Group staying in Honolulu","TAZBin.VisitorDistrict.O = 6",2.9382,1,0},
-                {"Group staying in Urban Center","TAZBin.VisitorDistrict.O = 5",1.3766,1,0},
-                {"Group staying in EWA","TAZBin.VisitorDistrict.O = 3",1.2396,1,0},
-                {"5 <= Group Size <= 7","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 7",0.2867,0,1},
-                {"Group is from Japan","VisitorData.CountryCat = 2",2.0454,1,0},
-                {"Group is from USA","VisitorData.CountryCat = 1",0.7275,0,1},
-                {"Group has kids and staying at major resort","VisitorData.Kids > 0 and TAZBin.VisitorClusterLodging.O = 1",0.1524,1,0}}
+                {"ASC","Constant",2.0443,1,0},
+                {"Household income is $65,000+","VisitorData.HHIncCode >= 13",0.2369,1,0},
+                {"Group staying in Honolulu","TAZBin.VisitorDistrict.O = 6",2.9382,0,1},
+                {"Group staying in Urban Center","TAZBin.VisitorDistrict.O = 5",1.3766,0,1},
+                {"Group staying in EWA","TAZBin.VisitorDistrict.O = 3",1.2396,0,1},
+                {"5 <= Group Size <= 7","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 7",0.2867,1,0},
+                {"Group is from Japan","VisitorData.CountryCat = 2",2.0454,0,1},
+                {"Group is from USA","VisitorData.CountryCat = 1",0.7275,1,0},
+                {"Group has kids and staying at major resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.O = 1",0.1524,0,1}}
+        }
+
+	Section = "Visitor ABM|Tours|Frequency|Work"
+	
+        Args.VisitorWorkTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Work Tour Frequency",
+            "Style":"OneTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",2.24,1,0},
+                {"Big Group (Party Size >= 5)","VisitorData.PartySize >= 5",0.877,0,1},
+                {"High Income Group (Income >= 60k)","VisitorData.HHIncCode >= 12",0.763,0,1},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",1.07,1,0},
+                {"Visitor party with kids under 18","VisitorData.HasKids = 1",0.887,1,0},
+                {"Single Visitor","VisitorData.PartySize = 1",1.8,0,1},
+                {"Urban Center (VisitorDistrict = 5)","TAZBin.VisitorDistrict.O = 5",0.895,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Frequency|Recreation"
+	
+        Args.VisitorRecTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Recreation Tour Frequency",
+            "Style":"TwoTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",0.719,1,0,0},
+                {"ASC_One","Constant",1.51,0,1,0},
+                {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",2.73,1,0,0},
+                {"Business purpose and don't make work tours","VisitorData.PurposeCat = 2 and nz(VisitorData.NumberWorkTours) = 0",0.915,1,0,0},
+                {"Stay at Urban Center","TAZBin.VisitorDistrict.O = 5",0.718,1,0,0},
+                {"Have kids in a major or minor resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.O <= 2",0.259,1,0,0},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",1.25,1,0,0},
+                {"Stay at AirBnB","TAZBin.VisitorClusterLodging.O = 3",0.431,1,0,0},
+                {"Big Group","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 6",0.352,0,1,1},
+                {"Single Visitor","VisitorData.PartySize = 1",0.123,0,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Frequency|Other"
+	
+        Args.VisitorOtherTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Other Tour Frequency",
+            "Style":"TwoTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",1.23,1,0,0},
+                {"ASC_One","Constant",1.18,0,1,0},
+                {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",0.913,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",1.15,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",0.611,0,1,0},
+                {"Stay at AirBnB","TAZBin.VisitorClusterLodging.O = 3",0.316,1,0,0},
+                {"High Income Group (Income >= 60k)","VisitorData.HHIncCode >= 12",0.101,0,1,1},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",-0.533,0,0,1},
+                {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0245,0,1,0},
+                {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0266,0,0,1},
+                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours = 3",-99.0,0,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Frequency|Shop"
+	
+        Args.VisitorShopTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Shop Tour Frequency",
+            "Style":"TwoTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",2.69,1,0,0},
+                {"ASC_One","Constant",2.56,0,1,0},
+                {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",2.26,1,0,0},
+                {"Business purpose and don't make work tours","VisitorData.PurposeCat = 2 and nz(VisitorData.NumberWorkTours) = 0",0.616,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",2.29,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",0.845,0,1,0},
+                {"Also make other tours","VisitorData.NumberOtherTours > 0",2.91,1,0,0},
+                {"Also make other tours","VisitorData.NumberOtherTours > 0",1.83,0,1,0},
+                {"Have kids in a major or minor resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.O <= 2",0.39,1,0,0},
+                {"High Income Group (Income >= 60k)","VisitorData.HHIncCode >= 12",0.129,0,1,1},
+                {"Big Group (Party Size >= 3 and <= 6)","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 6",0.159,0,1,1},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",0.916,0,1,0},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",1.52,0,0,1},
+                {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.089,0,1,0},
+                {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.254,0,0,1},
+                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 3",-99.0,0,0,1},
+                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 4",-99.0,0,1,1}}
         }
 	
 	Section = "Commercial Vehicles/Trucks"

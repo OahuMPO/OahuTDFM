@@ -111,8 +111,13 @@ Macro "Visitor ABM Preprocess"(Args)
     visabm = RunMacro("Get Visitor ABM Manager", Args)
     
     // Party File
-    flds = {{Name: "HasKids", Type: "Short", Description: "Does the visitor party have kids? Outcome of 'Kids Presence' model"},
-            {Name: "HasRentalCar", Type: "Short", Description: "Does the visitor party have a rental car? Outcome of 'Rental Car' model"}}
+    flds = {{Name: "HasKids", Type: "Short", Description: "Does the visitor party have kids? Outcome of 'Kids Presence' model. 1: Yes, 2: No"},
+            {Name: "HasRentalCar", Type: "Short", Description: "Does the visitor party have a rental car? Outcome of 'Rental Car' model. 1: Yes, 2: No"},
+            {Name: "LodgingTAZ", Type: "Integer", Description: "Lodging TAZ ID"},
+            {Name: "NumberWorkTours", Type: "Short", Description: "Number work tours made by visitor party"},
+            {Name: "NumberRecTours", Type: "Short", Description: "Number recreation tours made by visitor party"},
+            {Name: "NumberOtherTours", Type: "Short", Description: "Number other tours made by visitor party"},
+            {Name: "NumberShopTours", Type: "Short", Description: "Number shop tours made by visitor party"}}
     visabm.AddHHFields(flds)
 endMacro
 
@@ -147,6 +152,53 @@ endMacro
 
 
 // Run choice model to predict prsence of kids in the visitor party
+Macro "Visitor Lodging Choice"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+
+    Args.ABMFlag = 2
+    
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    TAZDB = Args.TAZGeography
+    TAZBin = Substitute(TAZDB, ".dbd", ".bin",) 
+
+    // Called Nested DC procedure
+    Opts = null
+    Opts.output_dir = Args.OutputFolder + "\\Intermediate"
+    Opts.trip_type = "VisitorLodgingChoice" 
+    Opts.zone_utils = Args.LodgingLocUtility
+    Opts.cluster_data = Args.LodgingLocClusters
+    Opts.primary_spec = {Name: "VisitorData", OField: "ZoneID"}
+    Opts.dc_spec = {DestinationsSource: "AutoSkim", DestinationsIndex: "InternalTAZ"}
+    Opts.cluster_equiv_spec = {File: TAZBin, ZoneIDField: "TAZID", ClusterIDField: "VisitorClusterLodging"}
+    Opts.tables = {TAZData: {File: Args.Demographics, IDfield: "TAZ"},
+                    TAZBin: {File: TAZBin, IDfield: "TAZID"},
+                    TAZAccessibilities: {File: Args.AccessibilitiesOutputs, IDfield: "TAZID"},
+                    VisitorData: {View: visabm.HHView, IDfield: visabm.HHID}}
+    Opts.matrices = {AutoSkim: {File: Args.HighwaySkimAM, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"}}
+    Opts.random_seed = 899981 + 42*i
+    objNested = CreateObject("NestedDC", Opts)
+    objNested.Run()
+
+    // Copy DC choices
+    choiceFile = Args.OutputFolder + "\\Intermediate\\choices\\VisitorLodgingChoice_DC_Choices.bin"
+    fopts = {PrimaryView: visabm.HHView,
+            PrimaryViewID: visabm.HHID,
+            PersonChoicesField: "LodgingTAZ",
+            ChoicesFile: choiceFile,
+            IDField: "[_PersonID]",
+            ChoiceField: "[_DestZoneID]"
+            }
+    RunMacro("Copy DC Choices", fopts)
+
+    objT = null
+    Return(ok)
+endMacro
+
+
+// Run choice model to predict prsence of kids in the visitor party
 Macro "Rental Car Model"(Args)
     on error do
         ShowMessage(GetLastError())
@@ -160,11 +212,11 @@ Macro "Rental Car Model"(Args)
     objT = CreateObject("Table", TAZBin)  
 
     // Run Model and populate results
-    obj = CreateObject("PMEChoiceModel", {ModelName: "Kids Presence"})
-    obj.OutputModelFile = Args.[Output Folder] + "\\Intermediate\\VisitorKidsPresence.mdl"
+    obj = CreateObject("PMEChoiceModel", {ModelName: "Rental Car Choice"})
+    obj.OutputModelFile = Args.[Output Folder] + "\\Intermediate\\RentalCarChoice.mdl"
     obj.AddTableSource({SourceName: "VisitorData", View: visabm.HHView, IDField: visabm.HHID})
     obj.AddTableSource({SourceName: "TAZBin", View: objT.GetView(), IDField: "TAZID"})
-    obj.AddPrimarySpec({Name: "VisitorData"})
+    obj.AddPrimarySpec({Name: "VisitorData", Filter: "HouseholdID > 0", OField: "LodgingTAZ"})  // No Filter option causes OField option to be ignored
     obj.AddUtility({UtilityFunction: Args.RentalCarUtility})
     obj.AddOutputSpec({ChoicesField: "HasRentalCar"})
     obj.ReportShares = 1
@@ -175,5 +227,5 @@ Macro "Rental Car Model"(Args)
     Args.[RentalCar Spec] = CopyArray(ret) // For calibration purposes
 
     objT = null
-    Return(ok)
+    Return(1)
 endMacro
