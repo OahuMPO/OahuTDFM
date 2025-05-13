@@ -3231,7 +3231,7 @@
                 {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,1,0}}
         }
 	
-	Section = "Visitor ABM|Models|Lodging Choice|Clusters"
+	Section = "Visitor ABM|Models|Lodging Choice"
 	
         Args.LodgingLocClusters = {
             "Type":"array",
@@ -3242,9 +3242,6 @@
                 {2,"MinorResorts",1,1.552,null},
                 {3,"Other",0.947,null,null}}
         }
-	
-	Section = "Visitor ABM|Models|Lodging Choice|Utility"
-	
         Args.LodgingLocUtility = {
             "Type":"array",
             "Caption":"Lodging Location Utility",
@@ -3274,7 +3271,7 @@
                 {"Group is from USA","VisitorData.CountryCat = 1",0.7275,1,0},
                 {"Group has kids and staying at major resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.O = 1",0.1524,0,1}}
         }
-
+	
 	Section = "Visitor ABM|Tours|Frequency|Work"
 	
         Args.VisitorWorkTourFreqUtility = {
@@ -3327,7 +3324,7 @@
                 {"Visitor party from Japan","VisitorData.CountryCat = 2",-0.533,0,0,1},
                 {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0245,0,1,0},
                 {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0266,0,0,1},
-                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours = 3",-99.0,0,0,1}}
+                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours = 3",-99,0,0,1}}
         }
 	
 	Section = "Visitor ABM|Tours|Frequency|Shop"
@@ -3352,8 +3349,109 @@
                 {"Visitor party from Japan","VisitorData.CountryCat = 2",1.52,0,0,1},
                 {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.089,0,1,0},
                 {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.254,0,0,1},
-                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 3",-99.0,0,0,1},
-                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 4",-99.0,0,1,1}}
+                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 3",-99,0,0,1},
+                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 4",-99,0,1,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Work"
+	
+        Args.WorkLocClustersVis = {
+            "Type":"array",
+            "Caption":"Work Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"Honolulu",1.0,-2.37,null},
+                {2,"UrbanCenter",0.92,-0.432,1.63},
+                {3,"Other",0.786,null,null}}
+        }
+        Args.WorkLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Work Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time (PartySize = 1)","AutoSkim.Time * (VisitorData.PartySize = 1)",-0.052},
+                {"Time (PartySize > 1)","AutoSkim.Time * (VisitorData.PartySize > 1)",-0.0773},
+                {"IntraZonal","Intrazonal.IZ",1.28},
+                {"Short Distance","AutoSkim.Distance <= 1",0.872},
+                {"Size Variable","log(1 + TAZData.TotalEmployment.D)",0.476}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Recreation"
+	
+        Args.RecLocClustersVis = {
+            "Type":"array",
+            "Caption":"Recreation Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"WaikikiBeach",1.0,1.52,null},
+                {2,"DiamondHead",1.0,-1.35,null},
+                {3,"KoOlina",1.0,1.08,null},
+                {4,"AlaMoana",1.0,-0.341,null},
+                {5,"OtherBeachesandParks",0.91,-0.791,null},
+                {6,"Other",0.202,null,null}}
+        }
+        Args.RecLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Recreation Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time to Waikiki Beach","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 1)",-0.0751},
+                {"Time to Diamond Head","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 2)",-0.0305},
+                {"Time to Ko Olina","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 3)",-0.143},
+                {"Time to Ala Moana","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 4)",-0.291},
+                {"Time to other beaches/parks","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 5)",-0.0137},
+                {"IntraZonal","Intrazonal.IZ",0.494},
+                {"Short Distance","AutoSkim.Distance <= 1",0.292},
+                {"Size Variable","log(1 + nz(TAZData.VisArrivalsRec.D) + 0.2952*TAZData.Emp_Hotel.D + 0.1308*TAZData.Emp_Services.D)",0.0789}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Other"
+	
+        Args.OtherLocClustersVis = {
+            "Type":"array",
+            "Caption":"Other Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"Honolulu",1.0,-0.173,null},
+                {2,"UrbanCenter",0.88,-1.34,0.445},
+                {3,"Other",0.889,null,null}}
+        }
+        Args.OtherLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Other Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time","AutoSkim.Time",-0.0315},
+                {"Major Resort Zone","TAZBin.VisitorClusterLodging.D = 1",1.01},
+                {"IntraZonal","Intrazonal.IZ",0.851},
+                {"Short Distance","AutoSkim.Distance <= 1",1.7},
+                {"Retail and Service Employment Density","TAZAccessibilities.RetailandServiceEmploymentDensity.D/1000",0.0126},
+                {"Size Variable","log(1 + TAZData.Emp_Services.D + 0.2541*TAZData.Emp_Hotel.D + 0.0271*TAZData.Emp_Public.D)",0.694}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Shop"
+	
+        Args.ShopLocClustersVis = {
+            "Type":"array",
+            "Caption":"Shop Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"Honolulu",0.571,1.26,1.14},
+                {2,"UrbanCenter",0.992,-0.827,1.59},
+                {3,"Other",1.0,null,null}}
+        }
+        Args.ShopLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Shop Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time (PartySize = 1)","AutoSkim.Time * (VisitorData.PartySize = 1)",-0.0683},
+                {"Time (PartySize > 1)","AutoSkim.Time * (VisitorData.PartySize > 1)",-0.028},
+                {"Intrazonal","Intrazonal.IZ",0.127},
+                {"Walk Index","TAZAccessibilities.WalkIndex.D",0.26},
+                {"Short Distance","AutoSkim.Distance <= 1",0.355},
+                {"Retail and Service Employment Density","TAZAccessibilities.RetailandServiceEmploymentDensity.D/1000",0.0601},
+                {"Size Variable","log(1 + TAZData.Emp_Retail.D + 0.2441*TAZData.Emp_Hotel.D + 0.4805*TAZData.Emp_Services.D)",0.575}}
         }
 	
 	Section = "Commercial Vehicles/Trucks"

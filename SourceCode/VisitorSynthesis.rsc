@@ -117,7 +117,14 @@ Macro "Visitor ABM Preprocess"(Args)
             {Name: "NumberWorkTours", Type: "Short", Description: "Number work tours made by visitor party"},
             {Name: "NumberRecTours", Type: "Short", Description: "Number recreation tours made by visitor party"},
             {Name: "NumberOtherTours", Type: "Short", Description: "Number other tours made by visitor party"},
-            {Name: "NumberShopTours", Type: "Short", Description: "Number shop tours made by visitor party"}}
+            {Name: "NumberShopTours", Type: "Short", Description: "Number shop tours made by visitor party"},
+            {Name: "WorkTAZ1", Type: "Short", Description: "Work TAZ for the first work tour"},
+            {Name: "RecTAZ1", Type: "Short", Description: "Recreation TAZ for the first work tour"},
+            {Name: "RecTAZ2", Type: "Short", Description: "Recreation TAZ for the first work tour"},
+            {Name: "OtherTAZ1", Type: "Short", Description: "Other TAZ for the first work tour"},
+            {Name: "OtherTAZ2", Type: "Short", Description: "Other TAZ for the first work tour"},
+            {Name: "ShopTAZ1", Type: "Short", Description: "Shop TAZ for the first work tour"},
+            {Name: "ShopTAZ2", Type: "Short", Description: "Shop TAZ for the first work tour"}}
     visabm.AddHHFields(flds)
 endMacro
 
@@ -193,8 +200,7 @@ Macro "Visitor Lodging Choice"(Args)
             }
     RunMacro("Copy DC Choices", fopts)
 
-    objT = null
-    Return(ok)
+    Return(1)
 endMacro
 
 
