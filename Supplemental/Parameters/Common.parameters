@@ -3360,7 +3360,7 @@
             "Caption":"Work Destination Location: Clusters (Nests)",
             "Style":"ClusterInfo",
             "Value":{
-                {1,"Honolulu",1.0,-2.37,null},
+                {1,"Honolulu",1,-2.37,null},
                 {2,"UrbanCenter",0.92,-0.432,1.63},
                 {3,"Other",0.786,null,null}}
         }
@@ -3383,26 +3383,27 @@
             "Caption":"Recreation Destination Location: Clusters (Nests)",
             "Style":"ClusterInfo",
             "Value":{
-                {1,"WaikikiBeach",1.0,1.52,null},
-                {2,"DiamondHead",1.0,-1.35,null},
-                {3,"KoOlina",1.0,1.08,null},
-                {4,"AlaMoana",1.0,-0.341,null},
-                {5,"OtherBeachesandParks",0.91,-0.791,null},
-                {6,"Other",0.202,null,null}}
+                {1,"WaikikiBeach",0.116,3.63,null},
+                {2,"DiamondHead",1.0,0.925,null},
+                {3,"KoOlina",0.35,3.9,null},
+                {4,"AlaMoana",0.955,1.65,null},
+                {5,"OtherBeachesandParks",1.0,0.639,null},
+                {6,"Other",0.544,null,null}}
         }
         Args.RecLocUtilityVis = {
             "Type":"array",
             "Caption":"Recreation Destination Location: Utility",
             "Style":"DestUtility",
             "Value":{
-                {"Time to Waikiki Beach","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 1)",-0.0751},
-                {"Time to Diamond Head","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 2)",-0.0305},
-                {"Time to Ko Olina","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 3)",-0.143},
-                {"Time to Ala Moana","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 4)",-0.291},
-                {"Time to other beaches/parks","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 5)",-0.0137},
-                {"IntraZonal","Intrazonal.IZ",0.494},
-                {"Short Distance","AutoSkim.Distance <= 1",0.292},
-                {"Size Variable","log(1 + nz(TAZData.VisArrivalsRec.D) + 0.2952*TAZData.Emp_Hotel.D + 0.1308*TAZData.Emp_Services.D)",0.0789}}
+                {"Time to Waikiki Beach","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 1)",-0.0765},
+                {"Time to Diamond Head","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 2)",-0.0466},
+                {"Time to Ko Olina","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 3)",-0.144},
+                {"Time to Ala Moana","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 4)",-0.3},
+                {"Time to other beaches/parks","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 5)",-0.0139},
+                {"IntraZonal","Intrazonal.IZ",0.0583},
+                {"Short Distance","AutoSkim.Distance <= 1",0.0488},
+                {"Size Variable","log(1 + nz(TAZData.VisArrivalsRec.D) + 0.1466*TAZData.Emp_Hotel.D + 2.9154*TAZData.Emp_Services.D)",0.174},
+                {"Time to all other zones","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 6)",-0.0181}}
         }
 	
 	Section = "Visitor ABM|Tours|Destination|Other"
@@ -3412,7 +3413,7 @@
             "Caption":"Other Destination Location: Clusters (Nests)",
             "Style":"ClusterInfo",
             "Value":{
-                {1,"Honolulu",1.0,-0.173,null},
+                {1,"Honolulu",1,-0.173,null},
                 {2,"UrbanCenter",0.88,-1.34,0.445},
                 {3,"Other",0.889,null,null}}
         }
@@ -3438,7 +3439,7 @@
             "Value":{
                 {1,"Honolulu",0.571,1.26,1.14},
                 {2,"UrbanCenter",0.992,-0.827,1.59},
-                {3,"Other",1.0,null,null}}
+                {3,"Other",1,null,null}}
         }
         Args.ShopLocUtilityVis = {
             "Type":"array",
