@@ -111,6 +111,7 @@ Macro "Visitor ABM Preprocess"(Args)
     visabm = RunMacro("Get Visitor ABM Manager", Args)
     
     // Party File
+    mdesc = "1: SOV|2: HOV2|3: HOV3+|4. TNC|5. Other|6. Transit|7. Walk"
     flds = {{Name: "HasKids", Type: "Short", Description: "Does the visitor party have kids? Outcome of 'Kids Presence' model. 1: Yes, 2: No"},
             {Name: "HasRentalCar", Type: "Short", Description: "Does the visitor party have a rental car? Outcome of 'Rental Car' model. 1: Yes, 2: No"},
             {Name: "LodgingTAZ", Type: "Integer", Description: "Lodging TAZ ID"},
@@ -124,7 +125,14 @@ Macro "Visitor ABM Preprocess"(Args)
             {Name: "OtherTAZ1", Type: "Short", Description: "Other TAZ for the first work tour"},
             {Name: "OtherTAZ2", Type: "Short", Description: "Other TAZ for the first work tour"},
             {Name: "ShopTAZ1", Type: "Short", Description: "Shop TAZ for the first work tour"},
-            {Name: "ShopTAZ2", Type: "Short", Description: "Shop TAZ for the first work tour"}}
+            {Name: "ShopTAZ2", Type: "Short", Description: "Shop TAZ for the first work tour"},
+            {Name: "WorkMode1", Type: "Short", Description: "Work Mode for the first work tour|" + mdesc},
+            {Name: "RecMode1", Type: "Short", Description: "Recreation Mode for the first work tour|" + mdesc},
+            {Name: "RecMode2", Type: "Short", Description: "Recreation Mode for the first work tour|" + mdesc},
+            {Name: "OtherMode1", Type: "Short", Description: "Other Mode for the first work tour|" + mdesc},
+            {Name: "OtherMode2", Type: "Short", Description: "Other Mode for the first work tour|" + mdesc},
+            {Name: "ShopMode1", Type: "Short", Description: "Shop Mode for the first work tour|" + mdesc},
+            {Name: "ShopMode2", Type: "Short", Description: "Shop Mode for the first work tour|" + mdesc}}
     visabm.AddHHFields(flds)
 endMacro
 

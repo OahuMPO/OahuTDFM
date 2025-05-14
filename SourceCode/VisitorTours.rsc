@@ -176,3 +176,100 @@ Macro "Run Visitor Tour DC"(Args, spec)
 
     Return(1)
 endmacro
+
+
+Macro "Visitor Tour Modes"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+
+    Args.ABMFlag = 2    // Indicate that the visitor abm step is active
+
+    // Work Tour
+    spec = {Purpose: "Work",
+            Filter: "NumberWorkTours = 1",
+            OutputField: "WorkMode1",
+            DestField: "WorkTAZ1",
+            Seed: 899981}
+    ret = RunMacro("Run Visitor Tour MC", Args, spec)
+
+    nMaxTours = 2    // Two tours possible for Rec, Other, and Shop
+    for i = 1 to nMaxTours do
+        // Recreation Tour MC
+        spec = {Purpose: "Rec",
+                Filter: "NumberRecTours >= " + String(i),
+                OutputField: "RecMode" + String(i),
+                DestField: "RecTAZ" + String(i),
+                Seed: 899981 + 1000 + i}
+        ret = RunMacro("Run Visitor Tour MC", Args, spec)
+
+        // Other Tour MC
+        spec = {Purpose: "Other",
+                Filter: "NumberOtherTours >= " + String(i),
+                OutputField: "OtherMode" + String(i),
+                DestField: "OtherTAZ" + String(i),
+                Seed: 899981 + 2000 + i}
+        ret = RunMacro("Run Visitor Tour MC", Args, spec)
+
+        // Shop Tour MC
+        spec = {Purpose: "Shop",
+                Filter: "NumberShopTours >= " + String(i),
+                OutputField: "ShopMode" + String(i),
+                DestField: "ShopTAZ" + String(i),
+                Seed: 899981 + 3000 + i}
+        ret = RunMacro("Run Visitor Tour MC", Args, spec)
+    end
+
+    Return(ret)
+endMacro
+
+
+Macro "Run Visitor Tour MC"(Args, spec)
+    purp = spec.Purpose
+    filter = spec.Filter
+    outFld = spec.OutputField
+    seed = spec.Seed
+    dFld = spec.DestField
+
+    util = Args.(purp + "VisitorMCUtility")
+    
+    availExpressions = null
+    availExpressions.Alternative = {"Walk"}
+    availExpressions.Expression = {"WalkSkim.Distance < 1.5"}
+
+    w_t_skim = Args.[Output Folder] + "\\skims\\transit\\AM_w_bus.mtx"
+
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    TAZDB = Args.TAZGeography
+    TAZBin = Substitute(TAZDB, ".dbd", ".bin",)
+    
+    objT = CreateObject("Table", TAZBin)
+    objA = CreateObject("Table", Args.AccessibilitiesOutputs)
+    objD = CreateObject("Table", Args.DemographicOutputs)
+
+    // Run Model and populate results
+    obj = CreateObject("PMEChoiceModel", {ModelName: purp + " Visitor Tour MC"})
+    obj.OutputModelFile = printf("%s\\Intermediate\\Visitor%sTourMC.mdl", {Args.[Output Folder], purp})
+    obj.AddTableSource({SourceName: "VisitorData", View: visabm.HHView, IDField: visabm.HHID})
+    obj.AddTableSource({SourceName: "TAZBin", View: objT.GetView(), IDField: "TAZID"})
+    obj.AddTableSource({SourceName: "TAZAccessibilities", View: objA.GetView(), IDField: "TAZID"})
+    obj.AddTableSource({SourceName: "TAZData", View: objD.GetView(), IDField: "TAZ"})
+    obj.AddMatrixSource({SourceName: "AutoSkim", File: Args.HighwaySkimAM, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
+    obj.AddMatrixSource({SourceName: "WalkSkim", File: Args.WalkSkim, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
+    obj.AddMatrixSource({SourceName: "BusSkim", File: w_t_skim, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+    obj.AddPrimarySpec({Name: "VisitorData", Filter: filter, OField: "LodgingTAZ", DField: dFld})
+    obj.AddUtility({UtilityFunction: util, AvailabilityExpressions: availExpressions})
+    obj.AddOutputSpec({ChoicesField: outFld})
+    obj.ReportShares = 1
+    obj.RandomSeed = seed
+    ret = obj.Evaluate()
+    if !ret then
+        Throw("Visitor tour mode choice model failed for purpose: " + purp)
+    Args.(purp + "VisitorTourMC Spec") = CopyArray(ret) // For calibration purposes
+    
+    objD = null
+    objT = null
+    objA = null
+    Return(1)
+endMacro
