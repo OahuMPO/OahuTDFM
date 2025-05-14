@@ -626,6 +626,22 @@
                                                           {"Name": "Two", "Type": "boolean", "Align": "center"}}
                                             })                                          
 
+  Styles.VisitorTourMCUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                  Columns:{
+                                                      {"Name":"Description", "Type":"string", "Width":"20%"},
+                                                      {"Name":"Expression", "Type":"string", "Width":"35%"},
+                                                      {"Name":"Coefficient", "Type":"real", "Width":"10%", "Decimals":"4"},
+                                                      {"Name":"SOV", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"HOV2", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"HOV3", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"TNC", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"Other", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"Transit", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"Walk", "Type":"boolean", "Align":"center"}
+                                                  }
+                                              })
+
+
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 
   Styles.lanecapStyle = Pme.Table(RunMacro("Extend Object", all_tables,
