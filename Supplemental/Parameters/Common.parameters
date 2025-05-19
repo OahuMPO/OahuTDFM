@@ -3304,7 +3304,8 @@
                 {"Visitor party from Japan","VisitorData.CountryCat = 2",1.25,1,0,0},
                 {"Stay at AirBnB","TAZBin.VisitorClusterLodging.O = 3",0.431,1,0,0},
                 {"Big Group","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 6",0.352,0,1,1},
-                {"Single Visitor","VisitorData.PartySize = 1",0.123,0,0,1}}
+                {"Single Visitor","VisitorData.PartySize = 1",0.123,0,0,1},
+                {"Make work tour","VisitorData.NumberWorkTours = 1",-99,0,0,1}}
         }
 	
 	Section = "Visitor ABM|Tours|Frequency|Other"
@@ -3324,7 +3325,8 @@
                 {"Visitor party from Japan","VisitorData.CountryCat = 2",-0.533,0,0,1},
                 {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0245,0,1,0},
                 {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0266,0,0,1},
-                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours = 3",-99,0,0,1}}
+                {"Cannot do two tours if making work tours","VisitorData.NumberWorkTours = 1",-99,0,0,1},
+                {"Cannot do two tours if making two rec tours","VisitorData.NumberRecTours = 2",-99,0,0,1}}
         }
 	
 	Section = "Visitor ABM|Tours|Frequency|Shop"
@@ -3349,8 +3351,8 @@
                 {"Visitor party from Japan","VisitorData.CountryCat = 2",1.52,0,0,1},
                 {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.089,0,1,0},
                 {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.254,0,0,1},
-                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 3",-99,0,0,1},
-                {"Max 4 tour restriction","nz(VisitorData.NumberWorkTours) + VisitorData.NumberRecTours + VisitorData.NumberOtherTours = 4",-99,0,1,1}}
+                {"No 2 tours if making work tours","VisitorData.NumberWorkTours = 1",-99.0,0,0,1},
+                {"Two tours restriction","nz(VisitorData.NumberWorkTours) = 0 and (VisitorData.NumberRecTours + VisitorData.NumberOtherTours > 1)",-99.0,0,0,1}}
         }
 	
 	Section = "Visitor ABM|Tours|Destination|Work"
@@ -3556,7 +3558,7 @@
                 {"Auto Time (TNC)","AutoSkim.Time",-0.0871,0,0,0,1,0,0,0},
                 {"Auto Time (Other)","AutoSkim.Time",-0.0263,0,0,0,0,1,0,0},
                 {"Walk Time","WalkSkim.Time",-0.0336,0,0,0,0,0,0,1},
-                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2.0,0,1,1,0,0,0,0},
+                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2,0,1,1,0,0,0,0},
                 {"Party Size > 2 (hov3)","VisitorData.PartySize > 2",1.17,0,0,1,0,0,0,0},
                 {"Party has rented car (tnc)","VisitorData.HasRentalCar = 1",-2.04,0,0,0,1,0,0,0},
                 {"Party has rented car (transit)","VisitorData.HasRentalCar = 1",-2.62,0,0,0,0,0,1,0},
@@ -3565,6 +3567,202 @@
                 {"Short Distance (Walk Distance < 0.5 mi)","WalkSkim.Distance < 0.5",1.3,0,0,0,0,0,0,1},
                 {"Major Resort Lodging","TAZBin.VisitorClusterLodging.O = 1",1.66,0,0,0,0,0,0,1},
                 {"Minor Resort Lodging","TAZBin.VisitorClusterLodging.O = 2",0.968,0,0,0,0,0,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Work"
+	
+        Args.WorkTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Work Tour Activity Time of Day",
+            "Style":"WorkTODUtilityVis",
+            "Value":{
+                {"ASC EA_PM","Constant",-0.623,1,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",1.69,0,1,0,0,0,0,0,0},
+                {"ASC AM_PM","Constant",2.43,0,0,1,0,0,0,0,0},
+                {"ASC AM_EV","Constant",-0.287,0,0,0,1,0,0,0,0},
+                {"ASC MD_MD","Constant",0.839,0,0,0,0,1,0,0,0},
+                {"ASC MD_PM","Constant",0.728,0,0,0,0,0,1,0,0},
+                {"ASC MD_EV","Constant",-0.559,0,0,0,0,0,0,1,0},
+                {"Single Person","VisitorData.PartySize = 1",1.07,1,0,0,0,0,0,0,0},
+                {"Has Kids","VisitorData.HasKids = 1",2.14,0,0,0,0,1,1,0,0},
+                {"Work in major resort zone","TAZBin.VisitorClusterLodging.D = 1",-1.11,0,0,1,1,0,0,0,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Recreation"
+	
+        Args.RecTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Recreation Tour Activity Time of Day",
+            "Style":"RecTODUtilityVis",
+            "Value":{
+                {"ASC AM_AM","Constant",0.348,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",3.28,0,0,1,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_PM","Constant",1.56,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_MD","Constant",3.78,0,0,0,0,1,0,0,0,0,0,0,0,0},
+                {"ASC MD_PM","Constant",3.56,0,0,0,0,0,1,0,0,0,0,0,0,0},
+                {"ASC MD_EV","Constant",0.774,0,0,0,0,0,0,1,0,0,0,0,0,0},
+                {"ASC PM_PM","Constant",1.87,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"ASC PM_EV","Constant",2.26,0,0,0,0,0,0,0,0,1,0,0,0,0},
+                {"ASC PM_NT","Constant",0.0396,0,0,0,0,0,0,0,0,0,1,0,0,0},
+                {"ASC EV_EV","Constant",-1.93,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"ASC EV_NT","Constant",0.517,0,0,0,0,0,0,0,0,0,0,0,1,0},
+                {"ASC NT_NT","Constant",-1.63,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Also make work tour","VisitorData.NumberWorkTours = 1",2.2,1,0,0,0,0,0,0,0,1,1,1,1,1},
+                {"Short Distance AM (< 0.5 mi)","AutoSkim.Distance < 0.5",0.613,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"Short Distance (< 0.5 mi)","AutoSkim.Distance < 0.5",0.308,0,0,0,0,0,0,0,1,0,0,1,0,1},
+                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 7",0.813,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 7",1.98,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"Walk Mode (NT_NT)","VisitorData.<ModeField> = 7",2.07,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Stay at major resort","TAZBin.VisitorClusterLodging.O = 1",0.227,0,0,1,0,1,1,0,0,0,0,0,0,0},
+                {"Large Party (> 4)","VisitorData.PartySize > 4",0.386,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Visitor Party from Japan","VisitorData.CountryCat = 2",1.14,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Presence of kids (MD_EVandNT)","VisitorData.HasKids = 1",0.537,0,0,0,0,0,0,1,0,0,0,0,0,0},
+                {"Presence of kids (NT_NT)","VisitorData.HasKids = 1",0.588,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Visit Beach","TAZBin.VisitorClusterRec.D = 1",0.57,1,0,0,0,0,0,0,0,0,0,1,1,1},
+                {"Visit DiamondHead","TAZBin.VisitorClusterRec.D = 2",-1.89,1,0,0,0,0,0,0,0,0,0,0,1,1},
+                {"Visit Waikiki Area (PM_PM)","TAZBin.VisitorDistrict.D = 1",0.586,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"Visit Waikiki Area (Later)","TAZBin.VisitorDistrict.D = 1",1.05,0,0,0,0,0,0,0,0,0,0,1,1,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Other"
+	
+        Args.OtherTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Other Tour Activity Time of Day",
+            "Style":"OtherTODUtilityVis",
+            "Value":{
+                {"ASC EA_AM","Constant",0.248,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_AM","Constant",0.973,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",2.42,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_PM","Constant",1.53,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_MD","Constant",3.56,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_PM","Constant",3.5,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0},
+                {"ASC MD_EV","Constant",0.628,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
+                {"ASC MD_NT","Constant",1.05,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0},
+                {"ASC PM_PM","Constant",1.99,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"ASC PM_EV","Constant",3.04,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
+                {"ASC PM_NT","Constant",1.94,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
+                {"ASC EV_EV","Constant",0.524,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"ASC EV_NT","Constant",1.58,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
+                {"ASC NT_NT","Constant",-0.585,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Also make work tour","VisitorData.NumberWorkTours = 1",1.67,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1},
+                {"Short Distance AM_AM (< 0.5 mi)","AutoSkim.Distance < 0.5",0.499,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 7",0.78,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (MD_MD)","VisitorData.<ModeField> = 7",-0.214,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 7",0.306,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"Stay at major resort","TAZBin.VisitorClusterLodging.O = 1",-0.248,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+                {"Large Party (> 4)","VisitorData.PartySize > 4",0.367,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0},
+                {"Presence of kids","VisitorData.HasKids = 1",-0.934,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Visit Waikiki Area (MD_MD)","TAZBin.VisitorClusterRec.D = 1",0.306,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Visit Waikiki Area (PM_PM)","TAZBin.VisitorClusterRec.D = 1",1.12,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"Visit Waikiki Area (Later)","TAZBin.VisitorClusterRec.D = 1",1.65,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
+                {"Also make rec tours","VisitorData.NumberRecTours > 0",-0.796,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+                {"Also make rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.633,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
+                {"Make two or more work/rec tours","VisitorData.NumberRecTours > 1",0.663,0,1,0,0,0,0,0,0,0,1,0,0,1,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Shop"
+	
+        Args.ShopTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Shop Tour Activity Time of Day",
+            "Style":"ShopTODUtilityVis",
+            "Value":{
+                {"ASC AM_AM","Constant",0.31,1,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",2.46,0,1,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_MD","Constant",3.99,0,0,1,0,0,0,0,0,0,0,0},
+                {"ASC MD_PM","Constant",3.47,0,0,0,1,0,0,0,0,0,0,0},
+                {"ASC MD_EV","Constant",0.76,0,0,0,0,1,0,0,0,0,0,0},
+                {"ASC PM_PM","Constant",1.94,0,0,0,0,0,1,0,0,0,0,0},
+                {"ASC PM_EV","Constant",2.3,0,0,0,0,0,0,1,0,0,0,0},
+                {"ASC EV_EV","Constant",-0.148,0,0,0,0,0,0,0,0,1,0,0},
+                {"ASC EV_NT","Constant",1.53,0,0,0,0,0,0,0,0,0,1,0},
+                {"ASC NT_NT","Constant",-2.62,0,0,0,0,0,0,0,0,0,0,1},
+                {"Also make work tour","VisitorData.NumberWorkTours = 1",1.59,0,0,0,0,0,0,1,1,1,1,1},
+                {"Short Distance (< 0.5 mi)","AutoSkim.Distance < 0.5",0.594,0,0,0,0,0,1,0,0,1,1,1},
+                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 7",0.909,1,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (MD_MD)","VisitorData.<ModeField> = 7",-0.482,0,0,1,0,0,0,0,0,0,0,0},
+                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 7",1.45,0,0,0,0,0,0,0,0,1,0,0},
+                {"Walk Mode (NT_NT)","VisitorData.<ModeField> = 7",2.2,0,0,0,0,0,0,0,0,0,0,1},
+                {"Presence of kids (MD_EV)","VisitorData.HasKids = 1",0.583,0,0,0,0,1,0,0,0,0,0,0},
+                {"Presence of kids (NT_NT)","VisitorData.HasKids = 1",0.997,0,0,0,0,0,0,0,0,0,0,1},
+                {"Visit Waikiki Area (PM_PM)","TAZBin.VisitorClusterRec.D = 1",0.335,0,0,0,0,0,1,0,0,0,0,0},
+                {"Visit Waikiki Area (Later)","TAZBin.VisitorClusterRec.D = 1",0.967,0,0,0,0,0,0,0,0,1,1,1},
+                {"Also make Rec tours (PM_PM)","VisitorData.NumberRecTours > 0",0.994,0,0,0,0,0,1,0,0,0,0,0},
+                {"Also make Rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.893,0,0,0,0,0,0,1,0,0,0,0},
+                {"Also make Other tour","VisitorData.NumberOtherTours > 0",-1.07,0,0,0,0,0,0,0,0,0,1,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Profile_EA_AM_MD"
+	
+        Args.TODProfileEA = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for EA period",
+            "Description":"TODProfileEA",
+            "Style":"TODProfile",
+            "Value":{
+                {"3:00 - 4:00",null,6.35,null,null,null,null,null,null},
+                {"4:00 - 5:00",57.01,10.58,20.87,null,null,null,null,null},
+                {"5:00 - 6:00",42.99,83.07,79.13,null,null,null,null,null}}
+        }
+        Args.TODProfileAM = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for AM period",
+            "Description":"TODProfileAM",
+            "Style":"TODProfile",
+            "Value":{
+                {"6:00 - 7:00",15.26,12.38,10.77,2.66,null,12.7,3.71,13.87},
+                {"7:00 - 8:00",41.13,27.92,27.78,31.64,null,33.95,32.94,23.72},
+                {"8:00 - 9:00",43.61,59.7,61.45,65.7,null,53.35,63.35,62.41}}
+        }
+        Args.TODProfileMD = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for MD period",
+            "Description":"TODProfileMD",
+            "Style":"TODProfile",
+            "Value":{
+                {"9:00 - 10:00",45.84,26.86,25.79,17.81,1.27,5.46,13.84,5.4},
+                {"10:00 - 11:00",27.84,24.46,26.4,24.78,17.3,13.91,15.54,10.84},
+                {"11:00 - 12:00",11.12,16.5,13.93,19.39,21.35,17.88,16.69,17.39},
+                {"12:00 - 13:00",4.58,9.9,14.3,12.12,17.67,17.82,14.55,19.34},
+                {"13:00 - 14:00",5.68,11.17,10.41,11,21.46,23.89,20.64,22.42},
+                {"14:00 - 15:00",4.94,11.11,9.17,14.9,20.95,21.04,18.75,24.6}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Profile_PM_EV_NT"
+	
+        Args.TODProfilePM = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for PM period",
+            "Description":"TODProfilePM",
+            "Style":"TODProfile",
+            "Value":{
+                {"15:00 - 16:00",29.22,26.64,11.43,22.45,20.7,34.43,29.95,28.54},
+                {"16:00 - 17:00",37.58,24.84,17.33,24.48,24.14,26.82,20.77,24.99},
+                {"17:00 - 18:00",0,23.15,25.29,22.69,33.27,23.93,21.55,22.67},
+                {"18:00 - 19:00",33.2,25.38,45.95,30.38,21.89,14.82,27.73,23.8}}
+        }
+        Args.TODProfileEV = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for EV period",
+            "Description":"TODProfileEV",
+            "Style":"TODProfile",
+            "Value":{
+                {"19:00 - 20:00",null,50.73,80.14,78.5,58.47,61.15,42.03,36.78},
+                {"20:00 - 21:00",null,49.27,19.86,21.5,41.53,38.85,57.97,63.22}}
+        }
+        Args.TODProfileNT = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for NT period: 24:00 or later is next day",
+            "Description":"TODProfileNT",
+            "Style":"TODProfile",
+            "Value":{
+                {"21:00 - 22:00",null,76.37,50.31,75.17,null,41.62,76.69,81.01},
+                {"22:00 - 23:00",null,10.88,13.81,18.39,null,41.44,14.31,17.82},
+                {"23:00 - 24:00",null,0,1.75,6.43,null,11.39,5.47,1.17},
+                {"24:00 - 25:00",null,8.73,19.37,null,null,2.64,1.54,null},
+                {"25:00 - 26:00",null,1.75,14.76,null,null,1.92,2,null},
+                {"26:00 - 27:00",null,2.27,0,null,null,0.99,null,null}}
         }
 	
 	Section = "Commercial Vehicles/Trucks"

@@ -118,10 +118,18 @@ Body:
 
     // Set time period arguments
     periods = null
-    periods.AM.StartTime = 360 // 6 AM
-    periods.AM.EndTime = 540   // 9 AM
-    periods.PM.StartTime = 900 // 3 PM
-    periods.PM.EndTime = 1140  // 7 PM
+    periods.EA.StartTime = 180  // 3 AM
+    periods.EA.EndTime = 360    // 6 AM
+    periods.AM.StartTime = 360  // 6 AM
+    periods.AM.EndTime = 540    // 9 AM
+    periods.MD.StartTime = 540  // 9 AM
+    periods.MD.EndTime = 900    // 3 PM
+    periods.PM.StartTime = 900  // 3 PM
+    periods.PM.EndTime = 1140   // 7 PM
+    periods.EV.StartTime = 1140  // 7 PM
+    periods.EV.EndTime = 1260    // 9 PM
+    periods.NT.StartTime = 1260  // 9 PM
+    periods.NT.EndTime = 1620    // 3 AM next day
     Return({TimePeriods: periods})
 EndMacro
 

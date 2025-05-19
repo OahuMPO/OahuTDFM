@@ -753,3 +753,57 @@ Macro "Create Daily OD Matrix"(Args)
 endmacro
 
 
+// Given an array of time intervals and a corresponding array of probabilities,
+// simulate a vector of size n.
+
+// First generate a vector of chosen intervals using the probabilities.
+// Then for each chosen interval pick a time value using a uniform distribution.
+// Return the vector of time values (measured from minutes from midnight).
+
+// e.g. intervals = {"7:00-7:15", "7:15-7:30"}, probs = {0.25, 0.75} and n = 4
+// Then the output vector could be {428, 440, 441, 448} i.e. corresponding to the times {7:08, 7:20, 7:21, 7:28}
+Macro "Simulate Time From Interval"(opt)
+    // Get Inputs
+    sampleSize = opt.SampleSize
+    seed = opt.RandomSeed
+    intervals = opt.Intervals
+    weights = opt.Weights
+    
+    if sampleSize = 0 then
+        Throw("Sample size must be greater than 0 for 'Simulate Time From Interval' macro")
+    if weights = null or intervals = null then
+        Throw("Intervals and Weights must be provided for 'Simulate Time From Interval' macro")
+    if intervals.length <> weights.length then
+        Throw("The size of intervals and weights must be the same")
+    
+    vWeights = nz(a2v(weights))
+    if vWeights.Sum() <= 0 then
+        Throw("The sum of the weights send to 'Simulate Time From Interval' macro must be greater than 0")
+
+    // Generate interval start, end arrays in minutes from midnight and generate duration
+    nInt = intervals.length
+    dim st[nInt], en[nInt], dur[nInt]
+    for i = 1 to nInt do
+        parts = parsestring(intervals[i], " :-")
+        st[i] = s2i(parts[1])*60 + s2i(parts[2])
+        en[i] = s2i(parts[3])*60 + s2i(parts[4])
+        dur[i] = en[i] - st[i]
+    end
+
+    // Pick an interval index using the random samples function
+    if seed = null then
+        seed = 999983
+    SetRandomSeed(seed)
+    params = null
+    params.weight = v2a(vWeights)
+    v = RandSamples(sampleSize, "Discrete", params)
+
+    SetRandomSeed(seed*2)
+    vUniform = RandSamples(sampleSize, "Uniform",)
+    dim vOut[sampleSize]
+    for i = 1 to sampleSize do
+        idx = v[i]
+        vOut[i] = Floor(st[idx] + vUniform[i]*dur[idx])
+    end
+    Return(a2v(vOut))
+endMacro

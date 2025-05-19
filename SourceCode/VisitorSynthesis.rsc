@@ -118,21 +118,19 @@ Macro "Visitor ABM Preprocess"(Args)
             {Name: "NumberWorkTours", Type: "Short", Description: "Number work tours made by visitor party"},
             {Name: "NumberRecTours", Type: "Short", Description: "Number recreation tours made by visitor party"},
             {Name: "NumberOtherTours", Type: "Short", Description: "Number other tours made by visitor party"},
-            {Name: "NumberShopTours", Type: "Short", Description: "Number shop tours made by visitor party"},
-            {Name: "WorkTAZ1", Type: "Short", Description: "Work TAZ for the first work tour"},
-            {Name: "RecTAZ1", Type: "Short", Description: "Recreation TAZ for the first work tour"},
-            {Name: "RecTAZ2", Type: "Short", Description: "Recreation TAZ for the first work tour"},
-            {Name: "OtherTAZ1", Type: "Short", Description: "Other TAZ for the first work tour"},
-            {Name: "OtherTAZ2", Type: "Short", Description: "Other TAZ for the first work tour"},
-            {Name: "ShopTAZ1", Type: "Short", Description: "Shop TAZ for the first work tour"},
-            {Name: "ShopTAZ2", Type: "Short", Description: "Shop TAZ for the first work tour"},
-            {Name: "WorkMode1", Type: "Short", Description: "Work Mode for the first work tour|" + mdesc},
-            {Name: "RecMode1", Type: "Short", Description: "Recreation Mode for the first work tour|" + mdesc},
-            {Name: "RecMode2", Type: "Short", Description: "Recreation Mode for the first work tour|" + mdesc},
-            {Name: "OtherMode1", Type: "Short", Description: "Other Mode for the first work tour|" + mdesc},
-            {Name: "OtherMode2", Type: "Short", Description: "Other Mode for the first work tour|" + mdesc},
-            {Name: "ShopMode1", Type: "Short", Description: "Shop Mode for the first work tour|" + mdesc},
-            {Name: "ShopMode2", Type: "Short", Description: "Shop Mode for the first work tour|" + mdesc}}
+            {Name: "NumberShopTours", Type: "Short", Description: "Number shop tours made by visitor party"}}
+
+    purps = {"Work1", "Rec1", "Rec2", "Other1", "Other2", "Shop1", "Shop2"}
+    for val in purps do
+        i = Right(val,1)
+        p = Left(val, StringLength(val) - 1)
+        flds  = flds + {{Name: p + "TAZ" + i, Type: "Short", Description: "Work TAZ for the first work tour"},
+                        {Name: p + "Mode" + i, Type: "Short", Description: "Work Mode for the first work tour|" + mdesc},
+                        {Name: p + "TOD" + i, Type: "String", Width: 5, Description: "Work Activity Start and End TOD"},
+                        {Name: p + "_StartTime" + i, Type: "Integer", Description: "Work Activity Start Time"},
+                        {Name: p + "_EndTime" + i, Type: "Integer", Description: "Work Activity End Time"},
+                        {Name: p + "_Duration" + i, Type: "Integer", Description: "Work Activity Duration"}}
+    end
     visabm.AddHHFields(flds)
 endMacro
 
