@@ -618,6 +618,38 @@ Macro "Calibrate Solo Mode"(Args, p)
 endMacro
 
 
+Macro "Calibrate KidsPresence"(Args)
+    opts = null
+    opts.ModelName = "KidsPresence"
+    opts.MacroName = "Kids Presence Model"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorParty\\KidsPresence.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+Macro "Calibrate RentalCarChoice"(Args)
+    opts = null
+    opts.ModelName = "RentalCar"
+    opts.MacroName = "Rental Car Model"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorParty\\RentalCarChoice.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+Macro "Calibrate Visitor Tour Freq"(Args, p)
+    if p = "Work" then
+        filter = "PurposeCat = 2"
+    else
+        filter = "HouseholdID > 0"
+    macroArgs = {Purpose: p, Filter: filter, Seed: 99991 + Ascii(Left(p,1))}
+    
+    opts = null
+    opts.ModelName = p + "VisitorTourFreq"
+    opts.MacroName = "Run Visitor Tour Freq"
+    opts.MacroArgs = macroArgs
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorTours\\VisitorTourFrequency_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+// Main calibration model utility
 Macro "Calibrate Model"(Args, Opts)
     abm = RunMacro("Get ABM Manager", Args)
     objT = CreateObject("Table", Args.AccessibilitiesOutputs)
@@ -661,6 +693,62 @@ Macro "Calibrate Model"(Args, Opts)
         end
     end
     
+    // Open calibration file in an editor
+    shared d_edit_options
+    pth = SplitPath(calibrationFile)
+    vw = OpenTable("Table", "FFB", {calibrationFile})
+    ed = CreateEditor(pth[3], vw + "|",,d_edit_options)
+
+    Return(1)
+endMacro
+
+
+// Main visitor calibration model utility
+Macro "Calibrate Visitor Model"(Args, Opts)
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    
+    TAZDB = Args.TAZGeography
+    TAZBin = Substitute(TAZDB, ".dbd", ".bin",) 
+    objT = CreateObject("Table", TAZBin)
+    objA = CreateObject("Table", Args.AccessibilitiesOutputs)
+
+    modelName = Opts.ModelName
+    calibrationFile = Opts.CalibrationFile
+    if !GetFileInfo(calibrationFile) then
+        Throw("Calibration file for " + modelName + " not found in the 'Data\\Calibration' folder.")
+
+    // Run provided model first, that creates the model from the PME and opens all the relevant files.
+    if Opts.MacroArgs <> null then
+        RunMacro(Opts.MacroName, Args, Opts.MacroArgs)
+    else
+        RunMacro(Opts.MacroName, Args)
+
+    // Retrieve Model Specification saved into Args array by the previous step
+    modelSpec = Args.(modelName + " Spec")
+
+    // Open Matrix Sources in model Spec
+    for src in modelSpec.MatrixSources do
+        mObjs.(src.Label) = CreateObject("Matrix", src.FileName)
+    end
+
+    // Call macro to Adjust ASC
+    RunMacro("Calibrate ASCs", Opts, modelSpec)
+
+    RunMacro("Export Visitor ABM Data", Args, {Overwrite: 1})
+
+    RunMacro("ReleaseSingleton", "ABM_Manager")
+
+    // Close all other views
+    vws = GetViews()
+    if vws <> null then do
+        for vw in vws[1] do
+            CloseView(vw)
+        end
+    end
+    
+    objT = null
+    objA = null
+
     // Open calibration file in an editor
     shared d_edit_options
     pth = SplitPath(calibrationFile)

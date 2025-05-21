@@ -142,6 +142,10 @@ menu "MENU_Calibration"
     Separator
     MenuItem "Solo Tours" text: "Solo Tours" menu "SoloTours_Menu"
     MenuItem "Solo Stops" text: "Solo Tour Stops" menu "SoloTourStops_Menu"
+    Separator
+    MenuItem "Visitor Party" text: "Visitor Party Models" menu "VisitorParty_Menu"
+    MenuItem "Visitor Tours" text: "Visitor Tours" menu "VisitorTours_Menu"
+    MenuItem "Visitor Stops" text: "Visitor Tour Stops" menu "VisitorTourStops_Menu"
 endmenu
 menu "LongTermChoices_Menu"
     MenuItem "Driver License" text: "Driver License" do
@@ -567,6 +571,41 @@ menu "SoloTourStops_Menu"
         mr.RunCode("Calibrate NM StopDuration", Args, {Type: 'Solo', Purpose: 'Shop'})
     endItem
 endMenu
+menu "VisitorParty_Menu"
+    MenuItem "Kids Presence" text: "Kids Presence" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate KidsPresence", Args)
+    endItem
+
+    MenuItem "Rental Car Choice" text: "Rental Car Choice" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate RentalCarChoice", Args)    
+    endItem
+endmenu
+menu "VisitorTours_Menu"
+    MenuItem "Work Tour Frequency" text: "Work Tour Frequency" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Tour Freq", Args, "Work")
+    endItem
+    MenuItem "Rec Tour Frequency" text: "Recreation Tour Frequency" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Tour Freq", Args, "Rec")
+    endItem
+    MenuItem "Other Tour Frequency" text: "Other Tour Frequency" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Tour Freq", Args, "Other")
+    endItem
+    MenuItem "Shop Tour Frequency" text: "Shop Tour Frequency" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Tour Freq", Args, "Shop")
+    endItem
+endmenu
 
 
 

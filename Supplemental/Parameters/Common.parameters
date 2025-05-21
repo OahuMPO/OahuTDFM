@@ -3225,7 +3225,7 @@
             "Caption":"Utility Specification: Presence of kids in visitor group",
             "Style":"KidsPresenceUtility",
             "Value":{
-                {"ASC","Constant",-4.1273,1,0},
+                {"ASC","Constant",-4.1978,1,0},
                 {"Household income is $60,000+","VisitorData.HHIncCode >= 12",0.5353,1,0},
                 {"Visit purpose is Vacation","VisitorData.PurposeCat = 1",0.5392,1,0},
                 {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,1,0}}
@@ -3261,7 +3261,7 @@
             "Caption":"Utility Specification: Rental Car Choice",
             "Style":"RentalCarUtility",
             "Value":{
-                {"ASC","Constant",2.0443,1,0},
+                {"ASC","Constant",1.8881,1,0},
                 {"Household income is $65,000+","VisitorData.HHIncCode >= 13",0.2369,1,0},
                 {"Group staying in Honolulu","TAZBin.VisitorDistrict.O = 6",2.9382,0,1},
                 {"Group staying in Urban Center","TAZBin.VisitorDistrict.O = 5",1.3766,0,1},
@@ -3279,7 +3279,7 @@
             "Caption":"Utility Specification: Visitor Work Tour Frequency",
             "Style":"OneTourFreqUtility",
             "Value":{
-                {"ASC_None","Constant",2.24,1,0},
+                {"ASC_None","Constant",2.6302,1,0},
                 {"Big Group (Party Size >= 5)","VisitorData.PartySize >= 5",0.877,0,1},
                 {"High Income Group (Income >= 60k)","VisitorData.HHIncCode >= 12",0.763,0,1},
                 {"Visitor party from Japan","VisitorData.CountryCat = 2",1.07,1,0},
@@ -3295,8 +3295,8 @@
             "Caption":"Utility Specification: Visitor Recreation Tour Frequency",
             "Style":"TwoTourFreqUtility",
             "Value":{
-                {"ASC_None","Constant",0.719,1,0,0},
-                {"ASC_One","Constant",1.51,0,1,0},
+                {"ASC_None","Constant",1.5214,1,0,0},
+                {"ASC_One","Constant",1.769,0,1,0},
                 {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",2.73,1,0,0},
                 {"Business purpose and don't make work tours","VisitorData.PurposeCat = 2 and nz(VisitorData.NumberWorkTours) = 0",0.915,1,0,0},
                 {"Stay at Urban Center","TAZBin.VisitorDistrict.O = 5",0.718,1,0,0},
@@ -3315,8 +3315,8 @@
             "Caption":"Utility Specification: Visitor Other Tour Frequency",
             "Style":"TwoTourFreqUtility",
             "Value":{
-                {"ASC_None","Constant",1.23,1,0,0},
-                {"ASC_One","Constant",1.18,0,1,0},
+                {"ASC_None","Constant",1.1972,1,0,0},
+                {"ASC_One","Constant",1.1013,0,1,0},
                 {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",0.913,1,0,0},
                 {"Also make recreation tours","VisitorData.NumberRecTours > 0",1.15,1,0,0},
                 {"Also make recreation tours","VisitorData.NumberRecTours > 0",0.611,0,1,0},
@@ -3336,8 +3336,8 @@
             "Caption":"Utility Specification: Visitor Shop Tour Frequency",
             "Style":"TwoTourFreqUtility",
             "Value":{
-                {"ASC_None","Constant",2.69,1,0,0},
-                {"ASC_One","Constant",2.56,0,1,0},
+                {"ASC_None","Constant",4.8343,1,0,0},
+                {"ASC_One","Constant",4.0415,0,1,0},
                 {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",2.26,1,0,0},
                 {"Business purpose and don't make work tours","VisitorData.PurposeCat = 2 and nz(VisitorData.NumberWorkTours) = 0",0.616,1,0,0},
                 {"Also make recreation tours","VisitorData.NumberRecTours > 0",2.29,1,0,0},
@@ -3765,6 +3765,15 @@
                 {"26:00 - 27:00",null,2.27,0,null,null,0.99,null,null}}
         }
 	
+    Section = "Visitor ABM|Tours|Output"
+        
+        Args.VisitorTours = {
+            "Type":"File",
+            "Caption":"Visitor output tours data",
+            "Description":"VisitorTours",
+            "Value":"%Output Folder%\\visitors\\VisitorTours.bin"
+        }
+
 	Section = "Commercial Vehicles/Trucks"
 	
         Args.[CV Trip Rates] = {
