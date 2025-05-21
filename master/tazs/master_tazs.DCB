@@ -10,5 +10,5 @@ master_tazs
 "Neighborhood",I,69,4,0,8,0,,"","",,"Sum",
 "VisitorDistrict",I,73,4,0,8,0,,"","Visitor district|1. North Shore|2. West Coast|3. Ewa|4. Central Oahu|5. Urban Center|6. Honolulu|7. East Coast",,"Sum",
 "VisitorClusterLodging",I,77,4,0,8,0,,"","Visitor lodging designation|1: Major resorts|2: Minor resorts|3: Other",,"Sum",
-"VisitorClusterOther",I,81,4,0,8,0,,"","Derived from Visitor District|5. Urban center|6. Honolulu|9. Other",,"Sum",
+"VisitorClusterOther",I,81,4,0,8,0,,"","Derived from Visitor District|1. Honolulu|2. Urban center|3. Other",,"Sum",
 "VisitorClusterRec",I,85,4,0,8,0,,"","Visitor recreation code designation|1. Waikiki Beach Area|2. Diamond Head Recreation Area|3. Ko Olina|4. Ala Moana|5. Other beaches|6. All other",,"Sum",
