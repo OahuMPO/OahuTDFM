@@ -1014,7 +1014,7 @@ EndMacro
 Macro "Visitor Tour Scheduling" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+        {"MacroNames", {"Visitor Tour Diary" }}
     }
 EndMacro
 

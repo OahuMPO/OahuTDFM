@@ -5,25 +5,29 @@ Macro "Visitor Tour Frequencies"(Args)
     end
 
     Args.ABMFlag = 2    // Indicate that the visitor abm step is active
-
+    
     // Work Tour frequency
     spec = {Purpose: "Work",
-            Filter: "PurposeCat = 2"}
+            Filter: "PurposeCat = 2",
+            Seed: 99991 + Ascii("W")}
     ret = RunMacro("Run Visitor Tour Freq", Args, spec)
 
     // Rec Tour frequency
     spec = {Purpose: "Rec",
-            Filter: "HouseholdID > 0"}
+            Filter: "HouseholdID > 0",
+            Seed: 99991 + Ascii("R")}
     ret = RunMacro("Run Visitor Tour Freq", Args, spec)
 
     // Other Tour frequency
     spec = {Purpose: "Other",
-            Filter: "HouseholdID > 0"}
+            Filter: "HouseholdID > 0",
+            Seed: 99991 + Ascii("O")}
     ret = RunMacro("Run Visitor Tour Freq", Args, spec)
 
     // Shop Tour frequency
     spec = {Purpose: "Shop",
-            Filter: "HouseholdID > 0"}
+            Filter: "HouseholdID > 0",
+            Seed: 99991 + Ascii("S")}
     ret = RunMacro("Run Visitor Tour Freq", Args, spec)
 
     Return(ret)
@@ -34,6 +38,7 @@ Macro "Run Visitor Tour Freq"(Args, spec)
     visabm = RunMacro("Get Visitor ABM Manager", Args)
     purp = spec.Purpose
     filter = spec.Filter
+    seed = spec.Seed
     
     utilFile = Args.("Visitor" + purp + "TourFreqUtility")
     outFld = "Number" + purp + "Tours"
@@ -53,15 +58,18 @@ Macro "Run Visitor Tour Freq"(Args, spec)
     obj.AddUtility({UtilityFunction: utilFile})
     obj.AddOutputSpec({ChoicesField: outFld})
     obj.ReportShares = 1
-    obj.RandomSeed = 99991
+    obj.RandomSeed = seed
     ret = obj.Evaluate()
     if !ret then
         Throw("Visitor tour frequency model failed for purpose: " + purp)
     Args.(purp + "VisitorTourFreq Spec") = CopyArray(ret) // For calibration purposes
-    
+    obj = null
+
     // Subtract 1 to convert alternatives to number of tours
-    outFld = "HH." + outFld
-    visabm.(outFld) = visabm.(outFld) - 1
+    visabm.CreateHHSet({Filter: filter, Activate: 1})
+    vecs = visabm.GetHHVectors({outFld})
+    vecs.(outFld) = vecs.(outFld) - 1
+    visabm.SetHHVectors(vecs)
 
     objT = null
     objA = null
@@ -287,7 +295,7 @@ Macro "Visitor Tour TOD"(Args)
     availObj = RunMacro("Create TOD Availability Table", visabm.HHView)
     vwJ = JoinViews("VisitorDataPlusAvail", GetFieldFullSpec(visabm.HHView, "HouseholdID"), GetFieldFullSpec(availObj.GetView(), "HHID"),)
     
-    purps = {"Work1", "Rec1", "Shop1", "Other1", "Rec2", "Other2", "Shop2"}
+    purps = {"Work1", "Rec1", "Other1", "Shop1", "Rec2", "Other2", "Shop2"}
     pbar = CreateObject("G30 Progress Bar", "Running TOD Model", true, purps.length)
     for val in purps do
         tourNo = Right(val, 1)
@@ -311,7 +319,7 @@ Macro "Visitor Tour TOD"(Args)
                 Utility: utilTable,
                 AvailabilityExpressions: availExpressions,
                 ChoiceField: choiceFld,
-                RandomSeed: 1499977 + 10000*s2i(tourNo),
+                RandomSeed: 1499977 + 1000*Ascii(left(p,1)) + 100*s2i(tourNo),
                 SimulateTimeFields: {StartTime: p + "_StartTime" + tourNo, EndTime: p + "_EndTime" + tourNo, Duration: p + "_Duration" + tourNo},
                 MinimumDuration: 10}
         ret = RunMacro("Run Visitor Tour TOD", Args, Opts)
@@ -321,7 +329,7 @@ Macro "Visitor Tour TOD"(Args)
         RunMacro("Update TOD Availability Table", spec)
 
         if pbar.Step() then
-            Return(0)
+            Return()
     end
     CloseView(vwJ)
     availObj = null
@@ -375,7 +383,7 @@ Macro "Run Visitor Tour TOD"(Args, Opts)
         RunMacro("Simulate Time Fields", Args, Opts)
 
     objT = null
-    Return(ret)
+    Return(1)
 endMacro
 
 
@@ -554,120 +562,99 @@ endMacro
 
 
 /*
-    Adjust tour start and end times if necessary when there are multiple tours using a mimimum buffer between tours
-    Find out how much time needs to be made up between tours and adjust the start and end times accordingly
-    Change TOD choice if necessary
+    Macro that creates visitor tour diary from visitor tour choices
 */
-Macro "Adjust TOD Schedules"(Args)
-    abm = RunMacro("Get ABM Manager", Args)
+Macro "Visitor Tour Diary"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
 
-    // Two work tours
-    spec = {abmManager: abm, 
-            Filter: "NumberWorkTours > 1", 
-            Tours: {"Work1", "Work2"},
-            PeriodInfo: Args.TimePeriods}
-    RunMacro("Adjust TOD Schedule", spec)
+    Args.ABMFlag = 2    // Indicate that the visitor abm step is active
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    
+    vwT = RunMacro("Create Temp Visitor Tour Diary")
+    
+    purps = {"Work1", "Rec1", "Rec2", "Other1", "Other2", "Shop1", "Shop2"}
+    for val in purps do
+        spec = {TourTag: val, abmManager: visabm}
+        vecsSet = RunMacro("Generate Visitor Tour Data", spec)
+        
+        nRecs = vecsSet.HHID.length
+        AddRecords(vwT,,,{{"Empty Records", nRecs}})
+        SetView(vwT)
+        n = SelectByQuery("__Selection", "several", "Select * where HHID = null",)
+        SetDataVectors(vwT + "|__Selection", vecsSet,)
+    end
 
-    // Two univ tours
-    spec = {abmManager: abm, 
-            Filter: "NumberUnivTours > 1", 
-            Tours: {"Univ1", "Univ2"},
-            PeriodInfo: Args.TimePeriods}
-    RunMacro("Adjust TOD Schedule", spec)
+    // Post process tours data by adding departure and arrival times
 
-    // Work and school tours
-    spec = {abmManager: abm, 
-            Filter: "NumberWorkTours > 0 and AttendSchool = 1 and SchoolTAZ <> null", 
-            Tours: {"Work1", "School"}, 
-            PeriodInfo: Args.TimePeriods}
-    RunMacro("Adjust TOD Schedule", spec)
+    // Resolve tour conflicts and adjust schedules if any
 
-    // Work and univ tours
-    spec = {abmManager: abm, 
-            Filter: "NumberWorkTours > 0 and NumberUnivTours > 0", 
-            Tours: {"Work1", "Univ1"}, 
-            PeriodInfo: Args.TimePeriods}
-    RunMacro("Adjust TOD Schedule", spec)
+    // Export the tours view to output table
+    ExportView(vwT + "|", "FFB", Args.VisitorTours,,)        
 
-    Return(true)
+    Return(1)
 endMacro
 
 
-Macro "Adjust TOD Schedule"(spec)
-    abm = spec.abmManager
-    filter = spec.Filter
-    tourA = spec.Tours[1]
-    tourB = spec.Tours[2]
-    buffer = 15
-    typeA = if tourA = "School" then "School" else Left(tourA, 4)
-    typeB = if tourB = "School" then "School" else Left(tourB, 4)
+// Create a temporary in-memory tour table and return the view
+Macro "Create Temp Visitor Tour Diary"(spec)
+    flds = {{"TourID", "Integer", 12, null, "Yes"},
+            {"HHID", "Integer", 12, null, "Yes"},
+            {"TourType", "String", 12, null, "No"},
+            {"Origin", "Integer", 12, null, "Yes"},
+            {"Destination", "Integer", 12, null, "Yes"},
+            {"ModeCode", "Integer", 2, null, "No"},
+            {"Mode", "String", 15, null, "No"},
+            {"TourStartTime", "Integer", 12, null, "No"},
+            {"DestArrTime", "Integer", 12, null, "No"},
+            {"ActivityStartTime", "Integer", 12, null, "No"},
+            {"ActivityDuration", "Integer", 12, null, "No"},
+            {"ActivityEndTime", "Integer", 12, null, "No"},
+            {"DestDepTime", "Integer", 12, null, "No"},
+            {"TourEndTime", "Integer", 12, null, "No"},
+            {"TODForward", "String", 2, null, "No"},
+            {"TODReturn", "String", 2, null, "No"}}
+    vwOut = CreateTable("VisitorDiary",, "MEM", flds)
+    Return(vwOut)
+endMacro
 
-    // Get the fields for the tours
-    ActStartFldTourA = tourA + "_StartTime"
-    ActEndFldTourA = tourA + "_EndTime"
-    ActTODTourA = tourA + "_ActivityTOD"
-    TourAToHomeFld = typeA + "ToHomeTime"
-    HomeToTourAFld = "HomeTo" + typeA + "Time"
 
-    ActStartFldTourB = tourB + "_StartTime"
-    ActEndFldTourB = tourB + "_EndTime"
-    ActTODTourB = tourB + "_ActivityTOD"
-    TourBToHomeFld = typeB + "ToHomeTime"
-    HomeToTourBFld = "HomeTo" + typeB + "Time"
+Macro "Generate Visitor Tour Data"(spec)
+    visabm = spec.abmManager
+    tourtag = spec.TourTag
+    tourNo = right(tourtag, 1)
+    purp = left(tourtag, StringLength(tourtag) - 1)
 
-    // Get the appropriate vectors
-    set = abm.CreatePersonSet({Filter: filter, SetName: "__MultipleTours", Activate: 1})
-    if set.Size = 0 then
-        Return()
+    // Get the relevant vectors
+    filter = printf("Number%sTours >= %s and %sTOD%s <> null", {purp, tourNo, purp, tourNo})
+    visabm.CreateHHSet({Filter: filter, Activate: 1})
+    flds = {"HouseholdID", "LodgingTAZ", 
+            purp + "TAZ" + tourNo, purp + "Mode" + tourNo, purp + "TOD" + tourNo,
+            purp + "_StartTime" + tourNo, purp + "_EndTime" + tourNo, purp + "_Duration" + tourNo}
+    vecs = visabm.GetHHVectors(flds)
+    nRecs = vecs.HouseholdID.length
+
+    // Get mode string vector
+    modes = {"SOV", "HOV2", "HOV3", "TNC", "Other", "W_Bus", "Walk"}
+    vMode = vecs.(purp + "Mode" + tourNo)
+    arrModeStr = v2a(vMode).Map(do (f) Return(modes[f]) end)
+
+    // Temp ID Map
+    idMap = {"Work": 10000000, "Rec": 20000000, "Other": 30000000, "Shop": 40000000}
+    startID = idMap.(purp) + s2i(tourNo) * 1000000
     
-    flds = {ActStartFldTourA, ActEndFldTourA, ActStartFldTourB, ActEndFldTourB, 
-            TourAToHomeFld, HomeToTourAFld, TourBToHomeFld, HomeToTourBFld}
-    vecs = abm.GetPersonVectors(flds)
-    
-    vStA = vecs.(ActStartFldTourA)
-    vStB = vecs.(ActStartFldTourB)
-    vEnA = vecs.(ActEndFldTourA)
-    vEnB = vecs.(ActEndFldTourB)
-
-    // Safety check to ensure that there are no missing return time values
-    vH2ATime = vecs.(HomeToTourAFld)
-    vA2HTime = vecs.(TourAToHomeFld)
-    vA2HTime = if vA2HTime = null then vH2ATime else vA2HTime
-
-    vH2BTime = vecs.(HomeToTourBFld)
-    vB2HTime = vecs.(TourBToHomeFld)
-    vB2HTime = if vB2HTime = null then vH2BTime else vB2HTime
-    
-    // Find earliest start time for tour A/B and the makeup time
-    vEarliestSt = if vStA < vStB then 
-                    vEnA + vA2HTime + vH2BTime + buffer
-                  else 
-                    vEnB + vB2HTime + vH2ATime + buffer
-
-    vMakeUp = if vStA < vStB then Ceil(Max(vEarliestSt - vStB, 0)) else Ceil(Max(vEarliestSt - vStA, 0))
-    vMakeUp1 = Floor(vMakeUp/2)
-    vMakeUp2 = Ceil(vMakeUp/2)
-
-    // Adjust the start and end times for tours A and B
-    vStA =  if vStA < vStB then vStA - vMakeUp1 else vStA + vMakeUp2
-    vEnA =  if vStA < vStB then vEnA - vMakeUp1 else vEnA + vMakeUp2
-    vStB =  if vStA < vStB then vStB + vMakeUp2 else vStB - vMakeUp1
-    vEnB =  if vStA < vStB then vEnB + vMakeUp2 else vEnB - vMakeUp1
-    
-    // Compute updated Activity TOD in the case the trip has spilled over to the next period
-    periodInfo = spec.PeriodInfo
-    vTODStA = RunMacro("Get Time Period Vector", vStA, periodInfo)
-    vTODEnA = RunMacro("Get Time Period Vector", vEnA, periodInfo)
-    vTODStB = RunMacro("Get Time Period Vector", vStB, periodInfo)
-    vTODEnB = RunMacro("Get Time Period Vector", vEnB, periodInfo)
-    
-    // Set the appropriate vectors
     vecsSet = null
-    vecsSet.(ActStartFldTourA) = vStA
-    vecsSet.(ActEndFldTourA) = vEnA
-    vecsSet.(ActStartFldTourB) = vStB
-    vecsSet.(ActEndFldTourB) = vEnB
-    vecsSet.(ActTODTourA) = vTODStA + "-" + vTODEnA
-    vecsSet.(ActTODTourB) = vTODStB + "-" + vTODEnB
-    abm.SetPersonVectors(vecsSet)
+    vecsSet.HHID = vecs.HouseholdID
+    vecsSet.TourType = Vector(nRecs, "String", {Constant: purp})
+    vecsSet.Origin = vecs.LodgingTAZ
+    vecsSet.Destination = vecs.(purp + "TAZ" + tourNo)
+    vecsSet.ModeCode = vecs.(purp + "Mode" + tourNo)
+    vecsSet.Mode = a2v(arrModeStr)
+    vecsSet.ActivityStartTime = vecs.(purp + "_StartTime" + tourNo)
+    vecsSet.ActivityEndTime = vecs.(purp + "_EndTime" + tourNo)
+    vecsSet.ActivityDuration = vecs.(purp + "_Duration" + tourNo)
+    vecsSet.TourID = Vector(nRecs, "Integer", {Constant: startID}) + vecs.HouseholdID
+    Return(vecsSet)
 endMacro
