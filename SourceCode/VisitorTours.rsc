@@ -243,10 +243,12 @@ Macro "Run Visitor Tour MC"(Args, spec)
     util = Args.(purp + "VisitorMCUtility")
     
     availExpressions = null
-    availExpressions.Alternative = {"Walk"}
-    availExpressions.Expression = {"WalkSkim.Distance < 1.5"}
+    availExpressions.Alternative = {"Walk", "Transit"}
+    availExpressions.Expression = {"WalkSkim.Distance < 1.5", "BusSkim.[In-Vehicle Time] <> null and BusSkimPM.[In-Vehicle Time] <> null and BusSkimOP.[In-Vehicle Time] <> null"} 
 
-    w_t_skim = Args.[Output Folder] + "\\skims\\transit\\AM_w_bus.mtx"
+    w_t_skim_am = Args.[Output Folder] + "\\skims\\transit\\AM_w_bus.mtx"
+    w_t_skim_pm = Args.[Output Folder] + "\\skims\\transit\\PM_w_bus.mtx"
+    w_t_skim_op = Args.[Output Folder] + "\\skims\\transit\\OP_w_bus.mtx"
 
     visabm = RunMacro("Get Visitor ABM Manager", Args)
     TAZDB = Args.TAZGeography
@@ -265,7 +267,9 @@ Macro "Run Visitor Tour MC"(Args, spec)
     obj.AddTableSource({SourceName: "TAZData", View: objD.GetView(), IDField: "TAZ"})
     obj.AddMatrixSource({SourceName: "AutoSkim", File: Args.HighwaySkimAM, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
     obj.AddMatrixSource({SourceName: "WalkSkim", File: Args.WalkSkim, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
-    obj.AddMatrixSource({SourceName: "BusSkim", File: w_t_skim, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+    obj.AddMatrixSource({SourceName: "BusSkim", File: w_t_skim_am, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+    obj.AddMatrixSource({SourceName: "BusSkimPM", File: w_t_skim_pm, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+    obj.AddMatrixSource({SourceName: "BusSkimOP", File: w_t_skim_op, RowIndex: "RCIndex", ColIndex: "RCIndex"})
     obj.AddPrimarySpec({Name: "VisitorData", Filter: filter, OField: "LodgingTAZ", DField: dFld})
     obj.AddUtility({UtilityFunction: util, AvailabilityExpressions: availExpressions})
     obj.AddOutputSpec({ChoicesField: outFld})
@@ -588,6 +592,7 @@ Macro "Visitor Tour Diary"(Args)
     end
 
     // Post process tours data by adding departure and arrival times
+    RunMacro("Post Process Visitor Tour Diary", Args, vwT)
 
     // Resolve tour conflicts and adjust schedules if any
 
@@ -608,11 +613,11 @@ Macro "Create Temp Visitor Tour Diary"(spec)
             {"ModeCode", "Integer", 2, null, "No"},
             {"Mode", "String", 15, null, "No"},
             {"TourStartTime", "Integer", 12, null, "No"},
-            {"DestArrTime", "Integer", 12, null, "No"},
+            {"ForwardTT", "Real", 12, 2, "No"},
             {"ActivityStartTime", "Integer", 12, null, "No"},
             {"ActivityDuration", "Integer", 12, null, "No"},
             {"ActivityEndTime", "Integer", 12, null, "No"},
-            {"DestDepTime", "Integer", 12, null, "No"},
+            {"ReturnTT", "Real", 12, 2, "No"},
             {"TourEndTime", "Integer", 12, null, "No"},
             {"TODForward", "String", 2, null, "No"},
             {"TODReturn", "String", 2, null, "No"}}
@@ -657,4 +662,29 @@ Macro "Generate Visitor Tour Data"(spec)
     vecsSet.ActivityDuration = vecs.(purp + "_Duration" + tourNo)
     vecsSet.TourID = Vector(nRecs, "Integer", {Constant: startID}) + vecs.HouseholdID
     Return(vecsSet)
+endMacro
+
+
+// Fill travel times forward and return and departure and arrival times
+Macro "Post Process Visitor Tour Diary"(Args, vwT)
+    // Time from lodging TAZ to destination
+    optF = {View: vwT, 
+            OField: "Origin", DField: "Destination", 
+            DepTimeField: "ActivityStartTime", ModeField: "Mode", 
+            FillField: "ForwardTT"}
+    RunMacro("Fill Travel Times", Args, optF)
+
+    // Time from destination to lodging TAZ
+    optR = {View: vwT, 
+            OField: "Destination", DField: "Origin", 
+            DepTimeField: "ActivityEndTime", ModeField: "Mode", 
+            FillField: "ReturnTT"}
+    RunMacro("Fill Travel Times", Args, optR)
+
+    vecs = GetDataVectors(vwT + "|", {"ForwardTT", "ReturnTT", "ActivityStartTime", "ActivityEndTime"}, {OptArray: 1})
+    vecsSet = null
+    vecsSet.ReturnTT = if vecs.ReturnTT = null then vecs.ForwardTT else vecs.ReturnTT
+    vecsSet.TourStartTime = vecs.ActivityStartTime - vecs.ForwardTT
+    vecsSet.TourEndTime = vecs.ActivityEndTime + vecsSet.ReturnTT
+    SetDataVectors(vwT + "|", vecsSet,)
 endMacro
