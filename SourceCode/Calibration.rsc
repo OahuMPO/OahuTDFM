@@ -649,6 +649,21 @@ Macro "Calibrate Visitor Tour Freq"(Args, p)
     RunMacro("Calibrate Visitor Model", Args, opts)
 endMacro
 
+Macro "Calibrate Visitor Mode Choice"(Args, p)
+    macroArgs = {Purpose: p, 
+                    Filter: printf("Number%sTours >= 1", {p}),
+                    OutputField: p + "Mode1",
+                    DestField: p + "TAZ1",
+                    Seed: 899981 + Ascii(Left(p,1))}
+
+    opts = null
+    opts.ModelName = p + "VisitorTourMC"
+    opts.MacroName = "Run Visitor Tour MC"
+    opts.MacroArgs = macroArgs
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorTours\\VisitorTourMC_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
 // Main calibration model utility
 Macro "Calibrate Model"(Args, Opts)
     abm = RunMacro("Get ABM Manager", Args)
@@ -711,6 +726,7 @@ Macro "Calibrate Visitor Model"(Args, Opts)
     TAZBin = Substitute(TAZDB, ".dbd", ".bin",) 
     objT = CreateObject("Table", TAZBin)
     objA = CreateObject("Table", Args.AccessibilitiesOutputs)
+    objD = CreateObject("Table", Args.DemographicOutputs)
 
     modelName = Opts.ModelName
     calibrationFile = Opts.CalibrationFile
@@ -746,8 +762,9 @@ Macro "Calibrate Visitor Model"(Args, Opts)
         end
     end
     
-    objT = null
+    objD = null
     objA = null
+    objT = null
 
     // Open calibration file in an editor
     shared d_edit_options

@@ -605,6 +605,27 @@ menu "VisitorTours_Menu"
         Args = mr.GetValues()
         mr.RunCode("Calibrate Visitor Tour Freq", Args, "Shop")
     endItem
+    Separator
+    MenuItem "Work Mode Choice" text: "Work Mode Choice" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Mode Choice", Args, "Work")
+    endItem
+    MenuItem "Rec Mode Choice" text: "Recreation Mode Choice" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Mode Choice", Args, "Rec")
+    endItem
+    MenuItem "Other Mode Choice" text: "Other Mode Choice" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Mode Choice", Args, "Other")
+    endItem
+    MenuItem "Shop Mode Choice" text: "Shop Mode Choice" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Mode Choice", Args, "Shop")
+    endItem
 endmenu
 
 

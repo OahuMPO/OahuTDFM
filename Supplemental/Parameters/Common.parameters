@@ -3351,8 +3351,8 @@
                 {"Visitor party from Japan","VisitorData.CountryCat = 2",1.52,0,0,1},
                 {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.089,0,1,0},
                 {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.254,0,0,1},
-                {"No 2 tours if making work tours","VisitorData.NumberWorkTours = 1",-99.0,0,0,1},
-                {"Two tours restriction","nz(VisitorData.NumberWorkTours) = 0 and (VisitorData.NumberRecTours + VisitorData.NumberOtherTours > 1)",-99.0,0,0,1}}
+                {"No 2 tours if making work tours","VisitorData.NumberWorkTours = 1",-99,0,0,1},
+                {"Two tours restriction","nz(VisitorData.NumberWorkTours) = 0 and (VisitorData.NumberRecTours + VisitorData.NumberOtherTours > 1)",-99,0,0,1}}
         }
 	
 	Section = "Visitor ABM|Tours|Destination|Work"
@@ -3385,11 +3385,11 @@
             "Caption":"Recreation Destination Location: Clusters (Nests)",
             "Style":"ClusterInfo",
             "Value":{
-                {1,"WaikikiBeach",0.116,3.63,null},
-                {2,"DiamondHead",1,0.925,null},
-                {3,"KoOlina",0.35,3.9,null},
-                {4,"AlaMoana",0.955,1.65,null},
-                {5,"OtherBeachesandParks",1,0.639,null},
+                {1,"WaikikiBeach",0.116,3.632,null},
+                {2,"DiamondHead",1,1.023,null},
+                {3,"KoOlina",0.35,3.597,null},
+                {4,"AlaMoana",0.955,1.735,null},
+                {5,"OtherBeachesandParks",1,0.598,null},
                 {6,"Other",0.544,null,null}}
         }
         Args.RecLocUtilityVis = {
@@ -3465,12 +3465,12 @@
             "Description":"WorkVisitorMCUtility",
             "Style":"VisitorTourMCUtility",
             "Value":{
-                {"ASC_sov","Constant",-2.15,1,0,0,0,0,0,0},
-                {"ASC_hov2","Constant",-3.6,0,1,0,0,0,0,0},
-                {"ASC_hov3","Constant",-3.02,0,0,1,0,0,0,0},
-                {"ASC_other","Constant",-0.911,0,0,0,0,1,0,0},
-                {"ASC_transit","Constant",-3.35,0,0,0,0,0,1,0},
-                {"ASC_walk","Constant",-3.65,0,0,0,0,0,0,1},
+                {"ASC_sov","Constant",-2.7185,1,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-4.7641,0,1,0,0,0,0,0},
+                {"ASC_hov3","Constant",-4.0848,0,0,1,0,0,0,0},
+                {"ASC_other","Constant",-1.2248,0,0,0,0,1,0,0},
+                {"ASC_transit","Constant",-3.6368,0,0,0,0,0,1,0},
+                {"ASC_walk","Constant",-1.6056,0,0,0,0,0,0,1},
                 {"Auto Time","AutoSkim.Time",-0.0027,1,1,1,0,0,0,0},
                 {"Auto Time (TNC)","AutoSkim.Time",-0.0522,0,0,0,1,0,0,0},
                 {"Bus Total Time","BusSkim.[Total Time]",-0.0202,0,0,0,0,0,1,0},
@@ -3491,18 +3491,18 @@
             "Description":"RecVisitorMCUtility",
             "Style":"VisitorTourMCUtility",
             "Value":{
-                {"ASC_sov","Constant",-0.303,1,0,0,0,0,0,0},
-                {"ASC_hov2","Constant",-1.77,0,1,0,0,0,0,0},
-                {"ASC_hov3","Constant",-2.01,0,0,1,0,0,0,0},
-                {"ASC_other","Constant",-1.13,0,0,0,0,1,0,0},
-                {"ASC_transit","Constant",-2.59,0,0,0,0,0,1,0},
-                {"ASC_walk","Constant",1.21,0,0,0,0,0,0,1},
+                {"ASC_sov","Constant",-1.289,1,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-2.1673,0,1,0,0,0,0,0},
+                {"ASC_hov3","Constant",-2.3749,0,0,1,0,0,0,0},
+                {"ASC_other","Constant",-1.7526,0,0,0,0,1,0,0},
+                {"ASC_transit","Constant",-3.2615,0,0,0,0,0,1,0},
+                {"ASC_walk","Constant",3.2424,0,0,0,0,0,0,1},
                 {"Auto Time","AutoSkim.Time",-0.0229,1,1,1,0,1,0,0},
                 {"Auto Time (TNC)","AutoSkim.Time",-0.0545,0,0,0,1,0,0,0},
                 {"Walk Time","WalkSkim.Time",-0.0229,0,0,0,0,0,0,1},
                 {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",1.88,0,1,1,0,0,0,0},
                 {"Party Size > 2 (hov3)","VisitorData.PartySize > 2",1.35,0,0,1,0,0,0,0},
-                {"Party Size < 3 (tnc)","VisitorData.PartySize  < 3",-0.45,0,0,0,1,0,0,0},
+                {"Party Size < 3 (tnc)","VisitorData.PartySize < 3",-0.45,0,0,0,1,0,0,0},
                 {"Party has rented car (tnc)","VisitorData.HasRentalCar = 1",-1.57,0,0,0,1,0,0,0},
                 {"Party has rented car (transit)","VisitorData.HasRentalCar = 1",-2.72,0,0,0,0,0,1,0},
                 {"Intra Cluster (transit)","TAZBin.VisitorDistrict.O = TAZBin.VisitorDistrict.D",2.61,0,0,0,0,0,1,0},
@@ -3520,12 +3520,12 @@
             "Description":"OtherVisitorMCUtility",
             "Style":"VisitorTourMCUtility",
             "Value":{
-                {"ASC_sov","Constant",-0.125,1,0,0,0,0,0,0},
-                {"ASC_hov2","Constant",-1.84,0,1,0,0,0,0,0},
-                {"ASC_hov3","Constant",-1.6,0,0,1,0,0,0,0},
-                {"ASC_other","Constant",-0.708,0,0,0,0,1,0,0},
-                {"ASC_transit","Constant",-1.12,0,0,0,0,0,1,0},
-                {"ASC_walk","Constant",0.482,0,0,0,0,0,0,1},
+                {"ASC_sov","Constant",-1.2643,1,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-2.2556,0,1,0,0,0,0,0},
+                {"ASC_hov3","Constant",-1.9919,0,0,1,0,0,0,0},
+                {"ASC_other","Constant",-1.263,0,0,0,0,1,0,0},
+                {"ASC_transit","Constant",-1.8723,0,0,0,0,0,1,0},
+                {"ASC_walk","Constant",0.5444,0,0,0,0,0,0,1},
                 {"Auto Time","AutoSkim.Time",-0.0133,1,1,1,0,0,0,0},
                 {"Auto Time (TNC)","AutoSkim.Time",-0.0459,0,0,0,1,0,0,0},
                 {"Walk Time","WalkSkim.Time",-0.0133,0,0,0,0,0,0,1},
@@ -3548,17 +3548,17 @@
             "Description":"ShopVisitorMCUtility",
             "Style":"VisitorTourMCUtility",
             "Value":{
-                {"ASC_sov","Constant",-0.653,1,0,0,0,0,0,0},
-                {"ASC_hov2","Constant",-2.07,0,1,0,0,0,0,0},
-                {"ASC_hov3","Constant",-2.38,0,0,1,0,0,0,0},
-                {"ASC_other","Constant",-1.85,0,0,0,0,1,0,0},
-                {"ASC_transit","Constant",-1.56,0,0,0,0,0,1,0},
-                {"ASC_walk","Constant",0.495,0,0,0,0,0,0,1},
+                {"ASC_sov","Constant",-1.6866,1,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-2.4359,0,1,0,0,0,0,0},
+                {"ASC_hov3","Constant",-2.7658,0,0,1,0,0,0,0},
+                {"ASC_other","Constant",-2.5684,0,0,0,0,1,0,0},
+                {"ASC_transit","Constant",-2.4264,0,0,0,0,0,1,0},
+                {"ASC_walk","Constant",1.2553,0,0,0,0,0,0,1},
                 {"Auto Time","AutoSkim.Time",-0.0336,1,1,1,0,0,0,0},
                 {"Auto Time (TNC)","AutoSkim.Time",-0.0871,0,0,0,1,0,0,0},
                 {"Auto Time (Other)","AutoSkim.Time",-0.0263,0,0,0,0,1,0,0},
                 {"Walk Time","WalkSkim.Time",-0.0336,0,0,0,0,0,0,1},
-                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2,0,1,1,0,0,0,0},
+                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2.0,0,1,1,0,0,0,0},
                 {"Party Size > 2 (hov3)","VisitorData.PartySize > 2",1.17,0,0,1,0,0,0,0},
                 {"Party has rented car (tnc)","VisitorData.HasRentalCar = 1",-2.04,0,0,0,1,0,0,0},
                 {"Party has rented car (transit)","VisitorData.HasRentalCar = 1",-2.62,0,0,0,0,0,1,0},
@@ -3765,15 +3765,15 @@
                 {"26:00 - 27:00",null,2.27,0,null,null,0.99,null,null}}
         }
 	
-    Section = "Visitor ABM|Tours|Output"
-        
+	Section = "Visitor ABM|Tours|Output"
+	
         Args.VisitorTours = {
             "Type":"File",
             "Caption":"Visitor output tours data",
             "Description":"VisitorTours",
             "Value":"%Output Folder%\\visitors\\VisitorTours.bin"
         }
-
+	
 	Section = "Commercial Vehicles/Trucks"
 	
         Args.[CV Trip Rates] = {
