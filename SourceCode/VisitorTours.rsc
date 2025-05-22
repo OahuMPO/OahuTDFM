@@ -578,6 +578,7 @@ Macro "Visitor Tour Diary"(Args)
     visabm = RunMacro("Get Visitor ABM Manager", Args)
     
     vwT = RunMacro("Create Temp Visitor Tour Diary")
+    objT = CreateObject("Table", vwT)
     
     purps = {"Work1", "Rec1", "Rec2", "Other1", "Other2", "Shop1", "Shop2"}
     for val in purps do
@@ -585,20 +586,24 @@ Macro "Visitor Tour Diary"(Args)
         vecsSet = RunMacro("Generate Visitor Tour Data", spec)
         
         nRecs = vecsSet.HHID.length
-        AddRecords(vwT,,,{{"Empty Records", nRecs}})
-        SetView(vwT)
-        n = SelectByQuery("__Selection", "several", "Select * where HHID = null",)
-        SetDataVectors(vwT + "|__Selection", vecsSet,)
+        
+        objT.AddRows({EmptyRows: nRecs})
+        n = objT.SelectByQuery({SetName: "__Selection", Query: "Select * where HHID = null"})
+        objT.SetDataVectors({FieldData: vecsSet})
     end
 
     // Post process tours data by adding departure and arrival times
-    RunMacro("Post Process Visitor Tour Diary", Args, vwT)
+    RunMacro("Post Process Visitor Tour Diary", Args, objT)
 
     // Resolve tour conflicts and adjust schedules if any
+    RunMacro("Resolve Visitor Tour Conflicts", objT)
 
     // Export the tours view to output table
-    ExportView(vwT + "|", "FFB", Args.VisitorTours,,)        
-
+    objT.ChangeSet()
+    objT.Export({FileName: Args.VisitorTours})
+    objT = null
+    CloseView(vwT)
+    
     Return(1)
 endMacro
 
@@ -620,7 +625,9 @@ Macro "Create Temp Visitor Tour Diary"(spec)
             {"ReturnTT", "Real", 12, 2, "No"},
             {"TourEndTime", "Integer", 12, null, "No"},
             {"TODForward", "String", 2, null, "No"},
-            {"TODReturn", "String", 2, null, "No"}}
+            {"TODReturn", "String", 2, null, "No"},
+            {"ModifyFlag", "Short", 2, null, "No"},
+            {"RemoveFlag", "Short", 2, null, "No"}}
     vwOut = CreateTable("VisitorDiary",, "MEM", flds)
     Return(vwOut)
 endMacro
@@ -666,7 +673,9 @@ endMacro
 
 
 // Fill travel times forward and return and departure and arrival times
-Macro "Post Process Visitor Tour Diary"(Args, vwT)
+Macro "Post Process Visitor Tour Diary"(Args, objT)
+    vwT = objT.GetView()
+    
     // Time from lodging TAZ to destination
     optF = {View: vwT, 
             OField: "Origin", DField: "Destination", 
@@ -681,10 +690,51 @@ Macro "Post Process Visitor Tour Diary"(Args, vwT)
             FillField: "ReturnTT"}
     RunMacro("Fill Travel Times", Args, optR)
 
-    vecs = GetDataVectors(vwT + "|", {"ForwardTT", "ReturnTT", "ActivityStartTime", "ActivityEndTime"}, {OptArray: 1})
+    objT.ChangeSet()
+    vecs = objT.GetDataVectors({FieldNames: {"ForwardTT", "ReturnTT", "ActivityStartTime", "ActivityEndTime"}})
     vecsSet = null
     vecsSet.ReturnTT = if vecs.ReturnTT = null then vecs.ForwardTT else vecs.ReturnTT
     vecsSet.TourStartTime = vecs.ActivityStartTime - vecs.ForwardTT
     vecsSet.TourEndTime = vecs.ActivityEndTime + vecsSet.ReturnTT
-    SetDataVectors(vwT + "|", vecsSet,)
+    objT.SetDataVectors({FieldData: vecsSet})
+endMacro
+
+
+/*
+    Resolve conflicts in visitor tours. Move activty start time and reduce duration for tours that encroach other tours.
+*/
+Macro "Resolve Visitor Tour Conflicts"(objT)
+    buffer = 5
+    minDur = 10
+    flds = {{FieldName: "PrevHHID", Type: "Integer"},
+            {FieldName: "PrevTourEndTime", Type: "Integer"}}
+    objT.AddFields({Fields: flds})
+    
+    // Fill temporary fields
+    SortOrder = {{"HHID", "Ascending"}, {"ActivityStartTime", "Ascending"}}
+    objT.Sort({FieldArray: SortOrder})
+    vecs = objT.GetDataVectors({FieldNames: {"HHID", "TourEndTime"}})
+    vPrevHHID = RunMacro("Shift Vector", {Vector: vecs.HHID, Method: "Prev"})
+    vPrevTourEndTime = RunMacro("Shift Vector", {Vector: vecs.TourEndTime, Method: "Prev"})
+    objT.PrevHHID = vPrevHHID
+    objT.PrevTourEndTime = vPrevTourEndTime
+    
+    // Select records that need to be adjusted
+    objT.Sort()
+    filter = "(HHID = PrevHHID) and (TourStartTime <= PrevTourEndTime + " + String(buffer) + ")"
+    objT.SelectByQuery({Query: filter, SetName: "Conflicts"})
+    flds = {"TourStartTime", "ActivityStartTime", "PrevTourEndTime", "ActivityDuration"}
+    vecs = objT.GetDataVectors({FieldNames: flds})
+    vDelta = (vecs.PrevTourEndTime - vecs.TourStartTime) + buffer
+
+    vecsSet = null
+    vecsSet.TourStartTime = vecs.TourStartTime + vDelta
+    vecsSet.ActivityStartTime = vecs.ActivityStartTime + vDelta
+    vNewDur = vecs.ActivityDuration - vDelta
+    vecsSet.ModifyFlag = if vNewDur < minDur then null else 1
+    vecsSet.RemoveFlag = if vNewDur < minDur then 1 else null
+    vecsSet.ActivityDuration = vNewDur
+    objT.SetDataVectors({FieldData: vecsSet})
+    //objT.DropFields({FieldNames: {"PrevHHID", "PrevTourEndTime"}})
+    
 endMacro
