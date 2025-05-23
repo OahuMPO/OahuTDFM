@@ -946,6 +946,11 @@ Macro "Visitor Party Synthesis" (Args,Result)
                     {"PicturePosition", "CenterRight"},
                     {"TextStyle", "Left"}
     }
+Data:
+    InSections({"Visitor ABM|Key Decisions|Presence of Kids",
+                "Visitor ABM|Key Decisions|Lodging Choice",
+                    "Visitor ABM|Key Decisions|Rental Car Choice"})
+    Out({ Args.[SynthesizedVisitors] })
 EndMacro
 
 
@@ -984,6 +989,11 @@ Macro "Visitor Tour Frequency" (Args,Result)
         {"Class", {"GISDK"}},
         {"MacroNames", {"Visitor Tour Frequencies"}}
     }
+Data:
+    InSections({"Visitor ABM|Tours|Frequency|Work",
+                "Visitor ABM|Tours|Frequency|Recreation",
+                    "Visitor ABM|Tours|Frequency|Other",
+                    "Visitor ABM|Tours|Frequency|Shop"})
 EndMacro
 
 
@@ -992,6 +1002,11 @@ Macro "Visitor Tour Dest Choice" (Args,Result)
         {"Class", {"GISDK"}},
         {"MacroNames", {"Visitor Tour Destinations"}}
     }
+Data:
+    InSections({"Visitor ABM|Tours|Destination|Work",
+                "Visitor ABM|Tours|Destination|Recreation",
+                    "Visitor ABM|Tours|Destination|Other",
+                    "Visitor ABM|Tours|Destination|Shop"})
 EndMacro
 
 
@@ -1000,6 +1015,11 @@ Macro "Visitor Tour Mode Choice" (Args,Result)
         {"Class", {"GISDK"}},
         {"MacroNames", {"Visitor Tour Modes"}}
     }
+Data:
+    InSections({"Visitor ABM|Tours|Mode|Work",
+                "Visitor ABM|Tours|Mode|Recreation",
+                    "Visitor ABM|Tours|Mode|Other",
+                    "Visitor ABM|Tours|Mode|Shop"})
 EndMacro
 
 
@@ -1008,14 +1028,23 @@ Macro "Visitor Tour Time of Day" (Args,Result)
         {"Class", {"GISDK"}},
         {"MacroNames", {"Visitor Tour TOD"}}
     }
+Data:
+    InSections({"Visitor ABM|Tours|Time of day|Work",
+                "Visitor ABM|Tours|Time of day|Recreation",
+                    "Visitor ABM|Tours|Time of day|Shop",
+                    "Visitor ABM|Tours|Time of day|Other",
+                    "Visitor ABM|Tours|Time of day|Profile_EA_AM_MD",
+                    "Visitor ABM|Tours|Time of day|Profile_PM_EV_NT"})
 EndMacro
 
 
 Macro "Visitor Tour Scheduling" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", {"Visitor Tour Diary" }}
+        {"MacroNames", {"Visitor Tour Diary"}}
     }
+Data:
+    OutSections({"Visitor ABM|Tours|Output"})
 EndMacro
 
 
@@ -1052,8 +1081,10 @@ EndMacro
 Macro "Visitor Stop Frequency" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", { "Visitor Stops Setup", "Visitor Stops Frequency"}}
+        {"MacroNames",{"Visitor Stops Setup","Visitor Stops Frequency"}}
     }
+Data:
+    InSections({"Visitor ABM|Stops|Frequency"})
 EndMacro
 
 
