@@ -652,19 +652,19 @@ menu "VisitorTours_Menu"
         mr.RunCode("Calibrate Visitor Tour TOD", Args, "Rec")
         Args.Calibration_VisTODRec = null
     endItem
-    MenuItem "Other Time of Day" text: "Other Time of Day" do
-        mr = CreateObject("Model.Runtime")
-        Args = mr.GetValues()
-        Args.Calibration_VisTODOther = 1
-        mr.RunCode("Calibrate Visitor Tour TOD", Args, "Other")
-        Args.Calibration_VisTODOther = null
-    endItem
     MenuItem "Shop Time of Day" text: "Shop Time of Day" do
         mr = CreateObject("Model.Runtime")
         Args = mr.GetValues()
         Args.Calibration_VisTODShop = 1
         mr.RunCode("Calibrate Visitor Tour TOD", Args, "Shop")
         Args.Calibration_VisTODShop = null
+    endItem
+    MenuItem "Other Time of Day" text: "Other Time of Day" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        Args.Calibration_VisTODOther = 1
+        mr.RunCode("Calibrate Visitor Tour TOD", Args, "Other")
+        Args.Calibration_VisTODOther = null
     endItem
 endmenu
 

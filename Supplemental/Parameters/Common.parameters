@@ -3218,7 +3218,7 @@
             "Value":"%Output Folder%\\visitors\\SynthesizedVisitors.bin"
         }
 	
-	Section = "Visitor ABM|Models|Presence of Kids"
+	Section = "Visitor ABM|Key Decisions|Presence of Kids"
 	
         Args.KidsPresenceUtility = {
             "Type":"array",
@@ -3231,7 +3231,7 @@
                 {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,1,0}}
         }
 	
-	Section = "Visitor ABM|Models|Lodging Choice"
+	Section = "Visitor ABM|Key Decisions|Lodging Choice"
 	
         Args.LodgingLocClusters = {
             "Type":"array",
@@ -3254,7 +3254,7 @@
                 {"Size Variable","log(1 + TAZData.HR.D + 0.0019*TAZData.OccupiedHH.D + 0.5207*TAZData.RC.D)",0.5256}}
         }
 	
-	Section = "Visitor ABM|Models|Rental Car Choice"
+	Section = "Visitor ABM|Key Decisions|Rental Car Choice"
 	
         Args.RentalCarUtility = {
             "Type":"array",
@@ -3624,7 +3624,39 @@
                 {"Visit Honolulu Area (Later)","TAZBin.VisitorDistrict.D = 6",1.05,0,0,0,0,0,0,0,0,0,0,1,1,1}}
         }
 	
-	Section = "Visitor ABM|Tours|Time of day|Other"
+	Section = "Visitor ABM|Tours|Time of day|Shop"
+	
+        Args.ShopTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Shop Tour Activity Time of Day",
+            "Style":"ShopTODUtilityVis",
+            "Value":{
+                {"ASC AM_AM","Constant",-1.8689,1,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",2.6439,0,1,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_MD","Constant",4.1043,0,0,1,0,0,0,0,0,0,0,0},
+                {"ASC MD_PM","Constant",3.6721,0,0,0,1,0,0,0,0,0,0,0},
+                {"ASC MD_EV","Constant",1.2995,0,0,0,0,1,0,0,0,0,0,0},
+                {"ASC PM_PM","Constant",1.4686,0,0,0,0,0,1,0,0,0,0,0},
+                {"ASC PM_EV","Constant",1.8298,0,0,0,0,0,0,1,0,0,0,0},
+                {"ASC EV_EV","Constant",-1.8301,0,0,0,0,0,0,0,0,1,0,0},
+                {"ASC EV_NT","Constant",-0.6638,0,0,0,0,0,0,0,0,0,1,0},
+                {"ASC NT_NT","Constant",-3.9321,0,0,0,0,0,0,0,0,0,0,1},
+                {"Also make work tour","VisitorData.NumberWorkTours = 1",1.59,0,0,0,0,0,0,1,1,1,1,1},
+                {"Short Distance (< 0.5 mi)","AutoSkim.Distance < 0.5",0.594,0,0,0,0,0,1,0,0,1,1,1},
+                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 7",0.909,1,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (MD_MD)","VisitorData.<ModeField> = 7",-0.482,0,0,1,0,0,0,0,0,0,0,0},
+                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 7",1.45,0,0,0,0,0,0,0,0,1,0,0},
+                {"Walk Mode (NT_NT)","VisitorData.<ModeField> = 7",2.2,0,0,0,0,0,0,0,0,0,0,1},
+                {"Presence of kids (MD_EV)","VisitorData.HasKids = 1",0.583,0,0,0,0,1,0,0,0,0,0,0},
+                {"Presence of kids (NT_NT)","VisitorData.HasKids = 1",0.997,0,0,0,0,0,0,0,0,0,0,1},
+                {"Visit Honolulu Area (PM_PM)","TAZBin.VisitorDistrict.D = 6",0.335,0,0,0,0,0,1,0,0,0,0,0},
+                {"Visit Honolulu Area (Later)","TAZBin.VisitorDistrict.D = 6",0.967,0,0,0,0,0,0,0,0,1,1,1},
+                {"Also make Rec tours (PM_PM)","VisitorData.NumberRecTours > 0",0.994,0,0,0,0,0,1,0,0,0,0,0},
+                {"Also make Rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.893,0,0,0,0,0,0,1,0,0,0,0},
+                {"Also make Other tour","VisitorData.NumberOtherTours > 0",-1.07,0,0,0,0,0,0,0,0,0,1,0}}
+        }
+
+    Section = "Visitor ABM|Tours|Time of day|Other"
 	
         Args.OtherTourTODUtility = {
             "Type":"array",
@@ -3659,38 +3691,6 @@
                 {"Also make rec tours","VisitorData.NumberRecTours > 0",-0.796,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
                 {"Also make rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.633,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
                 {"Make two or more work/rec tours","VisitorData.NumberRecTours > 1",0.663,0,1,0,0,0,0,0,0,0,1,0,0,1,0,1}}
-        }
-	
-	Section = "Visitor ABM|Tours|Time of day|Shop"
-	
-        Args.ShopTourTODUtility = {
-            "Type":"array",
-            "Caption":"Visitor Shop Tour Activity Time of Day",
-            "Style":"ShopTODUtilityVis",
-            "Value":{
-                {"ASC AM_AM","Constant",-1.8689,1,0,0,0,0,0,0,0,0,0,0},
-                {"ASC AM_MD","Constant",2.6439,0,1,0,0,0,0,0,0,0,0,0},
-                {"ASC MD_MD","Constant",4.1043,0,0,1,0,0,0,0,0,0,0,0},
-                {"ASC MD_PM","Constant",3.6721,0,0,0,1,0,0,0,0,0,0,0},
-                {"ASC MD_EV","Constant",1.2995,0,0,0,0,1,0,0,0,0,0,0},
-                {"ASC PM_PM","Constant",1.4686,0,0,0,0,0,1,0,0,0,0,0},
-                {"ASC PM_EV","Constant",1.8298,0,0,0,0,0,0,1,0,0,0,0},
-                {"ASC EV_EV","Constant",-1.8301,0,0,0,0,0,0,0,0,1,0,0},
-                {"ASC EV_NT","Constant",-0.6638,0,0,0,0,0,0,0,0,0,1,0},
-                {"ASC NT_NT","Constant",-3.9321,0,0,0,0,0,0,0,0,0,0,1},
-                {"Also make work tour","VisitorData.NumberWorkTours = 1",1.59,0,0,0,0,0,0,1,1,1,1,1},
-                {"Short Distance (< 0.5 mi)","AutoSkim.Distance < 0.5",0.594,0,0,0,0,0,1,0,0,1,1,1},
-                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 7",0.909,1,0,0,0,0,0,0,0,0,0,0},
-                {"Walk Mode (MD_MD)","VisitorData.<ModeField> = 7",-0.482,0,0,1,0,0,0,0,0,0,0,0},
-                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 7",1.45,0,0,0,0,0,0,0,0,1,0,0},
-                {"Walk Mode (NT_NT)","VisitorData.<ModeField> = 7",2.2,0,0,0,0,0,0,0,0,0,0,1},
-                {"Presence of kids (MD_EV)","VisitorData.HasKids = 1",0.583,0,0,0,0,1,0,0,0,0,0,0},
-                {"Presence of kids (NT_NT)","VisitorData.HasKids = 1",0.997,0,0,0,0,0,0,0,0,0,0,1},
-                {"Visit Honolulu Area (PM_PM)","TAZBin.VisitorDistrict.D = 6",0.335,0,0,0,0,0,1,0,0,0,0,0},
-                {"Visit Honolulu Area (Later)","TAZBin.VisitorDistrict.D = 6",0.967,0,0,0,0,0,0,0,0,1,1,1},
-                {"Also make Rec tours (PM_PM)","VisitorData.NumberRecTours > 0",0.994,0,0,0,0,0,1,0,0,0,0,0},
-                {"Also make Rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.893,0,0,0,0,0,0,1,0,0,0,0},
-                {"Also make Other tour","VisitorData.NumberOtherTours > 0",-1.07,0,0,0,0,0,0,0,0,0,1,0}}
         }
 	
 	Section = "Visitor ABM|Tours|Time of day|Profile_EA_AM_MD"
