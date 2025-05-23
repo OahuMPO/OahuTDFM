@@ -19,13 +19,13 @@ Macro "Visitor Stops Frequency"(Args)
         ShowMessage(GetLastError())
         return(0)
     end
-    objT = CreateObject("Table", Args.VisitorTours)
+    objTours = CreateObject("Table", Args.VisitorTours)
     objA = CreateObject("Table", Args.AccessibilitiesOutputs)
 
     // Run Model and populate results
     obj = CreateObject("PMEChoiceModel", {ModelName: "Visitor Stops Frequency"})
     obj.OutputModelFile = printf("%s\\Intermediate\\VisitorStopsFreq.mdl", {Args.[Output Folder]})
-    obj.AddTableSource({SourceName: "VisitorData", View: objT.GetView(), IDField: "TourID"})
+    obj.AddTableSource({SourceName: "VisitorData", View: objTours.GetView(), IDField: "TourID"})
     obj.AddTableSource({SourceName: "TAZAccessibilities", View: objA.GetView(), IDField: "TAZID"})
     obj.AddMatrixSource({SourceName: "AutoSkim", File: Args.HighwaySkimAM, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
     obj.AddPrimarySpec({Name: "VisitorData", OField: "Origin", DField: "Destination"})
@@ -40,13 +40,13 @@ Macro "Visitor Stops Frequency"(Args)
     obj = null
 
     // Fill N Forward and Return Stops
-    v = objT.Stops_Choice
+    v = objTours.Stops_Choice
     vecsSet = null
     vecsSet.NForwardStops = if v = null then null else s2i(Left(v,1))
     vecsSet.NReturnStops = if v = null then null else s2i(Right(v,1))
-    objT.SetDataVectors({FieldData: vecsSet})
+    objTours.SetDataVectors({FieldData: vecsSet})
 
     objA = null
-    objT = null
+    objTours = null
     return(1)
 endMacro

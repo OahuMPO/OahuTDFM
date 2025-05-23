@@ -672,6 +672,16 @@ Macro "Calibrate Visitor Tour TOD"(Args, p)
     RunMacro("Calibrate Visitor Model", Args, opts)
 endMacro
 
+
+Macro "Calibrate Visitor Stops Freq"(Args)
+    opts = null
+    opts.ModelName = "VisitorStopsFreq"
+    opts.MacroName = "Visitor Stops Frequency"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorStops\\VisitorStopsFrequency.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+
 // Main calibration model utility
 Macro "Calibrate Model"(Args, Opts)
     abm = RunMacro("Get ABM Manager", Args)
@@ -736,6 +746,9 @@ Macro "Calibrate Visitor Model"(Args, Opts)
     objA = CreateObject("Table", Args.AccessibilitiesOutputs)
     objD = CreateObject("Table", Args.DemographicOutputs)
 
+    if GetFileInfo(Args.VisitorTours) then
+        objTours = CreateObject("Table", Args.VisitorTours)
+
     modelName = Opts.ModelName
     calibrationFile = Opts.CalibrationFile
     if !GetFileInfo(calibrationFile) then
@@ -773,6 +786,7 @@ Macro "Calibrate Visitor Model"(Args, Opts)
     objD = null
     objA = null
     objT = null
+    objTours = null
 
     // Open calibration file in an editor
     shared d_edit_options

@@ -128,6 +128,7 @@ Menu "Oahu Menu"
     enditem
     MenuItem "Calibrate" text: "Calibrate Choice Models" menu "MENU_Calibration"
 endMenu
+
 menu "MENU_Calibration"
     MenuItem "Long Term Choices" text: "Long Term Choices" menu "LongTermChoices_Menu"
     Separator  
@@ -147,6 +148,7 @@ menu "MENU_Calibration"
     MenuItem "Visitor Tours" text: "Visitor Tours" menu "VisitorTours_Menu"
     MenuItem "Visitor Stops" text: "Visitor Tour Stops" menu "VisitorTourStops_Menu"
 endmenu
+
 menu "LongTermChoices_Menu"
     MenuItem "Driver License" text: "Driver License" do
         mr = CreateObject("Model.Runtime")
@@ -182,6 +184,7 @@ menu "LongTermChoices_Menu"
         mr.RunCode("Calibrate UniversityStatus", Args)    
     endItem
 endmenu
+
 menu "MandatoryTours_Menu"
     MenuItem "Work Tour Frequency" text: "Work Tour Frequency" do
         mr = CreateObject("Model.Runtime")
@@ -324,6 +327,7 @@ menu "MandatoryTours_Menu"
         Args.SchoolMCR_Calibration = null
     endItem
 endmenu
+
 // Mandatory Stops Menu
 // Mandatory Stops Frequency
 menu "MandatoryStops_Menu"
@@ -354,6 +358,7 @@ menu "MandatoryStops_Menu"
         mr.RunCode("Calibrate UnivStopsDuration", Args)  
     endItem
 endmenu
+
 menu "MandatorySubTours_Menu"
     MenuItem "SubTour_Freq" text: "Frequency" do
         mr = CreateObject("Model.Runtime")
@@ -386,6 +391,7 @@ menu "Pattern_Menu"
         mr.RunCode("Calibrate PatternChoice", Args)
     endItem
 endMenu
+
 menu "JointTours_Menu"
     MenuItem "Joint Tours Frequency" text: "Tour Frequency" do
         mr = CreateObject("Model.Runtime")
@@ -470,6 +476,7 @@ menu "JointTours_Menu"
     endItem
 
 endMenu
+
 menu "JointTourStops_Menu"
     MenuItem "Joint Stops Frequency Other" text: "Stops Frequency: Other" do
         mr = CreateObject("Model.Runtime")
@@ -497,6 +504,7 @@ menu "JointTourStops_Menu"
         mr.RunCode("Calibrate NM StopDuration", Args, {Type: 'Joint', Purpose: 'Shop'})
     endItem
 endMenu
+
 menu "SoloTours_Menu"
     MenuItem "Solo Tours Frequency" text: "Tour Frequency" do
         mr = CreateObject("Model.Runtime")
@@ -544,6 +552,7 @@ menu "SoloTours_Menu"
         mr.RunCode("Calibrate Solo Mode", Args, 'Shop1')
     endItem
 endMenu
+
 menu "SoloTourStops_Menu"
     MenuItem "Solo Stops Frequency Other" text: "Stops Frequency: Other" do
         mr = CreateObject("Model.Runtime")
@@ -571,6 +580,7 @@ menu "SoloTourStops_Menu"
         mr.RunCode("Calibrate NM StopDuration", Args, {Type: 'Solo', Purpose: 'Shop'})
     endItem
 endMenu
+
 menu "VisitorParty_Menu"
     MenuItem "Kids Presence" text: "Kids Presence" do
         mr = CreateObject("Model.Runtime")
@@ -584,6 +594,7 @@ menu "VisitorParty_Menu"
         mr.RunCode("Calibrate RentalCarChoice", Args)    
     endItem
 endmenu
+
 menu "VisitorTours_Menu"
     MenuItem "Work Tour Frequency" text: "Work Tour Frequency" do
         mr = CreateObject("Model.Runtime")
@@ -657,5 +668,10 @@ menu "VisitorTours_Menu"
     endItem
 endmenu
 
-
-
+menu "VisitorTourStops_Menu"
+    MenuItem "Visitor Stops Frequency" text: "Visitor Stops Frequency" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Stops Freq", Args)
+    endItem
+endmenu
