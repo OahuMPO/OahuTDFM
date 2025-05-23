@@ -732,6 +732,18 @@
                                                             {Name: "ShopEnd","Type":"real","Decimals":"2"}}
                                         })
                                       
+  Styles.VisStopsFreqUtility = Pme.Table({Height: 30, Autosize: "True", Values: "Columns",
+                                                Columns: {{Name: "Description", Type: "string",  Fixed: "false", Width:  "20%"},
+															                            {Name: "Expression", Type: "string",  Fixed: "false", Width:  "35%"},
+                                                          {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                          {Name: "0_0",   Type: "boolean", "Align":"center"},
+															                            {Name: "1_0",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "0_1",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "1_1",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "2_0",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "0_2",   Type: "boolean",  "Align":"center"}}
+                                        })
+
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 
   Styles.lanecapStyle = Pme.Table(RunMacro("Extend Object", all_tables,

@@ -3765,6 +3765,25 @@
                 {"26:00 - 27:00",null,2.27,0,null,null,0.99,null,null}}
         }
 	
+	Section = "Visitor ABM|Stops|Frequency"
+	
+        Args.VisitorStopsFreqUtility = {
+            "Type":"array",
+            "Caption":"Visitor intermediate stops frequency utility",
+            "Description":"VisitorStopsFreqUtility",
+            "Style":"VisStopsFreqUtility",
+            "Value":{
+                {"ASC_0_0","Constant",5.1558,1,0,0,0,0,0},
+                {"ASC_1_0","Constant",1.8498,0,1,0,0,0,0},
+                {"ASC_0_1","Constant",4.0634,0,0,1,0,0,0},
+                {"ASC_1_1","Constant",0.0791,0,0,0,0,1,0},
+                {"ASC_0_2","Constant",1.7372,0,0,0,0,0,1},
+                {"Low Walk Index","TAZAccessibilities.WalkIndex.D < 0.1",0.3028,0,0,0,0,1,1},
+                {"High Walk Index","TAZAccessibilities.WalkIndex.D > 0.4",0.3602,1,0,0,0,0,0},
+                {"Long Drive Dist","AutoSkim.Distance >= 5",0.7507,0,0,0,0,0,1},
+                {"High Attraction Density","TAZAccessibilities.AttractionDensity.D > 5000",0.1424,1,0,0,0,0,0}}
+        }
+	
 	Section = "Visitor ABM|Tours|Output"
 	
         Args.VisitorTours = {
