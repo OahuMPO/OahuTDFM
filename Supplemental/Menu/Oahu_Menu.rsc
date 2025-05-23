@@ -626,6 +626,35 @@ menu "VisitorTours_Menu"
         Args = mr.GetValues()
         mr.RunCode("Calibrate Visitor Mode Choice", Args, "Shop")
     endItem
+    Separator
+    MenuItem "Work Time of Day" text: "Work Time of Day" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        Args.Calibration_VisTODWork = 1
+        mr.RunCode("Calibrate Visitor Tour TOD", Args, "Work")
+        Args.Calibration_VisTODWork = null
+    endItem
+    MenuItem "Rec Time of Day" text: "Recreation Time of Day" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        Args.Calibration_VisTODRec = 1
+        mr.RunCode("Calibrate Visitor Tour TOD", Args, "Rec")
+        Args.Calibration_VisTODRec = null
+    endItem
+    MenuItem "Other Time of Day" text: "Other Time of Day" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        Args.Calibration_VisTODOther = 1
+        mr.RunCode("Calibrate Visitor Tour TOD", Args, "Other")
+        Args.Calibration_VisTODOther = null
+    endItem
+    MenuItem "Shop Time of Day" text: "Shop Time of Day" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        Args.Calibration_VisTODShop = 1
+        mr.RunCode("Calibrate Visitor Tour TOD", Args, "Shop")
+        Args.Calibration_VisTODShop = null
+    endItem
 endmenu
 
 

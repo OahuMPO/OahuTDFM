@@ -1,4 +1,4 @@
-// Long Term Choice Models
+// Long Term Choice ModelsCalibrate Visitor Model
 Macro "Calibrate DriverLicense"(Args)
     opts = null
     opts.ModelName = "DriverLicense"
@@ -661,6 +661,14 @@ Macro "Calibrate Visitor Mode Choice"(Args, p)
     opts.MacroName = "Run Visitor Tour MC"
     opts.MacroArgs = macroArgs
     opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorTours\\VisitorTourMC_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+Macro "Calibrate Visitor Tour TOD"(Args, p)
+    opts = null
+    opts.ModelName = p + "VisitorTourTOD"
+    opts.MacroName = "Visitor Tour TOD"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorTours\\VisitorTourTOD_" + p + ".bin"
     RunMacro("Calibrate Visitor Model", Args, opts)
 endMacro
 
