@@ -299,7 +299,7 @@ Macro "Visitor Tour TOD"(Args)
     availObj = RunMacro("Create TOD Availability Table", visabm.HHView)
     vwJ = JoinViews("VisitorDataPlusAvail", GetFieldFullSpec(visabm.HHView, "HouseholdID"), GetFieldFullSpec(availObj.GetView(), "HHID"),)
     
-    purps = {"Work1", "Rec1", "Other1", "Shop1", "Rec2", "Other2", "Shop2"}
+    purps = {"Work1", "Rec1", "Shop1", "Other1", "Rec2", "Other2", "Shop2"}
     pbar = CreateObject("G30 Progress Bar", "Running TOD Model", true, purps.length)
     for val in purps do
         tourNo = Right(val, 1)
@@ -310,12 +310,12 @@ Macro "Visitor Tour TOD"(Args)
 
         availOpt = {Utility: utilTable, SourceName: "VisitorData"}
         availExpressions = RunMacro("Get TOD Availability Expressions", availOpt)
-        
+
         // Run TOD
         Opts = {abmManager: visabm,
                 PrimaryView: vwJ,
                 Type: p,
-                ModelName: p + "TourTOD",
+                ModelName: p + "VisitorTourTOD",
                 ModelFile: p + "TourTOD.mdl",
                 Filter: filter,
                 DestField: p + "TAZ" + tourNo,
@@ -327,6 +327,9 @@ Macro "Visitor Tour TOD"(Args)
                 SimulateTimeFields: {StartTime: p + "_StartTime" + tourNo, EndTime: p + "_EndTime" + tourNo, Duration: p + "_Duration" + tourNo},
                 MinimumDuration: 10}
         ret = RunMacro("Run Visitor Tour TOD", Args, Opts)
+
+        if Args.("Calibration_VisTOD" + p) = 1 then // Return at this point if calibration is on
+            Return(1)
 
         // Update Avail Table
         spec = {PrimaryView: vwJ, ChoiceField: choiceFld, Filter: filter}
