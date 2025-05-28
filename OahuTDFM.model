@@ -1061,19 +1061,19 @@ Body:
     // FlowChartNode(model,NodeName,MacroName,UI,Description)
     //
     FlowChartNode(model,"Visitor Stop Frequency",,,)
+    FlowChartNode(model,"Visitor Stop Purpose",,,)
     FlowChartNode(model,"Visitor Stop Dest Choice",,,)
-    FlowChartNode(model,"Visitor Stop Mode Choice",,,)
-    FlowChartNode(model,"Visitor Stop Time of Day",,,)
+    FlowChartNode(model,"Visitor Stop Duration",,,)
     FlowChartNode(model,"Visitor Stop Scheduling",,,)
     //
     // Links
     //
     // FlowChartLink(model , FromNode , ToNode , Condition , Description , IsFeedbackLoop)
     //
-    FlowChartLink(model,"Visitor Stop Dest Choice","Visitor Stop Mode Choice",True,,)
-    FlowChartLink(model,"Visitor Stop Time of Day","Visitor Stop Scheduling",True,,)
-    FlowChartLink(model,"Visitor Stop Frequency","Visitor Stop Dest Choice",True,,)
-    FlowChartLink(model,"Visitor Stop Mode Choice","Visitor Stop Time of Day",True,,)
+    FlowChartLink(model,"Visitor Stop Frequency","Visitor Stop Purpose",True,,)
+    FlowChartLink(model,"Visitor Stop Purpose","Visitor Stop Dest Choice",True,,)
+    FlowChartLink(model,"Visitor Stop Dest Choice","Visitor Stop Duration",True,,)
+    FlowChartLink(model,"Visitor Stop Duration","Visitor Stop Scheduling",True,,)
     Return(model)
 EndMacro
 
@@ -1081,12 +1081,19 @@ EndMacro
 Macro "Visitor Stop Frequency" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames",{"Visitor Stops Setup", "Visitor Stops Frequency", "Visitor Stops Purpose"}}
+        {"MacroNames",{"Visitor Stops Setup", "Visitor Stops Frequency"}}
     }
 Data:
     InSections({"Visitor ABM|Stops|Frequency"})
 EndMacro
 
+
+Macro "Visitor Stop Purpose" (Args,Result)
+    Attributes = {
+        {"Class", {"GISDK"}},
+        {"MacroNames", {"Visitor Stops Purpose"}}
+    }
+EndMacro
 
 Macro "Visitor Stop Dest Choice" (Args,Result)
     Attributes = {
@@ -1095,16 +1102,7 @@ Macro "Visitor Stop Dest Choice" (Args,Result)
     }
 EndMacro
 
-
-Macro "Visitor Stop Mode Choice" (Args,Result)
-    Attributes = {
-        {"Class", {"GISDK"}},
-        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
-    }
-EndMacro
-
-
-Macro "Visitor Stop Time of Day" (Args,Result)
+Macro "Visitor Stop Duration" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
         {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
