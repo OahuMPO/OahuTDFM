@@ -14,7 +14,8 @@ Macro "Visitor Stops Setup"(Args)
     tourNos = {"1", "2"}
     for dir in dirs do
         for t in tourNos do
-            flds = flds + {{FieldName: "Stop" + dir + "TAZ" + t, Type: "Integer"},
+            flds = flds + {{FieldName: "Purpose" + dir + "Stop" + t, Type: "String", Width: 5},
+                           {FieldName: "Stop" + dir + "TAZ" + t, Type: "Integer"},
                            {FieldName: dir + "StopDurChoice" + t, Type: "String", Width: 15},
                            {FieldName: dir + "StopDuration" + t, Type: "Real"},
                            {FieldName: dir + "StopDeltaTT" + t, Type: "Real"}}
@@ -67,7 +68,46 @@ Macro "Visitor Stops Frequency"(Args)
 endMacro
 
 
+Macro "Visitor Stops Purpose"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+    
+    Args.ABMFlag = 2
+    objT = CreateObject("Table", Args.VisitorTours)
+    stopPurps = {"Rec", "Shop", "Other"}
+    stopsProb = {0.22, 0.20, 0.58} // Probabilities for Rec, Shop, Other stops
+    params = {population: stopPurps, weight: stopsProb}
+
+    dirs = {"Forward", "Return"}
+    stopsArr = {"1", "2"}
+    for dir in dirs do
+        for s in stopsArr do
+            filter = printf("N%sStops >= %s", {dir, s}) // e.g. NForwardStops >= 1
+            n = objT.SelectByQuery({Query: filter, SetName: "__PurposeSet"})
+            if n > 0 then do
+                objT.ChangeSet("__PurposeSet")
+                SetRandomSeed(4200 + 10*ASCII(Left(dir, 1)) + s2i(s))
+                v = RandSamples(n, "Discrete", params)
+                vecsSet = null
+                vecsSet.("Purpose" + dir + "Stop" + s) = v
+                objT.SetDataVectors({FieldData: vecsSet})
+            end
+        end
+    end
+    objT = null
+    return(1)
+endMacro
+
+
 Macro "Visitor Stops Destination"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+    Args.ABMFlag = 2
+    
     // Run Destination Choice
     dirs = {"Forward", "Return"}
     types = {"Rec", "Shop", "Other"}
@@ -75,9 +115,7 @@ Macro "Visitor Stops Destination"(Args)
     
     tourFile = Args.VisitorTours
     objT = CreateObject("Table", tourFile)
-    spec = {ToursView: objT.GetView()}
-
-    spec = {ToursObject: objT, ToursView: objT.GetView()}
+    spec = {ToursObject: objT, ToursView: objT.GetView(), SkimFile: Args.HighwaySkimAM}
     pbar = CreateObject("G30 Progress Bar", "Intermediate Stops Destinations: (Forward, Return) and (Rec, Shop, Other)", false, 7)
     for dir in dirs do
         // Get Stop Formula Fields
@@ -88,12 +126,11 @@ Macro "Visitor Stops Destination"(Args)
             spec.ODInfo = {Origin: "Destination", Destination: "Origin"}
 
         spec.StopFilter = printf("N%sStops >= 1", {dir}) // e.g. NForwardStops >= 1
-        spec.SkimFile = Args.HighwaySkimAM
 
         // Calculate delta TT matrix
         deltaTT = GetTempPath() + "DeltaTT_" + dir + ".mtx"
         spec.DeltaSkim = deltaTT
-        spec.MatrixSpec = {File: skimFile, Core: "Time", RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"}
+        spec.MatrixSpec = {File: spec.SkimFile, Core: "Time", RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"}
         spec.OutputCoreName = "DeltaTT"
         ret = RunMacro("Calculate Delta TT", Args, spec)
         if ret = 2 then continue // No records for delta TT calculation. Move on to next direction.
@@ -113,10 +150,10 @@ Macro "Visitor Stops Destination"(Args)
         // Purposes Loop
         for type in types do
             spec.Type = type
-            for s in stopsArr.(type) do
+            for s in stopsArr do
                 spec.StopNo = s
-                spec.RandomSeed = 3999971 + 100*periods.position(period) + 10*types.position(type) + s2i(s)
-                RunMacro("Vis Intermediate Stop DC", Args, spec)
+                spec.RandomSeed = 3999971 + 10*types.position(type) + s2i(s)
+                ret = RunMacro("Vis Intermediate Stop DC", Args, spec)
                 pbar.Step()
             end
         end
@@ -155,7 +192,7 @@ Macro "Visitor Stops Destination"(Args)
     pbar.Destroy()
     objT = null
     obj4D = null
-    Return(true)
+    Return(ret)
 endMacro
 
 
@@ -165,7 +202,6 @@ endMacro
 Macro "Vis Intermediate Stop DC"(Args, spec)
     vwT = spec.ToursView
     dir = spec.Direction
-    period = spec.Period
     deltaTT = spec.DeltaTT
     deltaDist = spec.DeltaDist
     type = spec.Type
@@ -176,22 +212,21 @@ Macro "Vis Intermediate Stop DC"(Args, spec)
 
     availExpressions = null
     availExpressions.Alternative = {"Destinations"}
-    availExpressions.Expression = {"deltaTT.deltaTT <= 45"}
+    availExpressions.Expression = {"DeltaTT.DeltaTT <= 45"}
 
     // Filters
     stopfilter = printf("N%sStops >= %s", {dir, stopNo})             // e.g. NForwardStops >= 1
-    typefilter = printf("TourPurpose = '%s'", {type})               // e.g. TourPurpose = 'Work'
+    typefilter = printf("Purpose%sStop%s = '%s'", {dir, stopNo, type})   // e.g. PurposeForwardStop1 = 'Rec'
     filter = printf("(%s) and (%s)", {stopfilter, typefilter})
     
     SetView(vwT)
     n = SelectByQuery("__Selection", "several", "Select * where " + filter,)
     if n > 0 then do
-        filter = spec.Filter
         if type = "Rec" then 
             clusterField = "VisitorClusterRec"
         else
             clusterField = "VisitorClusterOther"
-        outFld = "Stops" + dir + "TAZ" + stopNo
+        outFld = "Stop" + dir + "TAZ" + stopNo
 
         util = Args.(type + "LocUtilityVis")
         clusters = Args.(type + "LocClustersVis")
@@ -205,7 +240,7 @@ Macro "Vis Intermediate Stop DC"(Args, spec)
         Opts.trip_type = "VisitorStopsLocChoice" + type
         Opts.zone_utils = util
         Opts.cluster_data = clusters
-        Opts.primary_spec = {Name: "VisitorData", Filter: filter, OField: "LodgingTAZ"}
+        Opts.primary_spec = {Name: "VisitorData", Filter: filter, OField: "Origin"}
         Opts.dc_spec = {DestinationsSource: "AutoSkim", DestinationsIndex: "InternalTAZ"}
         Opts.cluster_equiv_spec = {File: TAZBin, ZoneIDField: "TAZID", ClusterIDField: clusterField}
         Opts.tables = {TAZData: {File: Args.DemographicOutputs, IDField: "TAZ"},

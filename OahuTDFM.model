@@ -1081,7 +1081,7 @@ EndMacro
 Macro "Visitor Stop Frequency" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames",{"Visitor Stops Setup","Visitor Stops Frequency"}}
+        {"MacroNames",{"Visitor Stops Setup", "Visitor Stops Frequency", "Visitor Stops Purpose"}}
     }
 Data:
     InSections({"Visitor ABM|Stops|Frequency"})
@@ -1091,7 +1091,7 @@ EndMacro
 Macro "Visitor Stop Dest Choice" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+        {"MacroNames", {"Visitor Stops Destination"}}
     }
 EndMacro
 
