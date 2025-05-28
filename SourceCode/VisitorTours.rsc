@@ -614,6 +614,7 @@ endMacro
 Macro "Create Temp Visitor Tour Diary"(spec)
     flds = {{"TourID", "Integer", 12, null, "Yes"},
             {"HHID", "Integer", 12, null, "Yes"},
+            {"PartySize", "Integer", 12, null, "No"},
             {"TourType", "String", 12, null, "No"},
             {"Origin", "Integer", 12, null, "Yes"},
             {"Destination", "Integer", 12, null, "Yes"},
@@ -644,7 +645,7 @@ Macro "Generate Visitor Tour Data"(spec)
     // Get the relevant vectors
     filter = printf("Number%sTours >= %s and %sTOD%s <> null", {purp, tourNo, purp, tourNo})
     visabm.CreateHHSet({Filter: filter, Activate: 1})
-    flds = {"HouseholdID", "LodgingTAZ", 
+    flds = {"HouseholdID", "LodgingTAZ", "PartySize",
             purp + "TAZ" + tourNo, purp + "Mode" + tourNo, purp + "TOD" + tourNo,
             purp + "_StartTime" + tourNo, purp + "_EndTime" + tourNo, purp + "_Duration" + tourNo}
     vecs = visabm.GetHHVectors(flds)
@@ -662,6 +663,7 @@ Macro "Generate Visitor Tour Data"(spec)
     vecsSet = null
     vecsSet.HHID = vecs.HouseholdID
     vecsSet.TourType = Vector(nRecs, "String", {Constant: purp})
+    vecsSet.PartySize = vecs.PartySize
     vecsSet.Origin = vecs.LodgingTAZ
     vecsSet.Destination = vecs.(purp + "TAZ" + tourNo)
     vecsSet.ModeCode = vecs.(purp + "Mode" + tourNo)
