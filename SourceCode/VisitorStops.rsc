@@ -164,8 +164,8 @@ Macro "Visitor Stops Destination"(Args)
         else 
             depFld = 'ActivityEndTime'
         
-        for stopNo in stopsArr.Work do
-            opt = {ToursObj: objT, Filter: printf("N%sStops >= %s", {dir, stopNo}), ODInfo: ODInfo, 
+        for stopNo in stopsArr do
+            opt = {ToursObj: objT, Filter: printf("N%sStops >= %s", {dir, stopNo}), ODInfo: spec.ODInfo, 
                     StopTAZField: "Stop" + dir + "TAZ" + stopNo, ModeField: "Mode", DepTimeField: depFld, 
                     OutputField: dir + "StopDeltaTT" + stopNo}
             RunMacro("Calculate Detour TT", Args, opt)
@@ -183,8 +183,11 @@ Macro "Visitor Stops Destination"(Args)
             objT.ChangeSet("__Swap")
             objT.(dir + "StopDeltaTT1") = objT.(dir + "StopDeltaTT2")
             objT.("Stop" + dir + "TAZ1") = objT.("Stop" + dir + "TAZ2")
+            objT.("Purpose" + dir + "Stop1") = objT.("Purpose" + dir + "Stop2")
             objT.(dir + "StopDeltaTT2") = vNull
             objT.("Stop" + dir + "TAZ2") = vNull
+            objT.("Purpose" + dir + "Stop2") = vNull
+            objT.ChangeSet()
         end
 
         pbar.Step()
