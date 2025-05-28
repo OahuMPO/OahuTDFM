@@ -171,7 +171,6 @@ Macro "Run Visitor Tour DC"(Args, spec)
     objNested.Run()
 
     // Copy DC choices
-    choiceFile = Args.OutputFolder + "\\Intermediate\\choices\\VisitorLodgingChoice_DC_Choices.bin"
     choiceFile = printf("%s\\Intermediate\\choices\\VisitorLocChoice%s_DC_Choices.bin", {Args.OutputFolder, purp})
     fopts = {PrimaryView: visabm.HHView,
             PrimaryViewID: visabm.HHID,
