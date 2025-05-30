@@ -601,7 +601,7 @@ Macro "Visitor Tour Diary"(Args)
     RunMacro("Resolve Visitor Tour Conflicts", objT)
 
     // Export the tours view to output table
-    objT.ChangeSet()
+    objT.SelectByQuery({SetName: "__Export", Query: "RemoveFlag <> 1"})
     objT.Export({FileName: Args.VisitorTours})
     objT = null
     CloseView(vwT)
@@ -705,13 +705,15 @@ endMacro
 
 
 /*
-    Resolve conflicts in visitor tours. Move activty start time and reduce duration for tours that encroach other tours.
+    Resolve conflicts in visitor tours. Move activity start time and reduce duration for tours that encroach other tours.
 */
 Macro "Resolve Visitor Tour Conflicts"(objT)
     buffer = 5
     minDur = 10
     flds = {{FieldName: "PrevHHID", Type: "Integer"},
-            {FieldName: "PrevTourEndTime", Type: "Integer"}}
+            {FieldName: "PrevTourEndTime", Type: "Integer"},
+            {FieldName: "NextHHID", Type: "Integer"},
+            {FieldName: "NextTourStartTime", Type: "Integer"}}
     objT.AddFields({Fields: flds})
     
     // Fill temporary fields
@@ -720,12 +722,13 @@ Macro "Resolve Visitor Tour Conflicts"(objT)
     vecs = objT.GetDataVectors({FieldNames: {"HHID", "TourEndTime"}})
     vPrevHHID = RunMacro("Shift Vector", {Vector: vecs.HHID, Method: "Prev"})
     vPrevTourEndTime = RunMacro("Shift Vector", {Vector: vecs.TourEndTime, Method: "Prev"})
+    vPrevTourEndTime = if vPrevHHID = vecs.HHID then vPrevTourEndTime else null
     objT.PrevHHID = vPrevHHID
     objT.PrevTourEndTime = vPrevTourEndTime
     
     // Select records that need to be adjusted
     objT.Sort()
-    filter = "(HHID = PrevHHID) and (TourStartTime <= PrevTourEndTime + " + String(buffer) + ")"
+    filter = "(PrevTourEndTime <> null) and (TourStartTime <= PrevTourEndTime + " + String(buffer) + ")"
     objT.SelectByQuery({Query: filter, SetName: "Conflicts"})
     flds = {"TourStartTime", "ActivityStartTime", "PrevTourEndTime", "ActivityDuration"}
     vecs = objT.GetDataVectors({FieldNames: flds})
@@ -739,6 +742,4 @@ Macro "Resolve Visitor Tour Conflicts"(objT)
     vecsSet.RemoveFlag = if vNewDur < minDur then 1 else null
     vecsSet.ActivityDuration = vNewDur
     objT.SetDataVectors({FieldData: vecsSet})
-    //objT.DropFields({FieldNames: {"PrevHHID", "PrevTourEndTime"}})
-    
 endMacro
