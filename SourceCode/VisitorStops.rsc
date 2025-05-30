@@ -12,7 +12,8 @@ Macro "Visitor Stops Setup"(Args)
     stopNos = {"1", "2"}
     for dir in dirs do
         flds = flds + {{FieldName: "N" + dir + "Stops", Type: "Short"},
-                       {FieldName: "Remove" + dir + "Stop", Type: "Short"}}
+                       {FieldName: "Remove" + dir + "Stop", Type: "Short"},
+                       {FieldName: dir + "Stop1to2Time", Type: "Real"}}
         
         for s in stopNos do
             flds = flds + {{FieldName: "Purpose" + dir + "Stop" + s, Type: "String", Width: 5},
@@ -512,21 +513,26 @@ Macro "Visitor Multi Stop Scheduling"(Args, spec)
     qry = printf("N%sStops = 2", {dir})
     n = objT.SelectByQuery({Filter: qry, SetName: "__TwoStops"})
 
+    // Fill realized travel time between stops 1 and 2
+    optF = {View: objT.GetView(), 
+            OField: vecsSet.("Stop" + dir + "TAZ1"), DField: vecsSet.("Stop" + dir + "TAZ2"), 
+            DepTimeField: "ActivityStartTime", ModeField: "Mode", 
+            FillField: dir + "Stop1to2Time"}
+    RunMacro("Fill Travel Times", Args, optF)
+
     flds = {"PrevTourEndTime", "NextTourStartTime", "TourStartTime", "TourEndTime", 
             dir + "StopDeltaTT1", dir + "StopDeltaTT2",
             dir + "StopDuration1", dir + "StopDuration2",
-            "Purpose" + dir + "Stop1", "Purpose" + dir + "Stop2"}
+            "Purpose" + dir + "Stop1", "Purpose" + dir + "Stop2", dir + "Stop1to2Time"}
     vecs = objT.GetDataVectors({FieldNames: flds})
     
     // Determine makeup time as the sum of the stop duration and the computed detour travel time
-    vMakeUp = vecs.("StopDuration1") + vecs.(dir + "StopDeltaTT1") + vecs.("StopDuration2")
+    vMakeUp = vecs.("StopDuration1") + vecs.(dir + "StopDeltaTT1") + vecs.("StopDuration2") + vecs.(dir + "Stop1to2Time")
     if dir = "Forward" then do
-        anchor  = "Origin"
         vNewDep = vecs.TourStartTime - vMakeUp
         vLost = if (vecs.PrevTourEndTime = null) or (vecs.PrevTourEndTime + tourBuffer <= vNewDep) then 0 else (vecs.PrevTourEndTime - vNewDep + 15)
     end
     else do // Return: Check with subsequent tour
-        anchor = "Destination"
         vNewArr = vecs.TourEndTime + vMakeUp
         vLost = if (vecs.NextTourStartTime = null) or (vecs.NextTourStartTime >= vNewArr + tourBuffer) then 0 else vNewArr - vecs.NextTourStartTime + 15
     end
