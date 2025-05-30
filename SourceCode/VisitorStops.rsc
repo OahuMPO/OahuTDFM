@@ -7,20 +7,25 @@ Macro "Visitor Stops Setup"(Args)
     Args.ABMFlag = 2
 
     objT = CreateObject("Table", Args.VisitorTours)
-    flds = {{FieldName: "StopsChoice", Type: "String", Width: 5},
-            {FieldName: "NForwardStops", Type: "Short"},
-            {FieldName: "NReturnStops", Type: "Short"}}
+    flds = {{FieldName: "StopsChoice", Type: "String", Width: 5}}
     dirs = {"Forward", "Return"}
-    tourNos = {"1", "2"}
+    stopNos = {"1", "2"}
     for dir in dirs do
-        for t in tourNos do
-            flds = flds + {{FieldName: "Purpose" + dir + "Stop" + t, Type: "String", Width: 5},
-                           {FieldName: "Stop" + dir + "TAZ" + t, Type: "Integer"},
-                           {FieldName: dir + "StopDurChoice" + t, Type: "String", Width: 15},
-                           {FieldName: dir + "StopDuration" + t, Type: "Real"},
-                           {FieldName: dir + "StopDeltaTT" + t, Type: "Real"}}
+        flds = flds + {{FieldName: "N" + dir + "Stops", Type: "Short"},
+                       {FieldName: "Remove" + dir + "Stop", Type: "Short"}}
+        
+        for s in stopNos do
+            flds = flds + {{FieldName: "Purpose" + dir + "Stop" + s, Type: "String", Width: 5},
+                           {FieldName: "Stop" + dir + "TAZ" + s, Type: "Integer"},
+                           {FieldName: dir + "StopDurChoice" + s, Type: "String", Width: 15},
+                           {FieldName: dir + "StopDuration" + s, Type: "Real"},
+                           {FieldName: dir + "StopDeltaTT" + s, Type: "Real"},
+                           {FieldName: "TimeToStop" + dir + s, Type: "Real"}}
         end
     end
+    flds = flds + {{FieldName: "StopsChoice", Type: "String", Width: 5},
+                    {FieldName: "NForwardStops", Type: "Short"},
+                    {FieldName: "NReturnStops", Type: "Short"}}
     objT.AddFields({Fields: flds})
     objT = null
     
@@ -116,7 +121,7 @@ Macro "Visitor Stops Destination"(Args)
     tourFile = Args.VisitorTours
     objT = CreateObject("Table", tourFile)
     spec = {ToursObject: objT, ToursView: objT.GetView(), SkimFile: Args.HighwaySkimAM}
-    pbar = CreateObject("G30 Progress Bar", "Intermediate Stops Destinations: (Forward, Return) and (Rec, Shop, Other)", false, 7)
+    pbar = CreateObject("G30 Progress Bar", "Intermediate Stops Destinations: (Forward, Return) and (Rec, Shop, Other) and (Stop1, Stop2)", false, 15)
     for dir in dirs do
         // Get Stop Formula Fields
         spec.Direction = dir
@@ -136,17 +141,6 @@ Macro "Visitor Stops Destination"(Args)
         if ret = 2 then continue // No records for delta TT calculation. Move on to next direction.
         spec.DeltaTT = deltaTT
 
-        // Calculate delta Dist matrix
-        /*
-        deltaDist = GetTempPath() + "DeltaDist_" + dir + ".mtx"
-        spec.DeltaSkim = deltaDist
-        spec.MatrixSpec = {File: skimFile, Core: "Distance", RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"}
-        spec.OutputCoreName = "DeltaDist"
-        ret = RunMacro("Calculate Delta TT", Args, spec)
-        if ret = 2 then continue // No records for delta TT calculation. Move on to next direction.
-        spec.DeltaDist = deltaDist
-        */
-        
         // Purposes Loop
         for type in types do
             spec.Type = type
@@ -294,6 +288,7 @@ Macro "Remove Infeasible Vis Stops"(opt)
         vecsSet.(dir + "StopDurChoice" + stopNo) = vS
         vecsSet.(dir + "StopDuration" + stopNo) = v
         vecsSet.(dir + "StopDeltaTT" + stopNo) = v
+        vecsSet.("Purpose" + dir + "Stop" + stopNo) = vS
         vStopsChoice = obj.StopsChoice
         if dir = 'Forward' then
             vecsSet.StopsChoice =  i2s(s2i(Left(vStopsChoice, 1)) - 1) + "_" + Right(vStopsChoice, 1)
@@ -302,4 +297,256 @@ Macro "Remove Infeasible Vis Stops"(opt)
         obj.SetDataVectors({FieldData: vecsSet})        
     end
     obj.ChangeSet()
+endMacro
+
+
+
+Macro "Visitor Stop Scheduling"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+    Args.ABMFlag = 2
+
+    objT = CreateObject("Table", Args.VisitorTours)
+    
+    // Update prev and next tour info
+    RunMacro("Update Prev and Next Tour Info", objT)
+
+    // Determine tour order
+    RunMacro("Determine Tour Order", objT)
+
+    // Determine stop order and exchange stops 1 and 2 info as desired
+    // Stop closest to trip origin is stop 1, next closest is stop 2
+    RunMacro("Determine Stop Order", objT, Args.HighwaySkimAM)
+
+    maxTours = 1
+    dirs = {"Forward", "Return"}
+    maxStops = 2
+    for i = 1 to maxTours do
+        for dir in dirs do
+            for s = 1 to maxStops do
+                // Schedule intermediate stops
+                spec = {Tours: objT, Direction: dir, StopNo: s, TourBuffer: 15}
+                RunMacro("Schedule Visitor Stops", Args, spec)
+            end
+        end
+        // Update prev and next tour info
+        //RunMacro("Update Prev and Next Tour Info", objT)
+    end
+
+    Return(1)
+endMacro
+
+
+Macro "Determine Tour Order"(objT)
+    // Add tour order field
+    flds = {{FieldName: "TourOrder", Type: "Short"}}
+    objT.AddFields({Fields: flds})
+    
+    // Get # tours by HHID
+    agg = objT.Aggregate({GroupBy: {"HHID"}, 
+                          FieldStats: {HHID: {"count"}}
+                          })
+
+    SortOrder = {{"HHID", "Ascending"}}
+    agg.Sort({FieldArray: SortOrder})
+    arrTours = v2a(agg.count_HHID)
+
+    mapArray = {{1}, {1,2}, {1,2,3}, {1,2,3,4}} // Max 4 tours
+    // e.g. given {3, 4, 1, 2, 3}
+    // return {{1,2,3}, {1,2,3,4}, {1}, {1,2}, {1,2,3}}
+    a = arrTours.Map(do (f) Return(mapArray[f]) end)
+    vOrder = a2v(a.flatten())
+
+    // Set tour order
+    SortOrder = {{"HHID", "Ascending"}, {"TourStartTime", "Ascending"}}
+    objT.Sort({FieldArray: SortOrder})
+    objT.TourOrder = vOrder
+endMacro
+
+
+// Updates and fills previous and next tour info
+Macro "Update Prev and Next Tour Info"(objT)
+    objT.ChangeSet()
+    SortOrder = {{"HHID", "Ascending"}, {"TourStartTime", "Ascending"}}
+    objT.Sort({FieldArray: SortOrder})
+    vecs = objT.GetDataVectors({FieldNames: {"HHID", "TourStartTime", "TourEndTime"}})
+    
+    vPrevHHID = RunMacro("Shift Vector", {Vector: vecs.HHID, Method: "Prev"})
+    vPrevTourEndTime = RunMacro("Shift Vector", {Vector: vecs.TourEndTime, Method: "Prev"})
+    vNextHHID = RunMacro("Shift Vector", {Vector: vecs.HHID, Method: "Next"})
+    vNextTourStartTime = RunMacro("Shift Vector", {Vector: vecs.TourStartTime, Method: "Next"})
+    vPrevTourEndTime = if vPrevHHID = vecs.HHID then vPrevTourEndTime else null
+    vNextTourStartTime = if vNextHHID = vecs.HHID then vNextTourStartTime else null
+
+    vecsSet = null
+    vecsSet.PrevHHID = vPrevHHID
+    vecsSet.PrevTourEndTime = vPrevTourEndTime
+    vecsSet.NextHHID = vNextHHID
+    vecsSet.NextTourStartTime = vNextTourStartTime
+    objT.SetDataVectors({FieldData: vecsSet})
+endMacro
+
+
+Macro "Determine Stop Order"(objT, skimFile)
+    directions = {"Forward", "Return"}
+    for dir in directions do
+        if dir = "Forward" then
+            anchor  = "Origin"
+        else
+            anchor = "Destination"
+        
+        baseFilter = printf("N%sStops > 1", {dir})
+        n = objT.SelectByQuery({Filter: baseFilter, SetName: "__TwoStops"})
+        if n = 0 then
+            continue
+
+        // Fill travel times from anchor to each of the two stops
+        mObj = CreateObject('Matrix', skimFile)
+        mObj.SetIndex({RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
+        mc = mObj.Time
+        vw = objT.GetView()
+        for stopNo in {"1", "2"} do
+            dField = printf("Stop%sTAZ%s", {dir, stopNo})
+            fillField = printf("TimeToStop%s%s", {dir, stopNo})
+            oSpec = GetFieldFullSpec(vw, anchor)
+            dSpec = GetFieldFullSpec(vw, dField)
+            fSpec = GetFieldFullSpec(vw, fillField)
+            FillViewFromMatrix(vw + "|__TwoStops", oSpec, dSpec, {{fSpec, mc}})
+        end
+        mObj = null
+
+        // Swap stops info as needed
+        swapFilter = printf("TimeToStop%s%s > TimeToStop%s%s", {dir, "1", dir, "2"})
+        n = objT.SelectByQuery({Filter: baseFilter + " and " + swapFilter, SetName: "__Swap"})
+        if n = 0 then
+            continue
+
+        // Swap stop info
+        objT.ChangeSet("__Swap")
+        flds = {"Stop" + dir + "TAZ1", "Stop" + dir + "TAZ2", 
+                "TimeToStop" + dir + "1", "TimeToStop" + dir + "2", dir + "StopDeltaTT1", dir + "StopDeltaTT2", 
+                dir + "StopDurChoice1", dir + "StopDurChoice2", dir + "StopDuration1", dir + "StopDuration2",
+                "Purpose" + dir + "Stop1", "Purpose" + dir + "Stop2"
+                }
+        vecs = objT.GetDataVectors({FieldNames: flds})
+        
+        vecsSet = null
+        vecsSet.("Stop" + dir + "TAZ1") = vecs.("Stop" + dir + "TAZ2")
+        vecsSet.("Stop" + dir + "TAZ2") = vecs.("Stop" + dir + "TAZ1")
+        vecsSet.("TimeToStop" + dir + "1") = vecs.("TimeToStop" + dir + "2")
+        vecsSet.("TimeToStop" + dir + "2") = vecs.("TimeToStop" + dir + "1")
+        vecsSet.(dir + "StopDeltaTT1") = vecs.(dir + "StopDeltaTT2")
+        vecsSet.(dir + "StopDeltaTT2") = vecs.(dir + "StopDeltaTT1")
+        vecsSet.(dir + "StopDurChoice1") = vecs.(dir + "StopDurChoice2")
+        vecsSet.(dir + "StopDurChoice2") = vecs.(dir + "StopDurChoice1")
+        vecsSet.(dir + "StopDuration1") = vecs.(dir + "StopDuration2")
+        vecsSet.(dir + "StopDuration2") = vecs.(dir + "StopDuration1")
+        vecsSet.("Purpose" + dir + "Stop1") = vecs.("Purpose" + dir + "Stop2")
+        vecsSet.("Purpose" + dir + "Stop2") = vecs.("Purpose" + dir + "Stop1")
+        objT.SetDataVectors({FieldData: vecsSet})
+    end // of dir loop
+endMacro
+
+
+Macro "Schedule Visitor Stops"(Args, spec)
+    if stopNo = "1" then
+        RunMacro("Visitor Single Stop Scheduling", Args, spec)
+    else
+        RunMacro("Visitor Multi Stop Scheduling", Args, spec)
+endMacro
+
+
+Macro "Visitor Single Stop Scheduling"(Args, spec)
+    tourBuffer = spec.TourBuffer
+    dir = spec.Direction
+    objT = spec.Tours
+
+    qry = printf("N%sStops = 1", {dir})
+    n = objT.SelectByQuery({Filter: qry, SetName: "__OneStop"})
+
+    flds = {"PrevTourEndTime", "NextTourStartTime", "TourStartTime", "TourEndTime", 
+            dir + "StopDeltaTT" + stopNo, dir + "StopDuration" + stopNo, "Purpose" + dir + "Stop" + stopNo}
+    vecs = objT.GetDataVectors({FieldNames: flds})
+    
+    // Determine makeup time as the sum of the stop duration and the computed detour travel time
+    vMakeUp = vecs.("StopDuration" + stopNo) + vecs.(dir + "StopDeltaTT" + stopNo)
+    if dir = "Forward" then do
+        anchor  = "Origin"
+        vNewDep = vecs.TourStartTime - vMakeUp
+        vLost = if (vecs.PrevTourEndTime = null) or (vecs.PrevTourEndTime + tourBuffer <= vNewDep) then 0 else (vecs.PrevTourEndTime - vNewDep + 15)
+    end
+    else do // Return: Check with subsequent tour
+        anchor = "Destination"
+        vNewArr = vecs.TourEndTime + vMakeUp
+        vLost = if (vecs.NextTourStartTime = null) or (vecs.NextTourStartTime >= vNewArr + tourBuffer) then 0 else vNewArr - vecs.NextTourStartTime + 15
+    end
+    vNewStopDur = vecs.(dir + "StopDuration" + stopNo) - vLost
+    vPurp = vecs.("Purpose" + dir + "Stop" + stopNo)
+    vMinDur = if vPurp = "Rec" then 30 else 15
+    vRemove = if vNewStopDur < vMinDur then 1 else 0
+
+    // Finalize
+    vecsSet = null
+    if dir = "Forward" then
+        vecsSet.TourStartTime = vNewDep
+    else
+        vecsSet.TourEndTime = vNewArr
+    vecsSet.(dir + "StopDuration" + stopNo) = vNewStopDur
+    vecsSet.("Remove" + dir + "Stop") = vRemove
+    objT.SetDataVectors({FieldData: vecsSet})
+
+    // Remove infeasible stops
+    filter = "Remove" + dir + "Stop = 1"
+    opt = {TableObject: objT, Filter: filter, Direction: dir, StopNo: "1"}
+    RunMacro("Remove Infeasible Vis Stops", opt)
+endMacro
+
+
+Macro "Visitor Multi Stop Scheduling"(Args, spec)
+    tourBuffer = spec.TourBuffer
+    dir = spec.Direction
+    objT = spec.Tours
+
+    qry = printf("N%sStops = 2", {dir})
+    n = objT.SelectByQuery({Filter: qry, SetName: "__TwoStops"})
+
+    flds = {"PrevTourEndTime", "NextTourStartTime", "TourStartTime", "TourEndTime", 
+            dir + "StopDeltaTT1", dir + "StopDeltaTT2",
+            dir + "StopDuration1", dir + "StopDuration2",
+            "Purpose" + dir + "Stop1", "Purpose" + dir + "Stop2"}
+    vecs = objT.GetDataVectors({FieldNames: flds})
+    
+    // Determine makeup time as the sum of the stop duration and the computed detour travel time
+    vMakeUp = vecs.("StopDuration1") + vecs.(dir + "StopDeltaTT1") + vecs.("StopDuration2")
+    if dir = "Forward" then do
+        anchor  = "Origin"
+        vNewDep = vecs.TourStartTime - vMakeUp
+        vLost = if (vecs.PrevTourEndTime = null) or (vecs.PrevTourEndTime + tourBuffer <= vNewDep) then 0 else (vecs.PrevTourEndTime - vNewDep + 15)
+    end
+    else do // Return: Check with subsequent tour
+        anchor = "Destination"
+        vNewArr = vecs.TourEndTime + vMakeUp
+        vLost = if (vecs.NextTourStartTime = null) or (vecs.NextTourStartTime >= vNewArr + tourBuffer) then 0 else vNewArr - vecs.NextTourStartTime + 15
+    end
+    vNewStopDur = vecs.(dir + "StopDuration" + stopNo) - vLost
+    vPurp = vecs.("Purpose" + dir + "Stop" + stopNo)
+    vMinDur = if vPurp = "Rec" then 30 else 15
+    vRemove = if vNewStopDur < vMinDur then 1 else 0
+
+    // Finalize
+    vecsSet = null
+    if dir = "Forward" then
+        vecsSet.TourStartTime = vNewDep
+    else
+        vecsSet.TourEndTime = vNewArr
+    vecsSet.(dir + "StopDuration" + stopNo) = vNewStopDur
+    vecsSet.("Remove" + dir + "Stop") = vRemove
+    objT.SetDataVectors({FieldData: vecsSet})
+
+    // Remove infeasible stops
+    filter = "Remove" + dir + "Stop = 1"
+    opt = {TableObject: objT, Filter: filter, Direction: dir, StopNo: "1"}
+    RunMacro("Remove Infeasible Vis Stops", opt)
 endMacro

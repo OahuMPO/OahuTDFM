@@ -1113,7 +1113,7 @@ EndMacro
 Macro "Visitor Stop Scheduling" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", { /* "Macro Name 1", ..., "Macro Name n" */ }}
+        {"MacroNames", {"Visitor Stop Scheduling"}}
     }
 EndMacro
 
