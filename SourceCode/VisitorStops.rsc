@@ -356,7 +356,7 @@ Macro "Visitor Stops Duration"(Args)
     for dir in dirs do
         for t = 1 to types.length do
             for s in stopsArr do
-                qry = printf("N%sStops >= %s and TourType = '%s'", {dir, s, types[t]})
+                qry = printf("N%sStops >= %s and Purpose%sStop%s = '%s'", {dir, s, dir, s, types[t]})
                 n = objT.SelectByQuery({Query: qry, SetName: "__Stops"})
                 if n = 0 then
                     continue
