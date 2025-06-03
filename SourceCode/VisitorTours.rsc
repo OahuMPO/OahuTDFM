@@ -729,17 +729,20 @@ Macro "Resolve Visitor Tour Conflicts"(objT)
     // Select records that need to be adjusted
     objT.Sort()
     filter = "(PrevTourEndTime <> null) and (TourStartTime <= PrevTourEndTime + " + String(buffer) + ")"
-    objT.SelectByQuery({Query: filter, SetName: "Conflicts"})
-    flds = {"TourStartTime", "ActivityStartTime", "PrevTourEndTime", "ActivityDuration"}
-    vecs = objT.GetDataVectors({FieldNames: flds})
-    vDelta = (vecs.PrevTourEndTime - vecs.TourStartTime) + buffer
+    n = objT.SelectByQuery({Query: filter, SetName: "Conflicts"})
+    if n > 0 then do
+        flds = {"TourStartTime", "ActivityStartTime", "PrevTourEndTime", "ActivityDuration"}
+        vecs = objT.GetDataVectors({FieldNames: flds})
+        vDelta = (vecs.PrevTourEndTime - vecs.TourStartTime) + buffer
 
-    vecsSet = null
-    vecsSet.TourStartTime = vecs.TourStartTime + vDelta
-    vecsSet.ActivityStartTime = vecs.ActivityStartTime + vDelta
-    vNewDur = vecs.ActivityDuration - vDelta
-    vecsSet.ModifyFlag = if vNewDur < minDur then null else 1
-    vecsSet.RemoveFlag = if vNewDur < minDur then 1 else null
-    vecsSet.ActivityDuration = vNewDur
-    objT.SetDataVectors({FieldData: vecsSet})
+        vecsSet = null
+        vecsSet.TourStartTime = vecs.TourStartTime + vDelta
+        vecsSet.ActivityStartTime = vecs.ActivityStartTime + vDelta
+        vNewDur = vecs.ActivityDuration - vDelta
+        vecsSet.ModifyFlag = if vNewDur < minDur then null else 1
+        vecsSet.RemoveFlag = if vNewDur < minDur then 1 else null
+        vecsSet.ActivityDuration = vNewDur
+        objT.SetDataVectors({FieldData: vecsSet})
+        objT.ChangeSet()
+    end
 endMacro
