@@ -336,6 +336,47 @@ Macro "Remove Infeasible Vis Stops"(opt)
 endMacro
 
 
+Macro "Visitor Stops Duration"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+    Args.ABMFlag = 2
+    
+    // Run Destination Choice
+    dirs = {"Forward", "Return"}
+    types = {"Rec", "Shop", "Other"}
+    params = {180, 120, 150}
+    stopsArr = {"1", "2"}
+    
+    tourFile = Args.VisitorTours
+    objT = CreateObject("Table", tourFile)
+    
+    pbar = CreateObject("G30 Progress Bar", "Intermediate Stops Duration: (Forward, Return) and (Rec, Shop, Other) and (Stop1, Stop2)", false, 12)
+    for dir in dirs do
+        for t = 1 to types.length do
+            for s in stopsArr do
+                qry = printf("N%sStops >= %s and TourType = '%s'", {dir, s, types[t]})
+                n = objT.SelectByQuery({Query: qry, SetName: "__Stops"})
+                if n = 0 then
+                    continue
+                
+                seed = 4999971 + 100*t + 10*dirs.position(dir) + s2i(s)
+                SetRandomSeed(seed)
+                v = RandSamples(n, "Uniform",)
+                v = Max(10, v*params[t])
+                outfld = printf("%sStopDuration%s", {dir, s})
+                objT.(outfld) = v
+            end
+        end
+        pbar.Step()
+    end
+    pbar.Destroy()
+    
+    objT = null
+    Return(1)
+endMacro
+
 
 Macro "Visitor Stop Scheduling"(Args)
     on error do
