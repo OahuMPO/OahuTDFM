@@ -3655,8 +3655,8 @@
                 {"Also make Rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.893,0,0,0,0,0,0,1,0,0,0,0},
                 {"Also make Other tour","VisitorData.NumberOtherTours > 0",-1.07,0,0,0,0,0,0,0,0,0,1,0}}
         }
-
-    Section = "Visitor ABM|Tours|Time of day|Other"
+	
+	Section = "Visitor ABM|Tours|Time of day|Other"
 	
         Args.OtherTourTODUtility = {
             "Type":"array",
@@ -3781,7 +3781,8 @@
                 {"Low Walk Index","TAZAccessibilities.WalkIndex.D < 0.1",0.3028,0,0,0,0,1,1},
                 {"High Walk Index","TAZAccessibilities.WalkIndex.D > 0.4",0.3602,1,0,0,0,0,0},
                 {"Long Drive Dist","AutoSkim.Distance >= 5",0.7507,0,0,0,0,0,1},
-                {"High Attraction Density","TAZAccessibilities.AttractionDensity.D > 5000",0.1424,1,0,0,0,0,0}}
+                {"High Attraction Density","TAZAccessibilities.AttractionDensity.D > 5000",0.1424,1,0,0,0,0,0},
+                {"Transit mode","VisitorData.ModeCode = 6",-99.0,0,1,1,1,1,1}}
         }
 	
 	Section = "Visitor ABM|Tours|Output"
@@ -3791,6 +3792,12 @@
             "Caption":"Visitor output tours data",
             "Description":"VisitorTours",
             "Value":"%Output Folder%\\visitors\\VisitorTours.bin"
+        }
+        Args.VisitorTrips = {
+            "Type":"File",
+            "Caption":"Visitor output trips data",
+            "Description":"VisitorTrips",
+            "Value":"%Output Folder%\\visitors\\VisitorTrips.bin"
         }
 	
 	Section = "Commercial Vehicles/Trucks"

@@ -19,6 +19,7 @@ TimeManager.rsc
 VisitorSynthesis.rsc
 VisitorTours.rsc
 VisitorStops.rsc
+VisitorTripsandOD.rsc
 NonresidentDistribution.rsc
 HighwayAssignment.rsc
 Commercial Vehicles.rsc
