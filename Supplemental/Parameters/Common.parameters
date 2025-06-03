@@ -3799,6 +3799,21 @@
             "Description":"VisitorTrips",
             "Value":"%Output Folder%\\visitors\\VisitorTrips.bin"
         }
+        Args.AM_Visitor_OD = {
+            "Type":"File",
+            "Caption":"AM Visitor OD Matrix",
+            "Value":"%Output Folder%\\visitors\\AM_VisitorOD.mtx"
+        }
+        Args.PM_Visitor_OD = {
+            "Type":"File",
+            "Caption":"PM Visitor OD Matrix",
+            "Value":"%Output Folder%\\visitors\\PM_VisitorOD.mtx"
+        }
+        Args.OP_Visitor_OD = {
+            "Type":"File",
+            "Caption":"OP Visitor OD Matrix",
+            "Value":"%Output Folder%\\visitors\\OP_VisitorOD.mtx"
+        }
 	
 	Section = "Commercial Vehicles/Trucks"
 	

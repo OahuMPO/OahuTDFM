@@ -1121,7 +1121,7 @@ EndMacro
 Macro "Visitor OD" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", {"Create Visitor Trip File"}}
+        {"MacroNames", {"Create Visitor Trip File", "Write Visitor OD"}}
     }
 EndMacro
 

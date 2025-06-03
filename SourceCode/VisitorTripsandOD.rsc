@@ -302,7 +302,7 @@ Macro "Write Vis Trips Table"(spec)
         vecsOut.(fld) = a2v(data.(fld))
     end
     vecsOut.One = Vector(nRecs, "Short", {Constant: 1})
-    vecsOut.Period = RunMacro("Get TOD Vector", vecsOut.OrigDep, PeriodInfo)
+    vecsOut.Period = RunMacro("Get TOD Vector", (vecsOut.OrigDep + vecsOut.DestArr)/2, periodInfo)
     vecsOut.Mode = Lower(vecsOut.Mode)
     SetDataVectors(vwOut + "|", vecsOut,)
 
@@ -342,4 +342,45 @@ Macro "Create Empty Vis Trip File"(spec)
     if spec.NRecords > 0 then
         AddRecords(vwOut,,, {{"Empty Records", spec.NRecords}})    
     Return(vwOut)
+endMacro
+
+
+// Create Visitor AM, PM and OP matrices with modes as the cores
+Macro "Write Visitor OD"(Args)
+    on error do
+        ShowMessage(GetLastError())
+        return(0)
+    end
+    Args.ABMFlag = 2
+
+    mSkimObj = CreateObject("Matrix", Args.HighwaySkimAM)
+    mSkimObj.SetIndex("TAZ")
+    mcSkim = mSkimObj.Time
+
+    objT = CreateObject("Table", Args.VisitorTrips)
+    vM = objT.Mode
+    modes = SortArray(v2a(vM), {Unique: "True"})
+    
+    periods = {'AM', 'PM', 'OP'}
+    for p in periods do
+        outFile = Args.(p + "_Visitor_OD")
+        label = printf("%s_VisitorOD", {p})
+
+        mOpts = {FileName: outFile, Tables: modes, Label: label}
+        mat = CopyMatrixStructure({mcSkim}, mOpts)
+        mObj = CreateObject("Matrix", mat)
+        
+        filter = printf("Period = '%s'", {p})
+        n = objT.SelectByQuery({SetName: "__Selection", Query: filter})
+        UpdateMatrixFromView(mat, objT.GetView() + "|__Selection", "Origin", "Destination", 
+                                GetFieldFullSpec(vwTrips, "Mode"),          
+                                {GetFieldFullSpec(vwTrips, "One")}, 
+                                "Add", {"Missing is zero": "Yes"})
+
+        mObj = null
+    end
+
+    mSkimObj = null
+    objT = null
+    return(1)
 endMacro
