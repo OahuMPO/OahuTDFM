@@ -669,9 +669,25 @@ menu "VisitorTours_Menu"
 endmenu
 
 menu "VisitorTourStops_Menu"
-    MenuItem "Visitor Stops Frequency" text: "Visitor Stops Frequency" do
+    MenuItem "Visitor Stops Frequency" text: "Stops Frequency" do
         mr = CreateObject("Model.Runtime")
         Args = mr.GetValues()
         mr.RunCode("Calibrate Visitor Stops Freq", Args)
+    endItem
+    Separator
+    MenuItem "Recreation Stop Duration" text: "Recreation Stop Duration" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Stops Dur", Args, "Rec")
+    endItem
+    MenuItem "Other Stop Duration" text: "Other Stop Duration" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Stops Dur", Args, "Other")
+    endItem
+    MenuItem "Shop Stop Duration" text: "Shop Stop Duration" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Stops Dur", Args, "Shop")
     endItem
 endmenu

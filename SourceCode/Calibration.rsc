@@ -682,6 +682,17 @@ Macro "Calibrate Visitor Stops Freq"(Args)
 endMacro
 
 
+Macro "Calibrate Visitor Stops Dur"(Args, p)
+    toursObj = CreateObject("Table", Args.VisitorTours)
+    opts = null
+    opts.ModelName = "VisStops_" + p + "_Return_Dur"
+    opts.MacroName = "Visitor Stops Duration Eval"
+    opts.MacroArgs = {Purpose: p, Direction: "Return", StopNo: "1", ToursObj: toursObj}
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorStops\\VisitorStopsDuration_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+    toursObj = null
+endMacro
+
 // Main calibration model utility
 Macro "Calibrate Model"(Args, Opts)
     abm = RunMacro("Get ABM Manager", Args)

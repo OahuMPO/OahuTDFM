@@ -1,0 +1,8 @@
+
+52,codepage=65001
+"Alternative",C,1,16,0,16,0,,"","",,"Copy",
+"TargetShare",F,17,4,0,10,2,,"","",,"Sum",
+"InitialShare",R,21,8,0,12,2,,"","",,"Sum",
+"InitialASC",R,29,8,0,12,4,,"","",,"Sum",
+"AdjustedShare",R,37,8,0,12,2,,"","",,"Sum",
+"AdjustedASC",R,45,8,0,12,4,,"","",,"Sum",
