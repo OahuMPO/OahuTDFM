@@ -346,7 +346,6 @@ Macro "Visitor Stops Duration"(Args)
     // Run Destination Choice
     dirs = {"Forward", "Return"}
     types = {"Rec", "Shop", "Other"}
-    params = {180, 120, 150}
     stopsArr = {"1", "2"}
     
     tourFile = Args.VisitorTours
@@ -354,27 +353,56 @@ Macro "Visitor Stops Duration"(Args)
     
     pbar = CreateObject("G30 Progress Bar", "Intermediate Stops Duration: (Forward, Return) and (Rec, Shop, Other) and (Stop1, Stop2)", false, 12)
     for dir in dirs do
-        for t = 1 to types.length do
+        //for t = 1 to types.length do
+        for t in types do
             for s in stopsArr do
-                qry = printf("N%sStops >= %s and Purpose%sStop%s = '%s'", {dir, s, dir, s, types[t]})
-                n = objT.SelectByQuery({Query: qry, SetName: "__Stops"})
-                if n = 0 then
-                    continue
-                
-                seed = 4999971 + 100*t + 10*dirs.position(dir) + s2i(s)
-                SetRandomSeed(seed)
-                v = RandSamples(n, "Uniform",)
-                v = Max(10, v*params[t])
-                outfld = printf("%sStopDuration%s", {dir, s})
-                objT.(outfld) = v
+                spec = {ToursObj: objT, Direction: dir, Purpose: t, StopNo: s}
+                RunMacro("Visitor Stops Duration Eval", Args, spec)
+                pbar.Step()
             end
         end
-        pbar.Step()
     end
     pbar.Destroy()
     
     objT = null
     Return(1)
+endMacro
+
+
+Macro "Visitor Stops Duration Eval"(Args, spec)
+    purp = spec.Purpose
+    dir = spec.Direction
+    stopNo = spec.StopNo
+    toursObj = spec.ToursObj
+    
+    vwT = toursObj.GetView()
+    filter = printf("Purpose%sStop%s = '%s' and N%sStops >= %s", {dir, stopNo, purp, dir, stopNo} )
+    util = Args.("Vis" + purp + "StopsDurUtility")
+    choiceIntFld = printf("%sStopDurChoice%s", {dir, stopNo})
+    choiceFld = printf("%sStopDuration%s", {dir, stopNo})
+
+    // Run Duration choice model
+    tag = "VisStops_" + purp + "_" + dir
+    modelName = tag + "_Dur"
+    obj = CreateObject("PMEChoiceModel", {ModelName: modelName})
+    obj.OutputModelFile = Args.[Output Folder] + "\\Intermediate\\" + modelName + ".mdl"
+    obj.AddTableSource({SourceName: "VisitorData", View: vwT, IDField: "TourID"})
+    obj.AddPrimarySpec({Name: "VisitorData", Filter: filter})
+    obj.AddUtility({UtilityFunction: util})
+    obj.AddOutputSpec({ChoicesField: choiceIntFld})
+    obj.ReportShares = 1
+    obj.RandomSeed = 7599991 + 1000*StringLength(purp) + 100*StringLength(dir) + 10*s2i(stopNo)
+    ret = obj.Evaluate()
+    if !ret then
+        Throw("Running stop duration model failed for: " + tag)
+    Args.(modelName + " Spec") = CopyArray(ret)
+    obj = null
+
+    
+    // Simulate Time
+    n = toursObj.SelectByQuery({Query: filter, SetName: "__Selection"})
+    opt = {ViewSet: vwT + "|__Selection", InputField: choiceIntFld, OutputField: choiceFld, AlternativeIntervalInMin: 1}
+    RunMacro("Simulate Time", opt)
 endMacro
 
 
@@ -478,21 +506,6 @@ Macro "Determine Stop Order"(objT, skimFile)
         n = objT.SelectByQuery({Filter: baseFilter, SetName: "__TwoStops"})
         if n = 0 then
             continue
-
-        // Fill travel times from anchor to each of the two stops
-        /*mObj = CreateObject('Matrix', skimFile)
-        mObj.SetIndex({RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
-        mc = mObj.Time
-        vw = objT.GetView()
-        for stopNo in {"1", "2"} do
-            dField = printf("Stop%sTAZ%s", {dir, stopNo})
-            fillField = printf("TimeToStop%s%s", {dir, stopNo})
-            oSpec = GetFieldFullSpec(vw, anchor)
-            dSpec = GetFieldFullSpec(vw, dField)
-            fSpec = GetFieldFullSpec(vw, fillField)
-            FillViewFromMatrix(vw + "|__TwoStops", oSpec, dSpec, {{fSpec, mc}})
-        end
-        mObj = null*/
 
         // Swap stops info as needed
         swapFilter = printf("TimeToStop%s%s > TimeToStop%s%s", {dir, "1", dir, "2"})
