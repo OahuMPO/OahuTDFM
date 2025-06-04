@@ -595,7 +595,7 @@ Macro "Visitor Tour Diary"(Args)
     end
 
     // Post process tours data by adding departure and arrival times
-    RunMacro("Post Process Visitor Tour Diary", Args, objT)
+    RunMacro("Update Tour Travel Times", Args, objT)
 
     // Resolve tour conflicts and adjust schedules if any
     RunMacro("Resolve Visitor Tour Conflicts", objT)
@@ -677,7 +677,7 @@ endMacro
 
 
 // Fill travel times forward and return and departure and arrival times
-Macro "Post Process Visitor Tour Diary"(Args, objT)
+Macro "Update Tour Travel Times"(Args, objT)
     vwT = objT.GetView()
     
     // Time from lodging TAZ to destination
