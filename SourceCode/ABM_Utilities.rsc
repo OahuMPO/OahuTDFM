@@ -590,7 +590,8 @@ endMacro
 Macro "Create Assignment OD Matrices"(Args)
     Args.ABMFlag = 0
     RunMacro("Write ABM OD", Args)
-    RunMacro("Add Visitor OD", Args)
+    //RunMacro("Add Visitor OD", Args)
+    RunMacro("Add Visitor ABM OD", Args)
     RunMacro("Add Truck OD", Args)
     RunMacro("Add Airport OD", Args)
     RunMacro("Create Daily OD Matrix", Args)
@@ -694,6 +695,26 @@ Macro "Add Visitor OD" (Args)
                     then od_mtx.w_rail := nz(od_mtx.w_rail) + vis_mtx.rail
             end
         end
+    end
+endmacro
+
+
+Macro "Add Visitor ABM OD" (Args)
+    periods = {"AM", "PM", "OP"}
+    for period in periods do
+        od_mtx_file = Args.(period + "_OD")
+        od_mtx = CreateObject("Matrix", od_mtx_file)
+
+        vis_od_mtx_file = Args.(period + "_Visitor_OD")
+        vis_mtx = CreateObject("Matrix", vis_od_mtx_file)
+
+        od_mtx.drivealone := nz(od_mtx.drivealone) + nz(vis_mtx.sov) + nz(vis_mtx.other)
+        od_mtx.carpool := nz(od_mtx.carpool) + nz(vis_mtx.hov2) + nz(vis_mtx.hov3) + nz(vis_mtx.tnc)
+        od_mtx.w_bus := nz(od_mtx.w_bus) + nz(vis_mtx.w_bus)
+        od_mtx.walk := nz(od_mtx.walk) + nz(vis_mtx.walk)
+
+        od_mtx = null
+        vis_mtx = null
     end
 endmacro
 
