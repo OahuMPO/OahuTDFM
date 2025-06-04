@@ -744,6 +744,45 @@
                                                           {Name: "0_2",   Type: "boolean",  "Align":"center"}}
                                         })
 
+  Styles.VisRecStopsDurUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {"Name": "Expression", "Type": "string", "Width": "30%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "0-30", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "30-45", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "45-60", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "60-75", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "75-105", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "105-135", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "135-180", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "180-210", "Type": "boolean", "Align": "center"}}
+                                        })
+
+  Styles.VisOtherStopsDurUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {"Name": "Expression", "Type": "string", "Width": "30%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "0-15", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "15-30", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "30-45", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "45-90", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "90-120", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "120-150", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "150-180", "Type": "boolean", "Align": "center"}}
+                                        })
+
+  Styles.VisShopStopsDurUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {"Name": "Expression", "Type": "string", "Width": "30%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "0-15", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "15-45", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "45-60", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "60-90", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "90-135", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "135-150", "Type": "boolean", "Align": "center"}}
+                                        })
+
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 
   Styles.lanecapStyle = Pme.Table(RunMacro("Extend Object", all_tables,

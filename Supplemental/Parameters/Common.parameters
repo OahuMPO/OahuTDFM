@@ -3782,7 +3782,67 @@
                 {"High Walk Index","TAZAccessibilities.WalkIndex.D > 0.4",0.3602,1,0,0,0,0,0},
                 {"Long Drive Dist","AutoSkim.Distance >= 5",0.7507,0,0,0,0,0,1},
                 {"High Attraction Density","TAZAccessibilities.AttractionDensity.D > 5000",0.1424,1,0,0,0,0,0},
-                {"Transit mode","VisitorData.ModeCode = 6",-99.0,0,1,1,1,1,1}}
+                {"Transit mode","VisitorData.ModeCode = 6",-99,0,1,1,1,1,1}}
+        }
+	
+	Section = "Visitor ABM|Stops|Duration|Rec"
+	
+        Args.VisRecStopsDurUtility = {
+            "Type":"array",
+            "Caption":"Tour Duration Choice Model",
+            "Style":"VisRecStopsDurUtility",
+            "Value":{
+                {"Constant (0-30)","Constant",2.5967,1,0,0,0,0,0,0,0},
+                {"Constant (30-45)","Constant",1.924,0,1,0,0,0,0,0,0},
+                {"Constant (45-60)","Constant",1.8764,0,0,1,0,0,0,0,0},
+                {"Constant (60-75)","Constant",2.285,0,0,0,1,0,0,0,0},
+                {"Constant (75-105)","Constant",2.0866,0,0,0,0,1,0,0,0},
+                {"Constant (105-135)","Constant",2.1259,0,0,0,0,0,1,0,0},
+                {"Constant (135-180)","Constant",0.7673,0,0,0,0,0,0,1,0},
+                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.6017,1,1,1,0,0,0,0,0},
+                {"Makes 2 tours","VisitorData.NumberTours = 2",0.2669,0,1,1,1,1,0,0,0},
+                {"Makes 1 tour","VisitorData.NumberTours = 1",0.713,0,0,0,0,0,0,1,1},
+                {"Makes 3 or more stops","VisitorData.NForwardStops + VisitorData.NReturnStops >= 3",0.6267,1,1,0,0,0,0,0,0},
+                {"Makes 1 stop","VisitorData.NForwardStops + VisitorData.NReturnStops = 1",0.7106,0,0,0,0,0,1,1,1},
+                {"Main tour activity is Rec","VisitorData.TourCode = 2",0.2901,0,0,0,0,0,0,1,1}}
+        }
+	
+	Section = "Visitor ABM|Stops|Duration|Other"
+	
+        Args.VisOtherStopsDurUtility = {
+            "Type":"array",
+            "Caption":"Tour Duration Choice Model",
+            "Style":"VisOtherStopsDurUtility",
+            "Value":{
+                {"Constant (0-15)","Constant",1.0047,1,0,0,0,0,0,0},
+                {"Constant (15-30)","Constant",1.0477,0,1,0,0,0,0,0},
+                {"Constant (30-45)","Constant",1.1981,0,0,1,0,0,0,0},
+                {"Constant (45-90)","Constant",2.5743,0,0,0,1,0,0,0},
+                {"Constant (90-120)","Constant",1.0532,0,0,0,0,1,0,0},
+                {"Constant (120-150)","Constant",0.3205,0,0,0,0,0,1,0},
+                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.4721,1,1,1,1,0,0,0},
+                {"Makes 1 tour","VisitorData.NumberTours = 1",0.6024,0,0,0,1,1,1,1},
+                {"Main activity is less than 120 minutes","VisitorData.ActivityDuration < 120",0.1367,0,0,1,1,0,0,0},
+                {"Main tour activity is Other","VisitorData.TourCode = 3",0.1348,1,1,1,0,0,0,0}}
+        }
+	
+	Section = "Visitor ABM|Stops|Duration|Shop"
+	
+        Args.VisShopStopsDurUtility = {
+            "Type":"array",
+            "Caption":"Tour Duration Choice Model",
+            "Style":"VisShopStopsDurUtility",
+            "Value":{
+                {"Constant (0-15)","Constant",0.3712,1,0,0,0,0,0},
+                {"Constant (15-45)","Constant",1.4047,0,1,0,0,0,0},
+                {"Constant (45-60)","Constant",0.9155,0,0,1,0,0,0},
+                {"Constant (60-90)","Constant",1.1527,0,0,0,1,0,0},
+                {"Constant (90-135)","Constant",0.6286,0,0,0,0,1,0},
+                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.1321,1,1,1,0,0,0},
+                {"Makes 1 tour","VisitorData.NumberTours = 1",0.7873,0,0,0,1,1,1},
+                {"Main activity is 250 minutes or longer","VisitorData.ActivityDuration >= 250",0.3725,1,0,0,0,0,0},
+                {"Main activity is less than 120 minutes","VisitorData.ActivityDuration < 120",0.5884,0,1,1,0,0,0},
+                {"Main tour activity is Shop","VisitorData.TourCode = 4",0.6105,1,1,0,0,0,0}}
         }
 	
 	Section = "Visitor ABM|Tours|Output"
