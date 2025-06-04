@@ -605,6 +605,8 @@ Macro "Visitor Tour Diary"(Args)
     objT.Export({FileName: Args.VisitorTours})
     objT = null
     CloseView(vwT)
+
+    RunMacro("Post Process Visitor Tour Diary", Args.VisitorTours)
     
     Return(1)
 endMacro
@@ -614,8 +616,10 @@ endMacro
 Macro "Create Temp Visitor Tour Diary"(spec)
     flds = {{"TourID", "Integer", 12, null, "Yes"},
             {"HHID", "Integer", 12, null, "Yes"},
+            {"NumberTours", "Short", 2, null, "No"},
             {"PartySize", "Integer", 12, null, "No"},
             {"TourType", "String", 12, null, "No"},
+            {"TourCode", "Short", 2, null, "No"},
             {"Origin", "Integer", 12, null, "Yes"},
             {"Destination", "Integer", 12, null, "Yes"},
             {"ModeCode", "Integer", 2, null, "No"},
@@ -745,4 +749,25 @@ Macro "Resolve Visitor Tour Conflicts"(objT)
         objT.SetDataVectors({FieldData: vecsSet})
         objT.ChangeSet()
     end
+endMacro
+
+
+// Fill 'NumberTours' and 'TourCode' field
+Macro "Post Process Visitor Tour Diary"(toursFile)
+    objT = CreateObject("Table", toursFile)
+    
+    // Tour Code
+    tourCodeMap = {"Work": 1, "Rec": 2, "Other": 3, "Shop": 4}
+    vType = objT.TourType
+    vCode = v2a(vType).Map(do (f) Return(tourCodeMap.(f)) end)
+    objT.TourCode = a2v(vCode)
+
+    // Number Tours
+    objA = objT.Aggregate({GroupBy: {"HHID"},  FieldStats: {HHID: {"count"}}})
+    objJ = objT.Join({Table: objA, LeftFields: "HHID", RightFields: "HHID"})
+    objJ.NumberTours = nz(objJ.count_HHID)
+
+    objJ = null
+    objA = null
+    objT = null
 endMacro
