@@ -79,28 +79,43 @@ Macro "Visitor Stops Purpose"(Args)
     
     Args.ABMFlag = 2
     objT = CreateObject("Table", Args.VisitorTours)
-    stopPurps = {"Rec", "Shop", "Other"}
-    stopsProb = {0.22, 0.20, 0.58} // Probabilities for Rec, Shop, Other stops
-    params = {population: stopPurps, weight: stopsProb}
-
     dirs = {"Forward", "Return"}
     stopsArr = {"1", "2"}
     for dir in dirs do
         for s in stopsArr do
-            filter = printf("N%sStops >= %s", {dir, s}) // e.g. NForwardStops >= 1
-            n = objT.SelectByQuery({Query: filter, SetName: "__PurposeSet"})
-            if n > 0 then do
-                objT.ChangeSet("__PurposeSet")
-                SetRandomSeed(4200 + 10*ASCII(Left(dir, 1)) + s2i(s))
-                v = RandSamples(n, "Discrete", params)
-                vecsSet = null
-                vecsSet.("Purpose" + dir + "Stop" + s) = v
-                objT.SetDataVectors({FieldData: vecsSet})
-            end
+            spec = {ToursObj: objT, Direction: dir, StopNo: s}
+            RunMacro("Visitor Stops Purpose Eval", Args, spec)
         end
     end
     objT = null
+    
     return(1)
+endMacro
+
+
+Macro "Visitor Stops Purpose Eval" (Args, spec)
+    objTours = spec.ToursObj
+    dir = spec.Direction
+    s = spec.StopNo
+
+    filter = printf("N%sStops >= %s", {dir, s})
+    chFld = "Purpose" + dir + "Stop" + s
+
+    // Run Model and populate results
+    tag = printf("VisitorStopsPurp%s%s", {dir, s})
+    obj = CreateObject("PMEChoiceModel", {ModelName: "Visitor Stops Purpose"})
+    obj.OutputModelFile = printf("%s\\Intermediate\\VisitorStopsPurp%s%s.mdl", {Args.[Output Folder], dir, s})
+    obj.AddTableSource({SourceName: "VisitorData", View: objTours.GetView(), IDField: "TourID"})
+    obj.AddPrimarySpec({Name: "VisitorData", Filter: filter, OField: "Origin", DField: "Destination"})
+    obj.AddUtility({UtilityFunction: Args.VisitorStopsPurpUtility})
+    obj.AddOutputSpec({ChoicesField: chFld})
+    obj.ReportShares = 1
+    obj.RandomSeed = 4200 + 10*ASCII(Left(dir, 1)) + s2i(s)
+    ret = obj.Evaluate()
+    if !ret then
+        Throw("Visitor stops purpose model failed for: " + dir + s)
+    Args.(tag + " Spec") = CopyArray(ret) // For calibration purposes
+    obj = null
 endMacro
 
 

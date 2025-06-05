@@ -675,6 +675,12 @@ menu "VisitorTourStops_Menu"
         mr.RunCode("Calibrate Visitor Stops Freq", Args)
     endItem
     Separator
+    MenuItem "Visitor Stops Purpose" text: "Stops Purpose" do
+        mr = CreateObject("Model.Runtime")
+        Args = mr.GetValues()
+        mr.RunCode("Calibrate Visitor Stops Purp", Args)
+    endItem
+    Separator
     MenuItem "Recreation Stop Duration" text: "Recreation Stop Duration" do
         mr = CreateObject("Model.Runtime")
         Args = mr.GetValues()

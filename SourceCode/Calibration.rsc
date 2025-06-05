@@ -682,6 +682,18 @@ Macro "Calibrate Visitor Stops Freq"(Args)
 endMacro
 
 
+Macro "Calibrate Visitor Stops Purp"(Args)
+    toursObj = CreateObject("Table", Args.VisitorTours)
+    opts = null
+    opts.ModelName = "VisitorStopsPurpReturn1"
+    opts.MacroName = "Visitor Stops Purpose Eval"
+    opts.MacroArgs = {Direction: "Return", StopNo: "1", ToursObj: toursObj}
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorStops\\VisitorStopsPurpose.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+    toursObj = null
+endMacro
+
+
 Macro "Calibrate Visitor Stops Dur"(Args, p)
     toursObj = CreateObject("Table", Args.VisitorTours)
     opts = null

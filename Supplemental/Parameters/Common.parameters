@@ -3785,6 +3785,23 @@
                 {"Transit mode","VisitorData.ModeCode = 6",-99,0,1,1,1,1,1}}
         }
 	
+	Section = "Visitor ABM|Stops|Purpose"
+	
+        Args.VisitorStopsPurpUtility = {
+            "Type":"array",
+            "Caption":"Visitor intermediate stops purpose utility",
+            "Description":"VisitorStopsPurpUtility",
+            "Style":"VisStopsPurpUtility",
+            "Value":{
+                {"ASC Rec","Constant",-1.3725,1,0,0},
+                {"ASC Shop","Constant",-1.9867,0,1,0},
+                {"Main tour activity is Rec","VisitorData.TourCode = 2",1.8461,1,0,0},
+                {"Main tour activity is Shop","VisitorData.TourCode = 4",4.4627,0,1,0},
+                {"Makes at least one Rec Tour","VisitorData.NumberRecTours > 0",-0.7798,1,0,0},
+                {"Makes at least one Shop Tour","VisitorData.NumberShopTours > 0",0.8167,0,1,0},
+                {"Makes at least one Other Tour","VisitorData.NumberOtherTours > 0",0.3008,0,0,1}}
+        }
+	
 	Section = "Visitor ABM|Stops|Duration|Rec"
 	
         Args.VisRecStopsDurUtility = {

@@ -744,6 +744,16 @@
                                                           {Name: "0_2",   Type: "boolean",  "Align":"center"}}
                                         })
 
+  
+  Styles.VisStopsPurpUtility = Pme.Table({Height: 10, Autosize: "True", Values: "Columns",
+                                                Columns: {{Name: "Description", Type: "string",  Fixed: "false", Width:  "25%"},
+                                                          {Name: "Expression", Type: "string",  Fixed: "false", Width:  "35%"},
+                                                          {Name: "Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                          {Name: "Rec",   Type: "boolean", "Align":"center"},
+                                                          {Name: "Shop",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "Other",   Type: "boolean",  "Align":"center"}}
+                                        })
+
   Styles.VisRecStopsDurUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
                                                 Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
                                                           {"Name": "Expression", "Type": "string", "Width": "30%"},
