@@ -616,7 +616,6 @@ endMacro
 Macro "Create Temp Visitor Tour Diary"(spec)
     flds = {{"TourID", "Integer", 12, null, "Yes"},
             {"HHID", "Integer", 12, null, "Yes"},
-            {"NumberTours", "Short", 2, null, "No"},
             {"PartySize", "Integer", 12, null, "No"},
             {"TourType", "String", 12, null, "No"},
             {"TourCode", "Short", 2, null, "No"},
@@ -634,7 +633,11 @@ Macro "Create Temp Visitor Tour Diary"(spec)
             {"TODForward", "String", 2, null, "No"},
             {"TODReturn", "String", 2, null, "No"},
             {"ModifyFlag", "Short", 2, null, "No"},
-            {"RemoveFlag", "Short", 2, null, "No"}}
+            {"RemoveFlag", "Short", 2, null, "No"},
+            {"NumberTours", "Short", 2, null, "No", "Total number of tours by this party (Note: Also includes work tours)"},
+            {"NumberRecTours", "Short", 2, null, "No"},
+            {"NumberShopTours", "Short", 2, null, "No"},
+            {"NumberOtherTours", "Short", 2, null, "No"}}
     vwOut = CreateTable("VisitorDiary",, "MEM", flds)
     Return(vwOut)
 endMacro
@@ -766,8 +769,20 @@ Macro "Post Process Visitor Tour Diary"(toursFile)
     objA = objT.Aggregate({GroupBy: {"HHID"},  FieldStats: {HHID: {"count"}}})
     objJ = objT.Join({Table: objA, LeftFields: "HHID", RightFields: "HHID"})
     objJ.NumberTours = nz(objJ.count_HHID)
-
     objJ = null
     objA = null
+
+    // Number Tours by type
+    purps = {"Rec", "Other", "Shop"}
+    for p in purps do
+        n = objT.SelectByQuery({Query: "TourType = '" + p + "'", SetName: p})
+        if n > 0 then do
+            objA = objT.Aggregate({GroupBy: {"HHID"},  FieldStats: {HHID: {"count"}}})
+            objJ = objT.Join({Table: objA, LeftFields: "HHID", RightFields: "HHID"})
+            objJ.("Number" + p + "Tours") = nz(objJ.count_HHID)
+            objJ = null
+            objA = null
+        end
+    end
     objT = null
 endMacro
