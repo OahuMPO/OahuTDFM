@@ -3792,19 +3792,20 @@
             "Caption":"Tour Duration Choice Model",
             "Style":"VisRecStopsDurUtility",
             "Value":{
-                {"Constant (0-30)","Constant",2.6651,1,0,0,0,0,0,0,0},
-                {"Constant (30-45)","Constant",1.9294,0,1,0,0,0,0,0,0},
-                {"Constant (45-60)","Constant",1.9008,0,0,1,0,0,0,0,0},
-                {"Constant (60-75)","Constant",2.3076,0,0,0,1,0,0,0,0},
-                {"Constant (75-105)","Constant",2.2269,0,0,0,0,1,0,0,0},
-                {"Constant (105-135)","Constant",2.0796,0,0,0,0,0,1,0,0},
+                {"Constant (0-30)","Constant",2.358,1,0,0,0,0,0,0,0},
+                {"Constant (30-45)","Constant",1.6497,0,1,0,0,0,0,0,0},
+                {"Constant (45-60)","Constant",1.2946,0,0,1,0,0,0,0,0},
+                {"Constant (60-75)","Constant",1.7266,0,0,0,1,0,0,0,0},
+                {"Constant (75-105)","Constant",2.0748,0,0,0,0,1,0,0,0},
+                {"Constant (105-135)","Constant",1.9231,0,0,0,0,0,1,0,0},
                 {"Constant (135-180)","Constant",0.7695,0,0,0,0,0,0,1,0},
-                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.6017,1,1,1,0,0,0,0,0},
-                {"Makes 2 tours","VisitorData.NumberTours = 2",0.2669,0,1,1,1,1,0,0,0},
-                {"Makes 1 tour","VisitorData.NumberTours = 1",0.713,0,0,0,0,0,0,1,1},
-                {"Makes 3 or more stops","VisitorData.NForwardStops + VisitorData.NReturnStops >= 3",0.6267,1,1,0,0,0,0,0,0},
-                {"Makes 1 stop","VisitorData.NForwardStops + VisitorData.NReturnStops = 1",0.7106,0,0,0,0,0,1,1,1},
-                {"Main tour activity is Rec","VisitorData.TourCode = 2",0.2901,0,0,0,0,0,0,1,1}}
+                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.6696,1,1,1,0,0,0,0,0},
+                {"Makes 2 tours","VisitorData.NumberTours = 2",0.2092,0,1,1,1,1,0,0,0},
+                {"Makes 1 tour","VisitorData.NumberTours = 1",0.7041,0,0,0,0,0,0,1,1},
+                {"Makes 3 or more stops","VisitorData.NForwardStops + VisitorData.NReturnStops >= 3",0.7849,1,1,0,0,0,0,0,0},
+                {"Makes 1 stop","VisitorData.NForwardStops + VisitorData.NReturnStops = 1",0.6822,0,0,0,0,0,1,1,1},
+                {"Main tour activity is Shop","VisitorData.TourCode = 4",0.692,1,1,0,0,0,0,0,0},
+                {"Main activity duration less than 2 hours","VisitorData.ActivityDuration < 120",0.9911,0,0,1,1,0,0,0,0}}
         }
 	
 	Section = "Visitor ABM|Stops|Duration|Other"
