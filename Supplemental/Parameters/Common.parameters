@@ -3802,11 +3802,11 @@
                 {"Makes at least one Other Tour","VisitorData.NumberOtherTours > 0",0.3008,0,0,1}}
         }
 	
-	Section = "Visitor ABM|Stops|Duration|Rec"
+	Section = "Visitor ABM|Stops|Duration|Recreation"
 	
         Args.VisRecStopsDurUtility = {
             "Type":"array",
-            "Caption":"Tour Duration Choice Model",
+            "Caption":"Visitor Recreation Stops Duration Choice Model",
             "Style":"VisRecStopsDurUtility",
             "Value":{
                 {"Constant (0-30)","Constant",2.358,1,0,0,0,0,0,0,0},
@@ -3829,7 +3829,7 @@
 	
         Args.VisOtherStopsDurUtility = {
             "Type":"array",
-            "Caption":"Tour Duration Choice Model",
+            "Caption":"Visitor Other Stops Duration Choice Model",
             "Style":"VisOtherStopsDurUtility",
             "Value":{
                 {"Constant (0-15)","Constant",0.6106,1,0,0,0,0,0,0},
@@ -3848,7 +3848,7 @@
 	
         Args.VisShopStopsDurUtility = {
             "Type":"array",
-            "Caption":"Tour Duration Choice Model",
+            "Caption":"Visitor Shop Stops Duration Choice Model",
             "Style":"VisShopStopsDurUtility",
             "Value":{
                 {"Constant (0-15)","Constant",0.8526,1,0,0,0,0,0},
@@ -3863,7 +3863,7 @@
                 {"Main tour activity is Shop","VisitorData.TourCode = 4",0.6105,1,1,0,0,0,0}}
         }
 	
-	Section = "Visitor ABM|Tours|Output"
+	Section = "Visitor ABM|Output|Tours/Trips/OD"
 	
         Args.VisitorTours = {
             "Type":"File",

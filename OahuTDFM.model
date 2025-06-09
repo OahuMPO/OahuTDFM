@@ -1044,7 +1044,7 @@ Macro "Visitor Tour Scheduling" (Args,Result)
         {"MacroNames", {"Visitor Tour Diary"}}
     }
 Data:
-    OutSections({"Visitor ABM|Tours|Output"})
+    Out({ Args.[VisitorTours] })
 EndMacro
 
 
@@ -1081,7 +1081,7 @@ EndMacro
 Macro "Visitor Stop Frequency" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames",{"Visitor Stops Setup", "Visitor Stops Frequency"}}
+        {"MacroNames",{"Visitor Stops Setup","Visitor Stops Frequency"}}
     }
 Data:
     InSections({"Visitor ABM|Stops|Frequency"})
@@ -1093,20 +1093,30 @@ Macro "Visitor Stop Purpose" (Args,Result)
         {"Class", {"GISDK"}},
         {"MacroNames", {"Visitor Stops Purpose"}}
     }
+Data:
+    InSections({"Visitor ABM|Stops|Purpose"})
 EndMacro
+
 
 Macro "Visitor Stop Dest Choice" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
         {"MacroNames", {"Visitor Stops Destination"}}
     }
+Data:
+    InSections()
 EndMacro
+
 
 Macro "Visitor Stop Duration" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
         {"MacroNames", {"Visitor Stops Duration"}}
     }
+Data:
+    InSections({"Visitor ABM|Stops|Duration|Recreation",
+                "Visitor ABM|Stops|Duration|Other",
+                    "Visitor ABM|Stops|Duration|Shop"})
 EndMacro
 
 
@@ -1121,8 +1131,13 @@ EndMacro
 Macro "Visitor OD" (Args,Result)
     Attributes = {
         {"Class", {"GISDK"}},
-        {"MacroNames", {"Create Visitor Trip File", "Write Visitor OD"}}
+        {"MacroNames",{"Create Visitor Trip File","Write Visitor OD"}}
     }
+Data:
+    Out({ Args.[VisitorTrips] })
+    Out({ Args.[AM_Visitor_OD] })
+    Out({ Args.[OP_Visitor_OD] })
+    Out({ Args.[PM_Visitor_OD] })
 EndMacro
 
 
