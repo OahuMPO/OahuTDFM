@@ -33,7 +33,6 @@ utils/NestedDC.rsc
 CreateScenario.rsc
 PopulationSynthesis.rsc
 Skimming.rsc
-Visitors.rsc
 Airport.rsc
 TransitAssignment.rsc
 Reports.rsc
