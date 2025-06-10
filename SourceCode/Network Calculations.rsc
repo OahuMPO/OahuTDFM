@@ -93,51 +93,6 @@ Macro "Filter Transit Modes" (Args)
         temp = null
         tbl.Export({FileName: mode_file})
     end
-
-    // Remove modes from MC parameter files
-    RunMacro("Filter Visitor Transit Modes", Args)
-endmacro
-
-/*
-Removes modes from the visitor csv parameter files if they don't exist
-in the scenario.
-*/
-
-Macro "Filter Visitor Transit Modes" (Args)
-    
-    mode_table = Args.TransitModeTable
-    // access_modes = Args.access_modes
-    mc_dir = Args.[Input Folder] + "/visitors/mc"
-    
-    transit_modes = RunMacro("Get Transit Net Def Col Names", mode_table)
-
-    // get visitor trip purposes
-    factor_file = Args.VisOccupancyFactors
-    fac_tbl = CreateObject("Table", factor_file)
-    trip_types = fac_tbl.trip_type
-    trip_types = SortVector(trip_types, {Unique: "true"})
-
-    for trip_type in trip_types do
-        coef_file = mc_dir + "/" + trip_type + ".csv"
-        coef_tbl = CreateObject("Table", coef_file)
-
-        // Start by selecting all non-transit modes
-        coef_tbl.SelectByQuery({
-            SetName: "export",
-            Query: "Alternative = 'auto' or Alternative = 'tnc' or Alternative = 'walk' or Alternative = 'bike'"
-        })
-        // Now add transit modes that exist to the selection
-        for mode in transit_modes do
-            coef_tbl.SelectByQuery({
-                SetName: "export",
-                Operation: "more",
-                Query: "Alternative = '" + mode + "'"
-            })  
-        end
-        temp = coef_tbl.Export({ViewName: "temp"})
-        coef_tbl = null
-        temp.Export({FileName: coef_file})
-    end
 endmacro
 
 /*
