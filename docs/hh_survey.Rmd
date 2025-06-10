@@ -1249,6 +1249,15 @@ solo_stop_freq <- nm_tours %>%
   pivot_wider(names_from = tour_type, values_from = target_pct)
 ```
 
+# Occupancies
+
+```{r}
+trip_add_pers_on_tour %>%
+  mutate(tour_type = ifelse(tour_type %in% c("Shop", "Other"), "NM", "M")) %>%
+  group_by(tour_type) %>%
+  summarize(occupancy = mean(DRVRCNT))
+```
+
 
 
 ```{r, eval=FALSE}
@@ -1256,7 +1265,7 @@ solo_stop_freq <- nm_tours %>%
 write_csv(per_add_tour_counts, "data/_private/hh_survey/output/output_persons.csv", na = "")
 write_csv(hh_with_nm_pattern, "data/_private/hh_survey/output/output_households.csv", na = "")
 write_csv(tour_add_subtour, "data/_private/hh_survey/output/output_tours.csv", na = "")
-write_csv(id_subtours, "data/_private/hh_survey/output/output_trips.csv", na = "")
+write_csv(trip_add_pers_on_tour, "data/_private/hh_survey/output/output_trips.csv", na = "")
 
 # calibration targets
 write_csv(auto_own, "data/_private/hh_survey/output/calibration_targets/auto_ownership.csv", na = "")

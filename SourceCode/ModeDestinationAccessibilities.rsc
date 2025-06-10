@@ -114,8 +114,8 @@ Macro "MC Accessibility"(Args, spec)
     // Create empty output MC logsum matrix
     mSpec = {TAZFile: Args.TAZGeography, OutputFile: outFile, DataType: "Double", 
              Cores: outCores, Label: type + " Mode Accessibility"}
-    mat = RunMacro("Create Empty Matrix", mSpec)
-    mOutObj = CreateObject("Matrix", mat)
+    RunMacro("Create Empty Matrix", mSpec)
+    mOutObj = CreateObject("Matrix", outFile)
 
     // Define mode groups
     allModes = null

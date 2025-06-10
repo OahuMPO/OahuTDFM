@@ -13,13 +13,22 @@ Macro "Create Empty Matrix"(mSpec)
     vID = GetDataVector(vwTAZ + "|", "TAZID",)
     tazIDs = SortArray(v2a(vID))
 
+    // Delete the output file if it exists
+    if GetFileInfo(mSpec.OutputFile) <> null
+        then DeleteFile(mSpec.OutputFile)
+
     obj = CreateObject("Matrix", {Empty: TRUE}) 
-    obj.SetMatrixOptions({Compressed: 1, DataType: mSpec.DataType, MatrixLabel: mSpec.Label})
-    obj.MatrixFileName = mSpec.OutputFile
-    opts = {RowIDs: tazIDs, ColIDs: tazIDs, MatrixNames: mSpec.Cores, RowIndexName: "TAZ", ColIndexName: "TAZ"}
-    mat = obj.CreateFromArrays(opts)
+    opts = {
+        RowIDs: tazIDs, ColIDs: tazIDs, MatrixNames: mSpec.Cores, RowIndexName: "TAZ", ColIndexName: "TAZ",
+        NewMatrixInfo: {
+            FileName: mSpec.OutputFile,
+            Compressed: 1, 
+            DataType: mSpec.DataType, 
+            MatrixLabel: mSpec.Label
+        }
+    }
+    obj.CreateFromArrays(opts)
     dm = null
-    Return(mat)
 endMacro
 
 
@@ -28,13 +37,13 @@ endMacro
 */
 Macro "Compute Intrazonal Matrix"(Args)
     mSpec = {TAZFile: Args.TAZGeography, DataType: "Short", Label: "Intrazonal", Cores: {"IZ"}, OutputFile: Args.IZMatrix}
-    mat = RunMacro("Create Empty Matrix", mSpec)
+    RunMacro("Create Empty Matrix", mSpec)
+    mIZ = CreateObject("Matrix", Args.IZMatrix)
     
-    mIZ = CreateObject("Matrix", mat)
     mIZ.IZ := 0
-    v = mIZ.GetVector({Core: 'IZ', Diagonal: 'Row'})
+    v = mIZ.GetVector({Core: 'IZ', Diagonal: "true"})
     v = v + 1
-    mIZ.SetVector({Core: 'IZ', Vector: v, Diagonal: 'Row'})
+    mIZ.SetVector({Core: 'IZ', Vector: v, Diagonal: "true"})
     mat = null
 
     return(true)
