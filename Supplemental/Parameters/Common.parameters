@@ -3991,6 +3991,12 @@
             "Caption":"Heavy truck value of time ($/hr)",
             "Value":40.48
         }
+        Args.VisOtherModeOcc = {
+            "Type":"double",
+            "Caption":"Occupancy factor for visitor other (shuttle) trips",
+            "Description":"VisOtherModeOcc",
+            "Value":10.0
+        }
 	
 	Section = "AssignmentOutputs"
 	

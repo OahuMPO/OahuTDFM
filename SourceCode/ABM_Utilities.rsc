@@ -147,6 +147,18 @@ Macro "Close ABM Manager"(Args)
     Return(true)
 endmacro
 
+
+/*
+    Null out the ABM Manager object (i.e. call the destructor)
+    Null out the ABM Args argument
+*/
+Macro "Close Visitor ABM Manager"(Args)
+    RunMacro("Export Visitor ABM Data", Args, {Overwrite: 0})
+    RunMacro("ReleaseSingleton", "ABM_Manager")
+    Return(true)
+endmacro
+
+
 /*
     ABM Preprocessor. 
     Remove and add all ABM related fields to the In-Memory Person and HH tables.
@@ -667,6 +679,7 @@ endMacro
 
 
 Macro "Add Visitor ABM OD" (Args)
+    otherOcc = Args.VisOtherModeOcc
     periods = {"AM", "PM", "OP"}
     for period in periods do
         od_mtx_file = Args.(period + "_OD")
@@ -675,8 +688,8 @@ Macro "Add Visitor ABM OD" (Args)
         vis_od_mtx_file = Args.(period + "_Visitor_OD")
         vis_mtx = CreateObject("Matrix", vis_od_mtx_file)
 
-        od_mtx.drivealone := nz(od_mtx.drivealone) + nz(vis_mtx.sov) + nz(vis_mtx.other)
-        od_mtx.carpool := nz(od_mtx.carpool) + nz(vis_mtx.hov2) + nz(vis_mtx.hov3) + nz(vis_mtx.tnc)
+        od_mtx.drivealone := nz(od_mtx.drivealone) + nz(vis_mtx.sov)
+        od_mtx.carpool := nz(od_mtx.carpool) + nz(vis_mtx.hov2) + nz(vis_mtx.hov3) + nz(vis_mtx.tnc) + nz(vis_mtx.other)/otherOcc
         od_mtx.w_bus := nz(od_mtx.w_bus) + nz(vis_mtx.w_bus)
         od_mtx.walk := nz(od_mtx.walk) + nz(vis_mtx.walk)
 
