@@ -351,7 +351,7 @@ Macro "Write Visitor OD"(Args)
         ShowMessage(GetLastError())
         return(0)
     end
-    Args.ABMFlag = 2
+    Args.ABMFlag = 0
 
     mSkimObj = CreateObject("Matrix", Args.HighwaySkimAM)
     mSkimObj.SetIndex("TAZ")

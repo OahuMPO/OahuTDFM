@@ -97,6 +97,8 @@ EndMacro
 
 Macro "Model.OnModelStart" (Args,Result)
 Body:
+    Args.ABMFlag = 1 // Set to default value
+    
     // Create Empty Folders
     folders = {Args.[Output Folder],
                Args.[Output Folder] + "\\Intermediate\\",

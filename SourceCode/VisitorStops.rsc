@@ -4,7 +4,7 @@ Macro "Visitor Stops Setup"(Args)
         return(0)
     end
 
-    Args.ABMFlag = 2
+    Args.ABMFlag = 0
 
     objT = CreateObject("Table", Args.VisitorTours)
     flds = {{FieldName: "StopsChoice", Type: "String", Width: 5}}
@@ -36,7 +36,7 @@ Macro "Visitor Stops Frequency"(Args)
         ShowMessage(GetLastError())
         return(0)
     end
-    Args.ABMFlag = 2
+    Args.ABMFlag = 0
     
     objTours = CreateObject("Table", Args.VisitorTours)
     objA = CreateObject("Table", Args.AccessibilitiesOutputs)
@@ -77,7 +77,7 @@ Macro "Visitor Stops Purpose"(Args)
         return(0)
     end
     
-    Args.ABMFlag = 2
+    Args.ABMFlag = 0
     objT = CreateObject("Table", Args.VisitorTours)
     dirs = {"Forward", "Return"}
     stopsArr = {"1", "2"}
@@ -124,7 +124,7 @@ Macro "Visitor Stops Destination"(Args)
         ShowMessage(GetLastError())
         return(0)
     end
-    Args.ABMFlag = 2
+    Args.ABMFlag = 0
     
     // Run Destination Choice
     dirs = {"Forward", "Return"}
@@ -356,7 +356,7 @@ Macro "Visitor Stops Duration"(Args)
         ShowMessage(GetLastError())
         return(0)
     end
-    Args.ABMFlag = 2
+    Args.ABMFlag = 0
     
     // Run Destination Choice
     dirs = {"Forward", "Return"}
@@ -426,7 +426,7 @@ Macro "Visitor Stop Scheduling"(Args)
         ShowMessage(GetLastError())
         return(0)
     end
-    Args.ABMFlag = 2
+    Args.ABMFlag = 0
 
     objT = CreateObject("Table", Args.VisitorTours)
     
