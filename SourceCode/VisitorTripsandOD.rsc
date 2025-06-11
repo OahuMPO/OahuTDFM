@@ -30,6 +30,9 @@ Macro "Create Visitor Trip File"(Args)
 
     vwTemp = RunMacro("Write Vis Trips Table", {Data: arrsOut, StartingTripID: 1, PeriodInfo: Args.TimePeriods})
 
+    // Run mode switch model
+    RunMacro("Visitor Mode Switch Model", Args, vwTemp})
+
     // Export to final table
     exportOpts = {"Row Order": {{"TripID", "Ascending"}} }
     ExportView(vwTemp + "|", "FFB", Args.VisitorTrips,, exportOpts)
@@ -383,4 +386,33 @@ Macro "Write Visitor OD"(Args)
     mSkimObj = null
     objT = null
     return(1)
+endMacro
+
+
+Macro "Visitor Mode Switch Model"(Args, vwT)
+    // Add temporary walk time and walk distance fields
+    objT = CreateObject("Table", vwT)
+    flds = {{FieldName: "WalkTime", Type: "Real"},
+            {FieldName: "WalkDist", Type: "Real"}}
+    objT.AddFields({Fields: flds})
+
+    // Determine mode switch between 4 combinations
+    // 1. Auto to Walk (IZ trips only)
+    opts = {VisitorTripsObj: objT, 
+            WalkSkim: Args.WalkSkim, AutoSkim: Args.HighwaySkimOP, 
+            ModeFrom: "auto", ModeTo: "walk",
+            Filter: "(Mode = 'sov' or Mode = 'hov2' or Mode = 'hov3') and (Origin = Destination) and !(Direction = 'F' and LegNo = 1)",
+            SwitchPct: Args.AutoToWalkShiftPct
+            }
+    RunMacro("Run Visitor Mode Switch", opts)
+
+    // Remove temporary walk time and walk distance fields
+    objT.DropFields({FieldNames: {"WalkTime", "WalkDist"}})
+    objT = null
+endMacro
+
+
+Macro "Run Visitor Mode Switch"(opts)
+
+    // 
 endMacro
