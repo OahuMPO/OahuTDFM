@@ -368,7 +368,6 @@ Macro "Visitor Stops Duration"(Args)
     
     pbar = CreateObject("G30 Progress Bar", "Intermediate Stops Duration: (Forward, Return) and (Rec, Shop, Other) and (Stop1, Stop2)", false, 12)
     for dir in dirs do
-        //for t = 1 to types.length do
         for t in types do
             for s in stopsArr do
                 spec = {ToursObj: objT, Direction: dir, Purpose: t, StopNo: s}
