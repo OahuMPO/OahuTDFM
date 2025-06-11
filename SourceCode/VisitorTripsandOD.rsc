@@ -31,7 +31,7 @@ Macro "Create Visitor Trip File"(Args)
     vwTemp = RunMacro("Write Vis Trips Table", {Data: arrsOut, StartingTripID: 1, PeriodInfo: Args.TimePeriods})
 
     // Run mode switch model
-    RunMacro("Visitor Mode Switch Model", Args, vwTemp})
+    RunMacro("Visitor Mode Switch Model", Args, vwTemp)
 
     // Export to final table
     exportOpts = {"Row Order": {{"TripID", "Ascending"}} }
@@ -392,27 +392,97 @@ endMacro
 Macro "Visitor Mode Switch Model"(Args, vwT)
     // Add temporary walk time and walk distance fields
     objT = CreateObject("Table", vwT)
-    flds = {{FieldName: "WalkTime", Type: "Real"},
-            {FieldName: "WalkDist", Type: "Real"}}
+    flds = {{FieldName: "SkimTime", Type: "Real"},
+            {FieldName: "SkimDist", Type: "Real"}}
     objT.AddFields({Fields: flds})
 
     // Determine mode switch between 4 combinations
     // 1. Auto to Walk (IZ trips only)
     opts = {VisitorTripsObj: objT, 
-            WalkSkim: Args.WalkSkim, AutoSkim: Args.HighwaySkimOP, 
-            ModeFrom: "auto", ModeTo: "walk",
+            Skim: Args.WalkSkim, ModeTo: "walk",
             Filter: "(Mode = 'sov' or Mode = 'hov2' or Mode = 'hov3') and (Origin = Destination) and !(Direction = 'F' and LegNo = 1)",
             SwitchPct: Args.AutoToWalkShiftPct
             }
     RunMacro("Run Visitor Mode Switch", opts)
 
+    // 2. TNC to Walk
+    opts = {VisitorTripsObj: objT, 
+            Skim: Args.WalkSkim, ModeTo: "walk",
+            Filter: "(Mode = 'tnc') and !(Direction = 'F' and LegNo = 1)",
+            SwitchPct: Args.TNCToWalkShiftPct
+            }
+    RunMacro("Run Visitor Mode Switch", opts)
+
+    // 3. Bus to Walk
+    opts = {VisitorTripsObj: objT, 
+            Skim: Args.WalkSkim, ModeTo: "walk",
+            Filter: "(Mode = 'w_bus') and !(Direction = 'F' and LegNo = 1)",
+            SwitchPct: Args.BusToWalkShiftPct
+            }
+    RunMacro("Run Visitor Mode Switch", opts)
+
+    // 4. Bus to TNC
+    opts = {VisitorTripsObj: objT, 
+            Skim: Args.HighwaySkimOP, ModeTo: "tnc",
+            Filter: "(Mode = 'w_bus') and !(Direction = 'F' and LegNo = 1)",
+            SwitchPct: Args.BusToTNCShiftPct
+            }
+    RunMacro("Run Visitor Mode Switch", opts)
+
     // Remove temporary walk time and walk distance fields
-    objT.DropFields({FieldNames: {"WalkTime", "WalkDist"}})
+    objT.DropFields({FieldNames: {"SkimTime", "SkimDist"}})
     objT = null
 endMacro
 
 
 Macro "Run Visitor Mode Switch"(opts)
+    objT = opts.VisitorTripsObj
+    modeT = opts.ModeTo
+    filter = opts.Filter
+    target = opts.SwitchPct/100.0
 
-    // 
+    n = objT.SelectByQuery({Query: filter, SetName: "_MasterSet"})
+    if n = 0 then 
+        Return(1)
+
+    // Fill WalkTime and WalkDistance for the master set records
+    mObj = CreateObject('Matrix', opts.Skim)
+    mObj.SetIndex({RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
+    mcT = mObj.Time
+    mcD = mObj.Distance
+    
+    vw = objT.GetView()
+    oSpec = GetFieldFullSpec(vw, "Origin")
+    dSpec = GetFieldFullSpec(vw, "Destination")
+    
+    fSpec = GetFieldFullSpec(vw, "SkimTime")
+    FillViewFromMatrix(vw + "|_MasterSet", oSpec, dSpec, {{fSpec, mcT}})
+
+    fSpec = GetFieldFullSpec(vw, "SkimDist")
+    FillViewFromMatrix(vw + "|_MasterSet", oSpec, dSpec, {{fSpec, mcD}})
+
+    mcT = null
+    mcD = null
+    mObj = null
+
+    // Identify feasible set
+    minDurQry = "(DestDep = null) or (DestDep - OrigDep - SkimTime >= 10)" // 10 is the min activity/stop duration
+    if modeT = "walk" then
+        qry = printf("(%s) and (SkimDist <= 1.5) and (%s)", {filter, minDurQry})
+    else
+        qry = printf("(%s) and (%s)", {filter, minDurQry})
+    n1 = objT.SelectByQuery({Query: qry, SetName: "_FeasibleSet"})
+    if n1 = 0 then 
+        Return(1)
+
+    // Update target so that it can be achieved using the feasible set
+    newTarget = Min(target*n/n1, 1.0)
+
+    // Get a uniform dist random vector
+    SetRandomSeed(r2i(target*10000))
+    v = RandSamples(n1, "Uniform",)
+    vCurrMode = objT.Mode
+    vNewMode = if v <= newTarget then modeT else vCurrMode
+    objT.Mode = vNewMode
+    objT.DestArr = objT.OrigDep + objT.SkimTime
 endMacro

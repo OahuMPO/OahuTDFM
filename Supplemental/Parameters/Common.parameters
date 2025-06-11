@@ -3863,7 +3863,40 @@
                 {"Main tour activity is Shop","VisitorData.TourCode = 4",0.6105,1,1,0,0,0,0}}
         }
 	
-	Section = "Visitor ABM|Output|Tours/Trips/OD"
+    Section = "Visitor ABM|Mode Switch|Shift Percentages"
+        Args.AutoToWalkShiftPct = {
+                "Type":"double",
+                "Caption":"Percent trips switching to Walk on Auto tours",
+                "Description":"AutoToWalkShiftPct",
+                "Value":35.1,
+                "Style":"PctSlider"
+        }
+
+        Args.TNCToWalkShiftPct = {
+                "Type":"double",
+                "Caption":"Percent trips switching to Walk on TNC tours",
+                "Description":"TNCToWalkShiftPct",
+                "Value":23.0,
+                "Style":"PctSlider"
+        }
+
+        Args.BusToWalkShiftPct = {
+                "Type":"double",
+                "Caption":"Percent trips switching to Walk on Bus tours",
+                "Description":"BusToWalkShiftPct",
+                "Value":23.7,
+                "Style":"PctSlider"
+        }
+
+        Args.BusToTNCShiftPct = {
+                "Type":"double",
+                "Caption":"Percent trips switching to TNC on Bus tours",
+                "Description":"BusToTNCShiftPct",
+                "Value":12.5,
+                "Style":"PctSlider"
+        }
+    
+    Section = "Visitor ABM|Output|Tours/Trips/OD"
 	
         Args.VisitorTours = {
             "Type":"File",
