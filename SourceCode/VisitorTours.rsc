@@ -242,12 +242,15 @@ Macro "Run Visitor Tour MC"(Args, spec)
     util = Args.(purp + "VisitorMCUtility")
     
     availExpressions = null
-    availExpressions.Alternative = {"Walk", "Transit"}
-    availExpressions.Expression = {"WalkSkim.Distance < 1.5", "BusSkim.[In-Vehicle Time] <> null and BusSkimPM.[In-Vehicle Time] <> null and BusSkimOP.[In-Vehicle Time] <> null"} 
+    availExpressions.Alternative = {"Walk", "W_Bus", "W_Rail"}
+    availExpressions.Expression = {"WalkSkim.Distance < 1.5", 
+                                    "BusSkim.[In-Vehicle Time] <> null and BusSkimPM.[In-Vehicle Time] <> null and BusSkimOP.[In-Vehicle Time] <> null",
+                                    "RailSkim.[In-Vehicle Time] <> null and RailSkimPM.[In-Vehicle Time] <> null and RailSkimOP.[In-Vehicle Time] <> null"} 
 
-    w_t_skim_am = Args.[Output Folder] + "\\skims\\transit\\AM_w_bus.mtx"
-    w_t_skim_pm = Args.[Output Folder] + "\\skims\\transit\\PM_w_bus.mtx"
-    w_t_skim_op = Args.[Output Folder] + "\\skims\\transit\\OP_w_bus.mtx"
+    // Filter out rail from utility and availability if rail not present
+    updatedUtil = RunMacro("Filter Mode Utility Spec", {util: Args.(purp + "VisitorMCUtility"),
+                                                        avail: availExpressions,
+                                                        Args: Args})
 
     visabm = RunMacro("Get Visitor ABM Manager", Args)
     TAZDB = Args.TAZGeography
@@ -266,11 +269,26 @@ Macro "Run Visitor Tour MC"(Args, spec)
     obj.AddTableSource({SourceName: "TAZData", View: objD.GetView(), IDField: "TAZ"})
     obj.AddMatrixSource({SourceName: "AutoSkim", File: Args.HighwaySkimAM, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
     obj.AddMatrixSource({SourceName: "WalkSkim", File: Args.WalkSkim, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
+    
+    w_t_skim_am = Args.[Output Folder] + "\\skims\\transit\\AM_w_bus.mtx"
+    w_t_skim_pm = Args.[Output Folder] + "\\skims\\transit\\PM_w_bus.mtx"
+    w_t_skim_op = Args.[Output Folder] + "\\skims\\transit\\OP_w_bus.mtx"
     obj.AddMatrixSource({SourceName: "BusSkim", File: w_t_skim_am, RowIndex: "RCIndex", ColIndex: "RCIndex"})
     obj.AddMatrixSource({SourceName: "BusSkimPM", File: w_t_skim_pm, RowIndex: "RCIndex", ColIndex: "RCIndex"})
     obj.AddMatrixSource({SourceName: "BusSkimOP", File: w_t_skim_op, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+    activeTransitModes = RunMacro("Get Active Transit Modes", Args)
+    railPresent = RunMacro("Is value in array", activeTransitModes, "Rail")
+    if railPresent then do
+        w_r_skim_am = Args.[Output Folder] + "\\skims\\transit\\AM_w_rail.mtx"
+        w_r_skim_pm = Args.[Output Folder] + "\\skims\\transit\\PM_w_rail.mtx"
+        w_r_skim_op = Args.[Output Folder] + "\\skims\\transit\\OP_w_rail.mtx"
+        obj.AddMatrixSource({SourceName: "RailSkim", File: w_r_skim_am, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+        obj.AddMatrixSource({SourceName: "RailSkimPM", File: w_r_skim_pm, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+        obj.AddMatrixSource({SourceName: "RailSkimOP", File: w_r_skim_op, RowIndex: "RCIndex", ColIndex: "RCIndex"})
+    end
+    
     obj.AddPrimarySpec({Name: "VisitorData", Filter: filter, OField: "LodgingTAZ", DField: dFld})
-    obj.AddUtility({UtilityFunction: util, AvailabilityExpressions: availExpressions})
+    obj.AddUtility({UtilityFunction: updatedUtil.Utility, AvailabilityExpressions: updatedUtil.Availability})
     obj.AddOutputSpec({ChoicesField: outFld})
     obj.ReportShares = 1
     obj.RandomSeed = seed
@@ -659,7 +677,7 @@ Macro "Generate Visitor Tour Data"(spec)
     nRecs = vecs.HouseholdID.length
 
     // Get mode string vector
-    modes = {"SOV", "HOV2", "HOV3", "TNC", "Other", "W_Bus", "Walk"}
+    modes = {"SOV", "HOV2", "HOV3", "TNC", "Other", "Walk", "W_Bus", "W_Rail"}
     vMode = vecs.(purp + "Mode" + tourNo)
     arrModeStr = v2a(vMode).Map(do (f) Return(modes[f]) end)
 

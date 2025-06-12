@@ -636,8 +636,9 @@
                                                       {"Name":"HOV3", "Type":"boolean", "Align":"center"},
                                                       {"Name":"TNC", "Type":"boolean", "Align":"center"},
                                                       {"Name":"Other", "Type":"boolean", "Align":"center"},
-                                                      {"Name":"Transit", "Type":"boolean", "Align":"center"},
-                                                      {"Name":"Walk", "Type":"boolean", "Align":"center"}
+                                                      {"Name":"Walk", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"W_Bus", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"W_Rail", "Type":"boolean", "Align":"center"}
                                                   }
                                               })
 

@@ -687,11 +687,14 @@ Macro "Add Visitor ABM OD" (Args)
 
         vis_od_mtx_file = Args.(period + "_Visitor_OD")
         vis_mtx = CreateObject("Matrix", vis_od_mtx_file)
+        cores = vis_mtx.GetCoreNames()
 
         od_mtx.drivealone := nz(od_mtx.drivealone) + nz(vis_mtx.sov)
         od_mtx.carpool := nz(od_mtx.carpool) + nz(vis_mtx.hov2) + nz(vis_mtx.hov3) + nz(vis_mtx.tnc) + nz(vis_mtx.other)/otherOcc
         od_mtx.w_bus := nz(od_mtx.w_bus) + nz(vis_mtx.w_bus)
         od_mtx.walk := nz(od_mtx.walk) + nz(vis_mtx.walk)
+        if cores.position("w_rail") > 0 then
+            od_mtx.w_rail := nz(od_mtx.w_rail) + nz(vis_mtx.w_rail)
 
         od_mtx = null
         vis_mtx = null
