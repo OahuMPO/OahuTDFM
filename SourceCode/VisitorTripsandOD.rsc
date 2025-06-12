@@ -206,7 +206,6 @@ endMacro
 Macro "Get Vis Intermediate Stop Leg"(vecs, dir)
     n = vecs.TourID.length
     modeFld = dir + "Mode"
-    modeCodeFld = dir + "ModeCode"
     vLegNo = Vector(n, "Short", {Constant: 2})
     if dir = "Forward" then do
         vOrigDep = vecs.TourStartTime + vecs.TimeToStopForward1 + vecs.ForwardStopDuration1
