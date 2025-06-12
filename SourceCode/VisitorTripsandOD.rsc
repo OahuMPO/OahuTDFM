@@ -482,7 +482,9 @@ Macro "Run Visitor Mode Switch"(opts)
     SetRandomSeed(r2i(target*10000))
     v = RandSamples(n1, "Uniform",)
     vCurrMode = objT.Mode
+    vNewDestArr = objT.OrigDep + objT.SkimTime
     vNewMode = if v <= newTarget then modeT else vCurrMode
+    vDestArr = if v <= newTarget then vNewDestArr else objT.DestArr
     objT.Mode = vNewMode
-    objT.DestArr = objT.OrigDep + objT.SkimTime
+    objT.DestArr = vDestArr
 endMacro
