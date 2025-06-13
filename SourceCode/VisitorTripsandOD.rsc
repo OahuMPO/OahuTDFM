@@ -39,15 +39,6 @@ Macro "Create Visitor Trip File"(Args)
     CloseView(vwTemp)
     CloseView(vwT)
 
-    // Convert time fields
-    objTrips = CreateObject("Table", Args.VisitorTrips)
-    modify = CreateObject("CC.ModifyTableOperation", objTrips.GetView())
-    outFlds = {"OrigDepTime", "DestArrTime", "DestDepTime"}
-    for fld in outFlds do
-        modify.ChangeField(fld, {Type: "Time", Format: "hh:mm tt"})
-    end
-    //modify.Apply()
-
     Return(1)
 endMacro
 
@@ -318,8 +309,34 @@ Macro "Write Vis Trips Table"(spec)
     inFlds = {"OrigDep", "DestArr", "DestDep"}
     outFlds = inFlds.Map(do (f) Return(f + "Time") end)
     objT = CreateObject("Table", vwOut)
-    RunMacro("Create Time Fields", {TripsObj: objT, InputFields: inFlds, OutputFields: outFlds})
+    RunMacro("Create Time String Fields", {TripsObj: objT, InputFields: inFlds, OutputFields: outFlds})
     Return(vwOut)
+endMacro
+
+
+Macro "Create Time String Fields"(opt)
+    obj = opt.TripsObj
+    inFlds = opt.InputFields
+    outFlds = opt.OutputFields
+    flds = outFlds.Map(do (f) Return({FieldName: f, Type: "String", Width: 12}) end)
+    obj.AddFields({Fields: flds})
+    vecs = obj.GetDataVectors({FieldNames: inFlds})
+    
+    vecsSet = null
+    for val in inFlds do
+        vMinMidnight = if vecs.(val) >= 1440 then (vecs.(val) - 1440) // Next Day
+                                    else if vecs.(val) < 0 then (1440 + vecs.(val))  // Prev Day
+                                        else vecs.(val)
+        vHr = r2i(vMinMidnight/60)
+        vMin = String(vMinMidnight - vHr*60)
+        vSuffix = if vHr >= 12 then " PM" else " AM"
+        
+        vHr = if vHr > 12 then String(vHr - 12) else String(vHr)
+        vMin = if StringLength(vMin) = 1 then "0" + vMin else vMin     
+        vString = if vMinMidnight = null then null else vHr + ":" +  vMin + vSuffix
+        vecsSet.(val + "Time") = vString
+    end
+    obj.SetDataVectors({FieldData: vecsSet})
 endMacro
 
 
