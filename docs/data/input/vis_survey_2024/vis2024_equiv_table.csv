@@ -1,0 +1,55 @@
+﻿VARIABLE,CODE,TEXT,EQUIV
+MODE Code,1,Walk,walk
+MODE Code,2,Bike,bike
+MODE Code,3,Wheelchair/Mobility Scooter,other
+MODE Code,4,Commercial Vehicle/Truck Driver,cv
+MODE Code,5,Personal Auto/Motorcycle/Van/Truck,auto
+MODE Code,6,Rental car/vehicle,auto
+MODE Code,7,Hired car/taxi/limo/Uber/Lyft,tnc
+MODE Code,8,E-Scooter,scooter
+MODE Code,9,Personal E-Scooter / One-wheel,scooter
+MODE Code,11,"Private shuttle (SuperShuttle, employer, hotel, etc.)",other
+MODE Code,12,Other Private Transit (please specify),other
+MODE Code,13,Public Transit/The Bus/Rail,transit
+MODE Code,21,Other (specify),other
+MODE Code,99,Not Provided,
+PURPOSE Code,0,Starting Place for the Day,H
+PURPOSE Code,1,Return to Home/Lodging,H
+PURPOSE Code,2,Work,W
+PURPOSE Code,3,Work-related or business meeting,W
+PURPOSE Code,4,Beach / Sunbathing / Snorkeling / Swimming,Rec
+PURPOSE Code,5,Entertainment or cultural activity,O
+PURPOSE Code,6,Restaurant / Dining out,EO
+PURPOSE Code,7,"School, including day-care or pre-school",Sch
+PURPOSE Code,8,Visiting friends or relatives,O
+PURPOSE Code,9,Medical or health services,O
+PURPOSE Code,10,Shopping,Shop
+PURPOSE Code,11,"Personal business (e.g. laundry, barber, bank, etc.)",O
+PURPOSE Code,12,Civic or religious activity,O
+PURPOSE Code,13,"Sports, nature activity, hiking, stroll",Rec
+PURPOSE Code,14,"Passenger drop-off or pick-up, accompanying other",PUDO
+PURPOSE Code,15,Transfer of travel mode or transit line,X
+PURPOSE Code,16,Parking,O
+PURPOSE Code,17,Other (specify),O
+Household Income Code,1,"Less than $9,999",5000
+Household Income Code,2,"$10,000 to $14,999",12500
+Household Income Code,3,"$15,000 to $19,999",17500
+Household Income Code,4,"$20,000 to $24,999",22500
+Household Income Code,5,"$25,000 to $29,999",27500
+Household Income Code,6,"$30,000 to $34,999",32500
+Household Income Code,7,"$35,000 to $39,999",37500
+Household Income Code,8,"$40,000 to $44,999",42500
+Household Income Code,9,"$45,000 to $49,999",47500
+Household Income Code,10,"$50,000 to $54,999",52500
+Household Income Code,11,"$55,000 to $59,999",57500
+Household Income Code,12,"$60,000 to $64,999",62500
+Household Income Code,13,"$65,000 to $69,999",67500
+Household Income Code,14,"$70,000 to $74,999",72500
+Household Income Code,15,"$75,000 to $79,999",77500
+Household Income Code,16,"$80,000 to $99,999",85000
+Household Income Code,17,"$100,000 to $124,999",112500
+Household Income Code,18,"$125,000 to $149,999",137500
+Household Income Code,19,"$150,000 to $199,999",175000
+Household Income Code,20,"$200,000 or more",250000
+Household Income Code,98,Don’t Know,45000
+Household Income Code,99,Refused,45000
