@@ -3,6 +3,7 @@ Called by flowchart
 */
 
 Macro "Airport Model" (Args)
+    Args.ABMFlag = 0
     RunMacro("Airport Generation", Args)
     RunMacro("Airport TOD", Args)
     RunMacro("Airport Gravity", Args)

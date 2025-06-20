@@ -1,4 +1,5 @@
 Macro "Reports" (Args)
+    Args.ABMFlag = 0
     RunMacro("Load Link Layer", Args)
     RunMacro("Calculate Daily Fields", Args)
     RunMacro("Create Count Difference Map", Args)

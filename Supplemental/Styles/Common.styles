@@ -580,6 +580,220 @@
                                                             {Name: "W_Bus",   Type: "boolean",    Fixed: "false"}}
                                             })
 
+  Styles.KidsPresenceUtility = Pme.Table({Height: 11, Autosize: "True", Values: "Columns",
+                                                Columns:{
+                                                    {Name: "Description", Type: "string",  Fixed: "false", Width: "25%"},
+															                      {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                    {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                    {"Name":"Yes","Type":"boolean","Align":"center"},
+                                                    {"Name":"No","Type":"boolean","Align":"center"}
+                                                }
+                                            })
+
+  Styles.RentalCarUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns:{
+                                                    {Name: "Description", Type: "string",  Fixed: "false", Width: "25%"},
+															                      {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                    {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                    {"Name":"Yes","Type":"boolean","Align":"center"},
+                                                    {"Name":"No","Type":"boolean","Align":"center"}
+                                                }
+                                            })
+
+  Styles.ClusterInfo = Pme.Table({Height: 20, Autosize: "True", Values: "Columns",
+                                                Columns:    {{Name: "Cluster", Type: "int",  Fixed: "true", Width: "13%"},
+                                                             {Name: "ClusterName", Type: "string",  Fixed: "true", Width:  "35%"},
+                                                             {Name: "Theta",  Type: "real", "Decimals":"3"},
+                                                             {Name: "ASC",  Type: "real", "Decimals":"3"},
+                                                             {Name: "IC",  Type: "real", "Decimals":"3"}}
+                                            })
+
+  Styles.OneTourFreqUtility = Pme.Table({Height: 20, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "None", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "One", "Type": "boolean", "Align": "center"}}
+                                            })
+
+
+  Styles.TwoTourFreqUtility = Pme.Table({Height: 20, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {Name: "Expression", Type: "string",  Fixed: "false", Width:  "40%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "None", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "One", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "Two", "Type": "boolean", "Align": "center"}}
+                                            })                                          
+
+  Styles.VisitorTourMCUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                  Columns:{
+                                                      {"Name":"Description", "Type":"string", "Width":"20%"},
+                                                      {"Name":"Expression", "Type":"string", "Width":"35%"},
+                                                      {"Name":"Coefficient", "Type":"real", "Width":"10%", "Decimals":"4"},
+                                                      {"Name":"SOV", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"HOV2", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"HOV3", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"TNC", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"Other", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"Walk", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"W_Bus", "Type":"boolean", "Align":"center"},
+                                                      {"Name":"W_Rail", "Type":"boolean", "Align":"center"}
+                                                  }
+                                              })
+
+  Styles.WorkTODUtilityVis = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                    Columns: {
+                                                        {"Name": "Description", "Type": "string", "Width": "15%"},
+                                                        {"Name": "Expression", "Type":"string", "Width":"30%"},
+                                                        {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                        {"Name": "EA-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-EV", "Type": "boolean", "Align": "center"}
+                                                    }
+                                                })
+
+    Styles.RecTODUtilityVis = Pme.Table({Height: 36, Autosize: "True", Values: "Columns",
+                                                    Columns: {
+                                                        {"Name": "Description", "Type": "string", "Width": "10%"},
+                                                        {"Name": "Expression", "Type":"string", "Width":"25%"},
+                                                        {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                        {"Name": "EA-AM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-AM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-NT", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "EV-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "EV-NT", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "NT-NT", "Type": "boolean", "Align": "center"}
+                                                    }
+                                                })
+
+    Styles.OtherTODUtilityVis = Pme.Table({Height: 36, Autosize: "True", Values: "Columns",
+                                                    Columns: {
+                                                        {"Name": "Description", "Type": "string", "Width": "10%"},
+                                                        {"Name": "Expression", "Type":"string", "Width":"20%"},
+                                                        {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                        {"Name": "EA-AM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-AM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-NT", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-NT", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "EV-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "EV-NT", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "NT-NT", "Type": "boolean", "Align": "center"}
+                                                    }
+                                                })
+
+    Styles.ShopTODUtilityVis = Pme.Table({Height: 36, Autosize: "True", Values: "Columns",
+                                                    Columns: {
+                                                        {"Name": "Description", "Type": "string", "Width": "15%"},
+                                                        {"Name": "Expression", "Type":"string", "Width":"30%"},
+                                                        {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                        {"Name": "AM-AM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "AM-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-MD", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "MD-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-PM", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "PM-NT", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "EV-EV", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "EV-NT", "Type": "boolean", "Align": "center"},
+                                                        {"Name": "NT-NT", "Type": "boolean", "Align": "center"}
+                                                    }
+                                                })
+
+  Styles.TODProfile = Pme.Table({Height: 25, Autosize: "True", Values: "Columns", 
+                                                Columns:   {{Name: "Interval", Type: "string",  Fixed: "true", Width:  "40%"},
+                                                            {Name: "WorkStart","Type":"real","Decimals":"2"},
+                                                            {Name: "RecStart","Type":"real","Decimals":"2"},
+                                                            {Name: "OtherStart","Type":"real","Decimals":"2"},
+                                                            {Name: "ShopStart","Type":"real","Decimals":"2"},
+                                                            {Name: "WorkEnd","Type":"real","Decimals":"2"},
+                                                            {Name: "RecEnd","Type":"real","Decimals":"2"},
+                                                            {Name: "OtherEnd","Type":"real","Decimals":"2"},
+                                                            {Name: "ShopEnd","Type":"real","Decimals":"2"}}
+                                        })
+                                      
+  Styles.VisStopsFreqUtility = Pme.Table({Height: 30, Autosize: "True", Values: "Columns",
+                                                Columns: {{Name: "Description", Type: "string",  Fixed: "false", Width:  "20%"},
+															                            {Name: "Expression", Type: "string",  Fixed: "false", Width:  "35%"},
+                                                          {"Name":"Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                          {Name: "0_0",   Type: "boolean", "Align":"center"},
+															                            {Name: "1_0",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "0_1",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "1_1",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "2_0",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "0_2",   Type: "boolean",  "Align":"center"}}
+                                        })
+
+  
+  Styles.VisStopsPurpUtility = Pme.Table({Height: 10, Autosize: "True", Values: "Columns",
+                                                Columns: {{Name: "Description", Type: "string",  Fixed: "false", Width:  "25%"},
+                                                          {Name: "Expression", Type: "string",  Fixed: "false", Width:  "35%"},
+                                                          {Name: "Coefficient","Type":"real","Width":"10%","Decimals":"4"},
+                                                          {Name: "Rec",   Type: "boolean", "Align":"center"},
+                                                          {Name: "Shop",   Type: "boolean",  "Align":"center"},
+                                                          {Name: "Other",   Type: "boolean",  "Align":"center"}}
+                                        })
+
+  Styles.VisRecStopsDurUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {"Name": "Expression", "Type": "string", "Width": "30%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "10-30", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "30-45", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "45-60", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "60-75", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "75-105", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "105-135", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "135-180", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "180-210", "Type": "boolean", "Align": "center"}}
+                                        })
+
+  Styles.VisOtherStopsDurUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {"Name": "Expression", "Type": "string", "Width": "30%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "10-15", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "15-30", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "30-45", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "45-90", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "90-120", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "120-150", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "150-180", "Type": "boolean", "Align": "center"}}
+                                        })
+
+  Styles.VisShopStopsDurUtility = Pme.Table({Height: 21, Autosize: "True", Values: "Columns",
+                                                Columns: {{"Name": "Description", "Type": "string", "Width": "25%"},
+                                                          {"Name": "Expression", "Type": "string", "Width": "30%"},
+                                                          {"Name": "Coefficient", "Type": "real", "Width": "10%", "Decimals": "4"},
+                                                          {"Name": "10-15", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "15-45", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "45-60", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "60-90", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "90-135", "Type": "boolean", "Align": "center"},
+                                                          {"Name": "135-150", "Type": "boolean", "Align": "center"}}
+                                        })
+
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 
   Styles.lanecapStyle = Pme.Table(RunMacro("Extend Object", all_tables,

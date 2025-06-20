@@ -3,6 +3,7 @@
 */
 
 macro "HighwayAndTransitSkim Oahu" (Args, Result)
+    Args.ABMFlag = 0
     RunMacro("HighwayNetworkSkim Oahu", Args)
     RunMacro("transit skim", Args)
     return(1)
@@ -10,7 +11,7 @@ endmacro
 
 macro "HighwayNetworkSkim Oahu" (Args)
     ret_value = 1
-
+    Args.ABMFlag = 0
     LineDB = Args.HighwayDatabase
     AMhwyskimfile = Args.HighwaySkimAM
     PMhwyskimfile = Args.HighwaySkimPM

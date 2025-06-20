@@ -24,6 +24,24 @@ endMacro
 
 /*
     ABM Manager Utilities:
+    'Get Visitor ABM Manager' returns the Visitor ABM manager object
+    If the object does not exist, the object is created
+    If the views pertaining to the object are closed (For e.g. the flowchart automatically closes all view when you start), the views are added
+*/
+Macro "Get Visitor ABM Manager"(Args)
+    abm = RunMacro("GetSingleton", "ABM_Manager")
+
+    if !abm.IsHHDataLoaded() then
+        abm.SetHouseholdData({File: Args.SynthesizedVisitors, ID: "HouseholdID"})
+
+    abm.ClearHHSets()
+    
+    Return(abm)
+endMacro
+
+
+/*
+    ABM Manager Utilities:
     'Export ABM Data' exports the in-memory tables from the abm manager object back to the population and household files
 */
 Macro "Export ABM Data"(Args, opts)
@@ -74,6 +92,37 @@ endMacro
 
 /*
     ABM Manager Utilities:
+    'Export Visitor ABM Data' exports the in-memory table from the visitor abm manager object back to the visitor synthesized file
+*/
+Macro "Export Visitor ABM Data"(Args, opts)
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    iter = String(Args.Iteration)
+    if iter = null then
+        iter = "1"
+    
+    // Export HH (i.e. Visitor Party) Data
+    if visabm.IsHHDataLoaded() then do
+        if opts.Overwrite then
+            outFile = Args.SynthesizedVisitors
+        else do
+            pth = SplitPath(Args.SynthesizedVisitors)
+            outFile = pth[1] + pth[2] + pth[3] + "_OutputIter" + iter + ".bin"
+        end
+
+        hhOpts = {File: outFile} 
+        if opts.HHFields <> null then
+            hhOpts = hhOpts + {Fields: opts.HHFields}
+        if opts.HHFilter <> null then
+            hhOpts = hhOpts + {Filter: opts.HHFilter}
+        if opts.UseActiveHHSet = 1 then
+            hhOpts = hhOpts + {UseActiveSet: 1}
+        visabm.ExportHHView(hhOpts)
+    end
+endMacro
+
+
+/*
+    ABM Manager Utilities:
     Macro to create an empty ABM object and return it. Will be called by the flowchart plugin macros.
 */
 Macro "Get Time Manager"(abm)
@@ -100,11 +149,24 @@ endmacro
 
 
 /*
+    Null out the ABM Manager object (i.e. call the destructor)
+    Null out the ABM Args argument
+*/
+Macro "Close Visitor ABM Manager"(Args)
+    RunMacro("Export Visitor ABM Data", Args, {Overwrite: 0})
+    RunMacro("ReleaseSingleton", "ABM_Manager")
+    Return(true)
+endmacro
+
+
+/*
     ABM Preprocessor. 
     Remove and add all ABM related fields to the In-Memory Person and HH tables.
     Ideally called in each feedback loop.
 */
 Macro "ABM Preprocess"(Args)
+    Args.ABMFlag = 1    // Reset it so that the flag is correct if this is run immediately after running the skims/accessibilities
+    
     // Person File
     abm = RunMacro("Get ABM Manager", Args)
     flds = {{Name: "AttendDaycare", Type: "Short", Width: 2, Description: "Does child attend daycare?|1: Yes|2: No.|Filled for Age < 5"},
@@ -538,8 +600,9 @@ endMacro
     Apply carpool occupancy as necessary and merge Taxi trips with carpool.
 */
 Macro "Create Assignment OD Matrices"(Args)
+    Args.ABMFlag = 0
     RunMacro("Write ABM OD", Args)
-    RunMacro("Add Visitor OD", Args)
+    RunMacro("Add Visitor ABM OD", Args)
     RunMacro("Add Truck OD", Args)
     RunMacro("Add Airport OD", Args)
     RunMacro("Create Daily OD Matrix", Args)
@@ -614,35 +677,27 @@ Macro "Write ABM OD"(Args)
     DestroyExpression(GetFieldFullSpec(vwTrips, tripTime))
 endMacro
 
-Macro "Add Visitor OD" (Args)
-    out_dir = Args.[Output Folder]
-    od_dir = out_dir + "/OD"
-    vis_dir = out_dir + "/visitors/trip_matrices"
-    periods = {"AM", "PM", "OP"}
 
-    // get visitor purposes
-    factor_file = Args.VisOccupancyFactors
-    fac_tbl = CreateObject("Table", factor_file)
-    v_purp = fac_tbl.trip_type
-    v_purp = SortVector(v_purp, {Unique: "true"})
-    fac_tbl = null
+Macro "Add Visitor ABM OD" (Args)
+    otherOcc = Args.VisOtherModeOcc
+    periods = {"AM", "PM", "OP"}
     for period in periods do
         od_mtx_file = Args.(period + "_OD")
         od_mtx = CreateObject("Matrix", od_mtx_file)
 
-        for vis_purp in v_purp do
-            vis_mtx_file = vis_dir + "/od_veh_trips_" + vis_purp + "_" + period + ".mtx"
-            vis_mtx = CreateObject("Matrix", vis_mtx_file)
+        vis_od_mtx_file = Args.(period + "_Visitor_OD")
+        vis_mtx = CreateObject("Matrix", vis_od_mtx_file)
+        cores = vis_mtx.GetCoreNames()
 
-            od_mtx.drivealone := nz(od_mtx.drivealone) + nz(vis_mtx.sov)
-            od_mtx.carpool := nz(od_mtx.carpool) + nz(vis_mtx.hov) + nz(vis_mtx.tnc)
-            if vis_purp <> "HBW" then do
-                od_mtx.w_bus := nz(od_mtx.w_bus) + vis_mtx.bus
-                core_names = vis_mtx.GetCoreNames()
-                if core_names.position("rail") > 0
-                    then od_mtx.w_rail := nz(od_mtx.w_rail) + vis_mtx.rail
-            end
-        end
+        od_mtx.drivealone := nz(od_mtx.drivealone) + nz(vis_mtx.sov)
+        od_mtx.carpool := nz(od_mtx.carpool) + nz(vis_mtx.hov2) + nz(vis_mtx.hov3) + nz(vis_mtx.tnc) + nz(vis_mtx.other)/otherOcc
+        od_mtx.w_bus := nz(od_mtx.w_bus) + nz(vis_mtx.w_bus)
+        od_mtx.walk := nz(od_mtx.walk) + nz(vis_mtx.walk)
+        if cores.position("w_rail") > 0 then
+            od_mtx.w_rail := nz(od_mtx.w_rail) + nz(vis_mtx.w_rail)
+
+        od_mtx = null
+        vis_mtx = null
     end
 endmacro
 
@@ -702,3 +757,57 @@ Macro "Create Daily OD Matrix"(Args)
 endmacro
 
 
+// Given an array of time intervals and a corresponding array of probabilities,
+// simulate a vector of size n.
+
+// First generate a vector of chosen intervals using the probabilities.
+// Then for each chosen interval pick a time value using a uniform distribution.
+// Return the vector of time values (measured from minutes from midnight).
+
+// e.g. intervals = {"7:00-7:15", "7:15-7:30"}, probs = {0.25, 0.75} and n = 4
+// Then the output vector could be {428, 440, 441, 448} i.e. corresponding to the times {7:08, 7:20, 7:21, 7:28}
+Macro "Simulate Time From Interval"(opt)
+    // Get Inputs
+    sampleSize = opt.SampleSize
+    seed = opt.RandomSeed
+    intervals = opt.Intervals
+    weights = opt.Weights
+    
+    if sampleSize = 0 then
+        Throw("Sample size must be greater than 0 for 'Simulate Time From Interval' macro")
+    if weights = null or intervals = null then
+        Throw("Intervals and Weights must be provided for 'Simulate Time From Interval' macro")
+    if intervals.length <> weights.length then
+        Throw("The size of intervals and weights must be the same")
+    
+    vWeights = nz(a2v(weights))
+    if vWeights.Sum() <= 0 then
+        Throw("The sum of the weights send to 'Simulate Time From Interval' macro must be greater than 0")
+
+    // Generate interval start, end arrays in minutes from midnight and generate duration
+    nInt = intervals.length
+    dim st[nInt], en[nInt], dur[nInt]
+    for i = 1 to nInt do
+        parts = parsestring(intervals[i], " :-")
+        st[i] = s2i(parts[1])*60 + s2i(parts[2])
+        en[i] = s2i(parts[3])*60 + s2i(parts[4])
+        dur[i] = en[i] - st[i]
+    end
+
+    // Pick an interval index using the random samples function
+    if seed = null then
+        seed = 999983
+    SetRandomSeed(seed)
+    params = null
+    params.weight = v2a(vWeights)
+    v = RandSamples(sampleSize, "Discrete", params)
+
+    SetRandomSeed(seed*2)
+    vUniform = RandSamples(sampleSize, "Uniform",)
+    dim vOut[sampleSize]
+    for i = 1 to sampleSize do
+        idx = v[i]
+        vOut[i] = Floor(st[idx] + vUniform[i]*dur[idx])
+    end
+    Return(a2v(vOut))
+endMacro
