@@ -3,6 +3,7 @@
       Generate accessibility matrices by auto, non motorized and transit mode groups
 */
 Macro "Mandatory Accessibility"(Args)
+    Args.ABMFlag = 0
     modeGroups = null
     modeGroups.Auto = {"DriveAlone", "Carpool", "Other"}
     modeGroups.NM = {"Bike", "Walk"}

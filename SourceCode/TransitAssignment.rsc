@@ -1,5 +1,6 @@
 
 Macro "Transit Assignment" (Args)
+    Args.ABMFlag = 0
     RunMacro("GenerateTransitOD", Args)
     RunMacro("PTAssign", Args)
     return(1)

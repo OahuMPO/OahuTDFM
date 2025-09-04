@@ -3,6 +3,7 @@
 */
 
 Macro "Highway Assignment AM OP PM" (Args)
+    Args.ABMFlag = 0
     periods = {"AM", "OP", "PM"}
     RunMacro("Highway Assignment", Args, periods)
     return(1)
@@ -126,6 +127,7 @@ endmacro
 
 Macro "FeedbackConvergence" (Args)
     RetValue = 1
+    Args.ABMFlag = 0
     amrmse = Args.AMRMSE
     pmrmse = Args.PMRMSE
     oprmse = Args.OPRMSE

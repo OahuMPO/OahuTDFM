@@ -1,4 +1,4 @@
-// Long Term Choice Models
+// Long Term Choice ModelsCalibrate Visitor Model
 Macro "Calibrate DriverLicense"(Args)
     opts = null
     opts.ModelName = "DriverLicense"
@@ -618,6 +618,94 @@ Macro "Calibrate Solo Mode"(Args, p)
 endMacro
 
 
+Macro "Calibrate KidsPresence"(Args)
+    opts = null
+    opts.ModelName = "KidsPresence"
+    opts.MacroName = "Kids Presence Model"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorParty\\KidsPresence.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+Macro "Calibrate RentalCarChoice"(Args)
+    opts = null
+    opts.ModelName = "RentalCar"
+    opts.MacroName = "Rental Car Model"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorParty\\RentalCarChoice.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+Macro "Calibrate Visitor Tour Freq"(Args, p)
+    if p = "Work" then
+        filter = "PurposeCat = 2"
+    else
+        filter = "HouseholdID > 0"
+    macroArgs = {Purpose: p, Filter: filter, Seed: 99991 + Ascii(Left(p,1))}
+    
+    opts = null
+    opts.ModelName = p + "VisitorTourFreq"
+    opts.MacroName = "Run Visitor Tour Freq"
+    opts.MacroArgs = macroArgs
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorTours\\VisitorTourFrequency_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+Macro "Calibrate Visitor Mode Choice"(Args, p)
+    macroArgs = {Purpose: p, 
+                    Filter: printf("Number%sTours >= 1", {p}),
+                    OutputField: p + "Mode1",
+                    DestField: p + "TAZ1",
+                    Seed: 899981 + Ascii(Left(p,1))}
+
+    opts = null
+    opts.ModelName = p + "VisitorTourMC"
+    opts.MacroName = "Run Visitor Tour MC"
+    opts.MacroArgs = macroArgs
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorTours\\VisitorTourMC_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+Macro "Calibrate Visitor Tour TOD"(Args, p)
+    opts = null
+    opts.ModelName = p + "VisitorTourTOD"
+    opts.MacroName = "Visitor Tour TOD"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorTours\\VisitorTourTOD_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+
+Macro "Calibrate Visitor Stops Freq"(Args)
+    opts = null
+    opts.ModelName = "VisitorStopsFreq"
+    opts.MacroName = "Visitor Stops Frequency"
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorStops\\VisitorStopsFrequency.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+endMacro
+
+
+Macro "Calibrate Visitor Stops Purp"(Args)
+    toursObj = CreateObject("Table", Args.VisitorTours)
+    opts = null
+    opts.ModelName = "VisitorStopsPurpReturn1"
+    opts.MacroName = "Visitor Stops Purpose Eval"
+    opts.MacroArgs = {Direction: "Return", StopNo: "1", ToursObj: toursObj}
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorStops\\VisitorStopsPurpose.bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+    toursObj = null
+endMacro
+
+
+Macro "Calibrate Visitor Stops Dur"(Args, p)
+    toursObj = CreateObject("Table", Args.VisitorTours)
+    opts = null
+    opts.ModelName = "VisStops_" + p + "_Return_Dur"
+    opts.MacroName = "Visitor Stops Duration Eval"
+    opts.MacroArgs = {Purpose: p, Direction: "Return", StopNo: "1", ToursObj: toursObj}
+    opts.CalibrationFile = Args.[Scenario Folder] + "\\Calibration\\Visitors\\VisitorStops\\VisitorStopsDuration_" + p + ".bin"
+    RunMacro("Calibrate Visitor Model", Args, opts)
+    toursObj = null
+endMacro
+
+// Main calibration model utility
 Macro "Calibrate Model"(Args, Opts)
     abm = RunMacro("Get ABM Manager", Args)
     objT = CreateObject("Table", Args.AccessibilitiesOutputs)
@@ -661,6 +749,68 @@ Macro "Calibrate Model"(Args, Opts)
         end
     end
     
+    // Open calibration file in an editor
+    shared d_edit_options
+    pth = SplitPath(calibrationFile)
+    vw = OpenTable("Table", "FFB", {calibrationFile})
+    ed = CreateEditor(pth[3], vw + "|",,d_edit_options)
+
+    Return(1)
+endMacro
+
+
+// Main visitor calibration model utility
+Macro "Calibrate Visitor Model"(Args, Opts)
+    visabm = RunMacro("Get Visitor ABM Manager", Args)
+    
+    TAZDB = Args.TAZGeography
+    TAZBin = Substitute(TAZDB, ".dbd", ".bin",) 
+    objT = CreateObject("Table", TAZBin)
+    objA = CreateObject("Table", Args.AccessibilitiesOutputs)
+    objD = CreateObject("Table", Args.DemographicOutputs)
+
+    if GetFileInfo(Args.VisitorTours) then
+        objTours = CreateObject("Table", Args.VisitorTours)
+
+    modelName = Opts.ModelName
+    calibrationFile = Opts.CalibrationFile
+    if !GetFileInfo(calibrationFile) then
+        Throw("Calibration file for " + modelName + " not found in the 'Data\\Calibration' folder.")
+
+    // Run provided model first, that creates the model from the PME and opens all the relevant files.
+    if Opts.MacroArgs <> null then
+        RunMacro(Opts.MacroName, Args, Opts.MacroArgs)
+    else
+        RunMacro(Opts.MacroName, Args)
+
+    // Retrieve Model Specification saved into Args array by the previous step
+    modelSpec = Args.(modelName + " Spec")
+
+    // Open Matrix Sources in model Spec
+    for src in modelSpec.MatrixSources do
+        mObjs.(src.Label) = CreateObject("Matrix", src.FileName)
+    end
+
+    // Call macro to Adjust ASC
+    RunMacro("Calibrate ASCs", Opts, modelSpec)
+
+    RunMacro("Export Visitor ABM Data", Args, {Overwrite: 1})
+
+    RunMacro("ReleaseSingleton", "ABM_Manager")
+
+    // Close all other views
+    vws = GetViews()
+    if vws <> null then do
+        for vw in vws[1] do
+            CloseView(vw)
+        end
+    end
+    
+    objD = null
+    objA = null
+    objT = null
+    objTours = null
+
     // Open calibration file in an editor
     shared d_edit_options
     pth = SplitPath(calibrationFile)

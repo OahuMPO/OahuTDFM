@@ -16,6 +16,10 @@ NonMandatoryJointTours.rsc
 NonMandatorySoloTours.rsc
 NonMandatoryStops.rsc
 TimeManager.rsc
+VisitorSynthesis.rsc
+VisitorTours.rsc
+VisitorStops.rsc
+VisitorTripsandOD.rsc
 NonresidentDistribution.rsc
 HighwayAssignment.rsc
 Commercial Vehicles.rsc
@@ -29,7 +33,6 @@ utils/NestedDC.rsc
 CreateScenario.rsc
 PopulationSynthesis.rsc
 Skimming.rsc
-Visitors.rsc
 Airport.rsc
 TransitAssignment.rsc
 Reports.rsc
