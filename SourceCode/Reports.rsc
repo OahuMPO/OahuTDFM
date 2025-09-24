@@ -240,7 +240,8 @@ Macro "Load Trip Tables" (Args)
     })
     join.SelectByQuery({
       SetName: period,
-      Query: "Period = '" + period + "'"
+      Query: "Period = '" + period + 
+        "' and (Mode = 'drivealone' or Mode = 'carpool' or Mode = 'nonhhauto')"
     })
     join.(res_specs.Miles) = join.(tbl_specs.Distance)
     join.(res_specs.TravTime) = join.(tbl_specs.Time)
@@ -255,7 +256,8 @@ Macro "Load Trip Tables" (Args)
     })
     join.SelectByQuery({
       SetName: period,
-      Query: "Period = '" + period + "'"
+      Query: "Period = '" + period + 
+        "' and (Mode = 'sov' or Mode = 'hov2' or Mode = 'hov3' or Mode = 'tnc')"
     })
     join.(vis_specs.Miles) = join.(tbl_specs.Distance)
     join.(vis_specs.TravTime) = join.(tbl_specs.Time)
