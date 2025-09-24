@@ -39,6 +39,7 @@ macro "HighwayNetworkSkim Oahu" (Args)
         obj.Destinations = "Centroid <> null"
         obj.Minimize = skimvar
         obj.AddSkimField({"Length", "All"})
+        obj.AddSkimField({"FreeFlowTime", "All"})
         obj.AddSkimField({"TollCostSOV", "All"})
         obj.AddSkimField({"TollCostHOV", "All"})
         obj.OutputMatrix({MatrixFile: hwyskimfile, Matrix: "HighwaySkim"})
@@ -63,10 +64,20 @@ macro "HighwayNetworkSkim Oahu" (Args)
         obj.Factor = 0.5
         ok = obj.Run()
 
+        obj = null
+        obj = CreateObject("Distribution.Intrazonal")
+        obj.SetMatrix({MatrixFile:hwyskimfile, Matrix: "FreeFlowTime (Skim)"})
+        obj.OperationType = "Replace"
+        obj.TreatMissingAsZero = false
+        obj.Neighbours = 3
+        obj.Factor = 0.5
+        ok = obj.Run()
+
         m = CreateObject("Matrix", hwyskimfile)
         m.RenameCores({CurrentNames: "Length (Skim)", NewNames: "Distance"})
         m.RenameCores({CurrentNames: "TollCostSOV (Skim)", NewNames: "TollCostSOV"})
         m.RenameCores({CurrentNames: "TollCostHOV (Skim)", NewNames: "TollCostHOV"})
+        m.RenameCores({CurrentNames: "FreeFlowTime (Skim)", NewNames: "FreeFlowTime"})
         idx = m.AddIndex({IndexName: "TAZ",
                     ViewName: NodeLayer, Dimension: "Both",
                     OriginalID: "ID", NewID: "ID", Filter: "Centroid = 1"})
