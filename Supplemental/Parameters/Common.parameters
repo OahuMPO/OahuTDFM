@@ -1,3 +1,15 @@
+	Section = "Main Parameters"
+
+        Args.[Scenario Folder] = {
+            "Type":"Folder",
+            "Value":"%Base Folder%\\Scenarios\\base_2022"
+        }
+        Args.[Master SE] = {
+            "Type":"File",
+            "Description":"Master SED Demographics",
+            "Value":"%Master Folder%\\sedata\\base_2022.bin"
+        }
+
 	Section = "Parameters|Files and Folders"
 	
         Args.[Base Folder] = {
@@ -16,10 +28,7 @@
             "Type":"hidden",
             "Value":"BaseYear"
         }
-        Args.[Scenario Folder] = {
-            "Type":"Folder",
-            "Value":"%Base Folder%\\Scenarios\\base_2022"
-        }
+
         Args.[Common Folder] = {
             "Type":"Folder",
             "Caption":"Common Folder",
@@ -335,11 +344,7 @@
             "Description":"Input TAZ Geography",
             "Value":"%Input Folder%\\tazs\\scenario_tazs.dbd"
         }
-        Args.[Master SE] = {
-            "Type":"File",
-            "Description":"Master SED Demographics",
-            "Value":"%Master Folder%\\sedata\\base_2022.bin"
-        }
+
         Args.Demographics = {
             "Type":"File",
             "Description":"Input SED Demographics",
