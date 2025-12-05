@@ -21,7 +21,7 @@ Macro "Model.Attributes" (Args,Result)
         {"Requires",
             {{"Program", "TransCAD"},
             {"Version", 10},
-            {"Build", 40625}}},
+            {"Build", 40715}}},
         {"ResizeImage", 1},
         {"SourceMacro", "Model.Attributes"},
         {"Time Stamp Format", "yyyyMMdd_HHmm"},
