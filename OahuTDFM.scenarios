@@ -7,7 +7,6 @@ EndScenario
 Scenario "2050"
     
     [Scenario Folder] = "%Base Folder%\\Scenarios\\2050"
-    [Master SE] = "%Master Folder%\\sedata\\se_2045.bin"
 EndScenario
     
     
