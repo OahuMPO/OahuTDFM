@@ -364,10 +364,13 @@ Macro "Smooth Area Type" (Args, map, views)
             bLyr = AddLayer(map,"buffer",bufferDBD,"buffer")
 
             // Select zones within the 1 mile buffer that have not already
-            // been smoothed.
+            // been smoothed and are not already set to this area type based
+            // on density.
             SetLayer(taz_lyr)
-            n2 = SelectByVicinity("in_buffer", "several", "buffer|", , )
+            n2 = SelectByVicinity("in_buffer", "several", bLyr + "|", , )
             qry = "Select * where ATSmoothed = 1"
+            n2 = SelectByQuery("in_buffer", "Less", qry)
+            qry = "Select * where AreaType = '" + type + "'"
             n2 = SelectByQuery("in_buffer", "Less", qry)
 
             if n2 > 0 then do
