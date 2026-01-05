@@ -446,7 +446,7 @@ Macro "Tag Highway with Area Type" (Args, map, views)
             // Select links within the buffer that haven't been updated already
             SetLayer(llyr)
             n2 = SelectByVicinity(
-                "links", "several", taz_lyr + "|selection", 0, 
+                "links", "several", bLyr + "|", 0, 
                 {"Source And": "primary"}
             )
             query = "Select * where AreaType <> null"
