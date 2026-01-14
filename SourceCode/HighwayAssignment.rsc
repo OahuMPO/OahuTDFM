@@ -48,6 +48,7 @@ Macro "Highway Assignment" (Args, periods)
         })
 
         o.FlowTable = Args.(period + "Flows")  
+        o.IterationLog = Args.(period + "_IterLog")
         
         // Add classes for each combination of vehicle type and VOT
         o.AddClass({

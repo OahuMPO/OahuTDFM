@@ -3917,7 +3917,7 @@
         Args.AssignIterations = {
             "Type":"int",
             "Caption":"Assignment Iterations",
-            "Value":501
+            "Value":1000
         }
         Args.AssignmentConvergence = {
             "Type":"double",
@@ -4000,19 +4000,19 @@
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\AM_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\AM_IterationLog.bin"
         }
         Args.PM_IterLog = {
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\PM_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\PM_IterationLog.bin"
         }
         Args.OP_IterLog = {
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\OP_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\OP_IterationLog.bin"
         }
 	
 	Section = "PT Assignment Outputs"
