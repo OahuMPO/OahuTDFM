@@ -1,11 +1,10 @@
 {
     "Model": {
         "Description": [
-            "The main model is OahuTDFM.model",
-            "This system has only one model file"
+            "Oahu TDFM"
         ],
         "Author": "Caliper Corporation",
-        "Version": "2022.1",
+        "Version": "v2.0",
         "Name": "OahuTDFM.model",
         "Parameters": ["Supplemental\\Parameters\\Common.parameters"],
         "Styles": ["Supplemental\\Styles\\Common.styles"],
