@@ -1,3 +1,15 @@
+	Section = "Main Parameters"
+
+        Args.[Scenario Folder] = {
+            "Type":"Folder",
+            "Value":"%Base Folder%\\Scenarios\\base_2022"
+        }
+        Args.[Master SE] = {
+            "Type":"File",
+            "Description":"Master SED Demographics",
+            "Value":"%Master Folder%\\sedata\\base_2022.bin"
+        }
+
 	Section = "Parameters|Files and Folders"
 	
         Args.[Base Folder] = {
@@ -16,10 +28,7 @@
             "Type":"hidden",
             "Value":"BaseYear"
         }
-        Args.[Scenario Folder] = {
-            "Type":"Folder",
-            "Value":"%Base Folder%\\Scenarios\\base_2022"
-        }
+
         Args.[Common Folder] = {
             "Type":"Folder",
             "Caption":"Common Folder",
@@ -335,11 +344,7 @@
             "Description":"Input TAZ Geography",
             "Value":"%Input Folder%\\tazs\\scenario_tazs.dbd"
         }
-        Args.[Master SE] = {
-            "Type":"File",
-            "Description":"Master SED Demographics",
-            "Value":"%Master Folder%\\sedata\\base_2022.bin"
-        }
+
         Args.Demographics = {
             "Type":"File",
             "Description":"Input SED Demographics",
@@ -356,8 +361,8 @@
             "Style":"AreaType",
             "Value":{
                 {"Rural",0,0},
-                {"Suburban",1000,0.5},
-                {"Urban",10000,0.5},
+                {"Suburban",1000,0.25},
+                {"Urban",10000,0.25},
                 {"Downtown",25000,0.25}}
         }
         Args.TransitModeTable = {
@@ -3912,7 +3917,7 @@
         Args.AssignIterations = {
             "Type":"int",
             "Caption":"Assignment Iterations",
-            "Value":501
+            "Value":1000
         }
         Args.AssignmentConvergence = {
             "Type":"double",
@@ -3995,19 +4000,19 @@
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\AM_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\AM_IterationLog.bin"
         }
         Args.PM_IterLog = {
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\PM_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\PM_IterationLog.bin"
         }
         Args.OP_IterLog = {
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\OP_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\OP_IterationLog.bin"
         }
 	
 	Section = "PT Assignment Outputs"

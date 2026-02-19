@@ -2,6 +2,7 @@ Macro "Reports" (Args)
     Args.ABMFlag = 0
     RunMacro("Load Link Layer", Args)
     RunMacro("Calculate Daily Fields", Args)
+    RunMacro("Load Trip Tables", Args)
     RunMacro("Create Count Difference Map", Args)
     RunMacro("VOC Maps", Args)
     RunMacro("Speed Maps", Args)
@@ -192,6 +193,83 @@ Macro "Calculate Daily Fields" (Args)
   DropLayerFromWorkspace(llyr)
 EndMacro
 
+/*
+This loads trip stats like length, time, ff time, and delay onto
+the trip tables.
+*/
+
+Macro "Load Trip Tables" (Args)
+
+  periods = {"AM", "PM", "OP"}
+  res_trip_file = Args.ABM_Trips
+  visitor_trip_file = Args.VisitorTrips
+  skim_dir = Args.[Output Folder] + "\\skims"
+
+  res_tbl = CreateObject("Table", res_trip_file)
+  res_tbl.AddField("Miles")
+  res_tbl.AddField("TravTime")
+  res_tbl.AddField("TravFFTime")
+  res_tbl.AddField("Delay")
+  res_specs = res_tbl.GetFieldSpecs({NamedArray: "true"})
+  vis_tbl = CreateObject("Table", visitor_trip_file)
+  vis_tbl.AddField("Miles")
+  vis_tbl.AddField("TravTime")
+  vis_tbl.AddField("TravFFTime")
+  vis_tbl.AddField("Delay")
+  vis_specs = vis_tbl.GetFieldSpecs({NamedArray: "true"})
+
+  for period in periods do
+    skim_file = skim_dir + "\\HighwaySkim" + period + ".mtx"
+    
+    // Export skim matrix to table
+    mtx = CreateObject("Matrix", skim_file)
+    temp_file = GetTempFileName("*.bin")
+    mtx.ExportToTable({
+      FileName: temp_file,
+      Cores: {"Time", "FreeFlowTime", "Distance"}
+    })
+    mtx = null
+
+    // Resident trips
+    tbl = CreateObject("Table", temp_file)
+    tbl_specs = tbl.GetFieldSpecs({NamedArray: "true"})
+    join = res_tbl.Join({
+      Table: tbl,
+      LeftFields: {"Origin","Destination"},
+      RightFields: {"Origin","Destination"}
+    })
+    join.SelectByQuery({
+      SetName: period,
+      Query: "Period = '" + period + 
+        "' and (Mode = 'drivealone' or Mode = 'carpool' or Mode = 'nonhhauto')"
+    })
+    join.(res_specs.Miles) = join.(tbl_specs.Distance)
+    join.(res_specs.TravTime) = join.(tbl_specs.Time)
+    join.(res_specs.TravFFTime) = join.(tbl_specs.FreeFlowTime)
+    join = null
+
+    // Visitor trips
+    join = vis_tbl.Join({
+      Table: tbl,
+      LeftFields: {"Origin","Destination"},
+      RightFields: {"Origin","Destination"}
+    })
+    join.SelectByQuery({
+      SetName: period,
+      Query: "Period = '" + period + 
+        "' and (Mode = 'sov' or Mode = 'hov2' or Mode = 'hov3' or Mode = 'tnc')"
+    })
+    join.(vis_specs.Miles) = join.(tbl_specs.Distance)
+    join.(vis_specs.TravTime) = join.(tbl_specs.Time)
+    join.(vis_specs.TravFFTime) = join.(tbl_specs.FreeFlowTime)
+    join = null
+  end
+
+  res_tbl.ChangeSet()
+  res_tbl.Delay = res_tbl.TravTime - res_tbl.TravFFTime
+  vis_tbl.ChangeSet()
+  vis_tbl.Delay = vis_tbl.TravTime - vis_tbl.TravFFTime
+EndMacro
 
 /*
 Create maps that compare model volumes to counts.

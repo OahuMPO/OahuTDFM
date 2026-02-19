@@ -1,12 +1,11 @@
 Oahu Network 102907
-100
-"newid",I,1,4,0,8,0,,"","",,"Sum",
-"ID",I,5,4,0,10,0,,"","",,"Sum",
+96,codepage=1252
+"newid",I,1,4,0,4,0,,"","",,"Sum",
+"ID:1",I,5,4,0,10,0,,"","",,"Sum",
 "Centroid",I,9,4,0,8,0,,"","1: is a centroid node",,"Sum",
 "PNR",I,13,4,0,8,0,,"","1: is a PNR node",,"Blank",
-"KNR",I,17,4,0,8,0,,"","1: is a KNR node",,"Sum",
-"PNR Lot Name",C,21,24,0,24,0,,"","",,"Blank",
-"Start Year_PNR Lot",I,45,4,0,8,0,,"","",,"Blank",
-"End Year_PNR Lot",I,49,4,0,8,0,,"","",,"Blank",
-"RailStations",C,53,24,0,24,0,,"","",,"Blank",
-"RailProject",C,77,24,0,24,0,,"","rail stations broken up by first project, west extension, and east extension",,"Blank",
+"PNR Lot Name",C,17,24,0,24,0,,"","",,"Blank",
+"Start Year_PNR Lot",I,41,4,0,8,0,,"","",,"Blank",
+"End Year_PNR Lot",I,45,4,0,8,0,,"","",,"Blank",
+"RailStations",C,49,24,0,24,0,,"","",,"Blank",
+"RailProject",C,73,24,0,24,0,,"","rail stations broken up by first project, west extension, and east extension",,"Blank",
