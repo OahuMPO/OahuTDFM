@@ -1,5 +1,5 @@
 
-110
+122,codepage=1252
 "STOP_ID",I,1,4,0,9,0,,"","",,"Sum",
 "UserID",I,5,4,0,8,0,,"","",,"Sum",
 "Master_Route_ID",I,9,4,0,8,0,,"","",,"Sum",
@@ -17,6 +17,7 @@
 "MD_HEADWAY",R,75,8,0,8,2,,"","",,"Sum",
 "PM_HEADWAY",R,83,8,0,8,2,,"","",,"Sum",
 "EV_HEADWAY",R,91,8,0,8,2,,"","",,"Sum",
-"NODENUMBER",I,99,4,0,8,0,,"","",,"Sum",
-"shape_stop",I,103,4,0,8,0,,"","",,"Sum",
-"Node_ID",I,107,4,0,8,0,,"","",,"Sum",
+"shape_stop",I,99,4,0,8,0,,"","",,"Sum",
+"Node_ID",I,103,4,0,8,0,,"","",,"Sum",
+"dwell_on",R,107,8,0,10,2,,"","Seconds spent waiting for people to get on route",,"Sum",
+"dwell_off",R,115,8,0,10,2,,"","Seconds spent waiting for people to get off route",,"Sum",

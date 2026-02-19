@@ -3,7 +3,8 @@
 */
 
 Macro "Highway Assignment AM OP PM" (Args)
-    periods = {"AM", "PM", "OP"}
+    Args.ABMFlag = 0
+    periods = {"AM", "OP", "PM"}
     RunMacro("Highway Assignment", Args, periods)
     return(1)
 endmacro
@@ -47,13 +48,14 @@ Macro "Highway Assignment" (Args, periods)
         })
 
         o.FlowTable = Args.(period + "Flows")  
+        o.IterationLog = Args.(period + "_IterLog")
         
         // Add classes for each combination of vehicle type and VOT
         o.AddClass({
             Demand: "drivealone",
             PCE: 1,
             VOI: Args.auto_vot,
-            ExclusionFilter: "HOV = 'HOV'",
+            ExclusionFilter: "HOV = 'HOV' and TollType <> 'HOT'",
             LinkTollField: "TollCostSOV"
         })
         // hov
@@ -126,6 +128,7 @@ endmacro
 
 Macro "FeedbackConvergence" (Args)
     RetValue = 1
+    Args.ABMFlag = 0
     amrmse = Args.AMRMSE
     pmrmse = Args.PMRMSE
     oprmse = Args.OPRMSE

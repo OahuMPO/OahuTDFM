@@ -3,6 +3,7 @@
       Generate accessibility matrices by auto, non motorized and transit mode groups
 */
 Macro "Mandatory Accessibility"(Args)
+    Args.ABMFlag = 0
     modeGroups = null
     modeGroups.Auto = {"DriveAlone", "Carpool", "Other"}
     modeGroups.NM = {"Bike", "Walk"}
@@ -114,8 +115,8 @@ Macro "MC Accessibility"(Args, spec)
     // Create empty output MC logsum matrix
     mSpec = {TAZFile: Args.TAZGeography, OutputFile: outFile, DataType: "Double", 
              Cores: outCores, Label: type + " Mode Accessibility"}
-    mat = RunMacro("Create Empty Matrix", mSpec)
-    mOutObj = CreateObject("Matrix", mat)
+    RunMacro("Create Empty Matrix", mSpec)
+    mOutObj = CreateObject("Matrix", outFile)
 
     // Define mode groups
     allModes = null

@@ -1,3 +1,15 @@
+	Section = "Main Parameters"
+
+        Args.[Scenario Folder] = {
+            "Type":"Folder",
+            "Value":"%Base Folder%\\Scenarios\\base_2022"
+        }
+        Args.[Master SE] = {
+            "Type":"File",
+            "Description":"Master SED Demographics",
+            "Value":"%Master Folder%\\sedata\\base_2022.bin"
+        }
+
 	Section = "Parameters|Files and Folders"
 	
         Args.[Base Folder] = {
@@ -16,10 +28,7 @@
             "Type":"hidden",
             "Value":"BaseYear"
         }
-        Args.[Scenario Folder] = {
-            "Type":"Folder",
-            "Value":"%Base Folder%\\Scenarios\\base_2022"
-        }
+
         Args.[Common Folder] = {
             "Type":"Folder",
             "Caption":"Common Folder",
@@ -54,6 +63,10 @@
         Args.FlowMapStyles = {
             "Type":"hidden",
             "Value":"%Common Folder%\\FlowMapStyle.stg"
+        }
+        Args.[Disable Steps] = {
+            "Type":"array",
+            "Value":null
         }
 	
 	Section = "Parameters|Feedback"
@@ -124,6 +137,12 @@
 	
 	Section = "Parameters|ABM"
 	
+        Args.ABMFlag = {
+            "Type":"hidden",
+            "Caption":"ABMFlag for flowchart purposes",
+            "Description":"ABMFlag for flowchart purposes: 0 - None, 1 - Resident, 2 - Visitor",
+            "Value":1
+        }
         Args.WorkCarpoolOccupancy = {
             "Type":"double",
             "Caption":"Occupancy factor for work carpool trips",
@@ -325,11 +344,7 @@
             "Description":"Input TAZ Geography",
             "Value":"%Input Folder%\\tazs\\scenario_tazs.dbd"
         }
-        Args.[Master SE] = {
-            "Type":"File",
-            "Description":"Master SED Demographics",
-            "Value":"%Master Folder%\\sedata\\base_2022.bin"
-        }
+
         Args.Demographics = {
             "Type":"File",
             "Description":"Input SED Demographics",
@@ -346,8 +361,8 @@
             "Style":"AreaType",
             "Value":{
                 {"Rural",0,0},
-                {"Suburban",1000,0.5},
-                {"Urban",10000,0.5},
+                {"Suburban",1000,0.25},
+                {"Urban",10000,0.25},
                 {"Downtown",25000,0.25}}
         }
         Args.TransitModeTable = {
@@ -1285,15 +1300,19 @@
                 {"ASC (PNR)","Constant",-0.5034,0,0,1,1,0,0,0,0},
                 {"ASC (KNR)","Constant",-2.0464,0,0,0,0,1,1,0,0},
                 {"ASC (MT)","Constant",2.7278,0,0,0,0,0,0,1,1},
-                {"ASC (Rail)","Constant",0.31,0,1,0,1,0,1,0,1},
+                {"ASC (Rail)","Constant",0.5698,0,1,0,1,0,1,0,1},
                 {"Walk Bus Time","W_BusSkim.[Total Time]",-0.0259,1,0,0,0,0,0,0,0},
-                {"Walk Rail Time","W_RailSkim.[Total Time]",-0.0259,0,1,0,0,0,0,0,0},
-                {"PNR Bus IVTT","PNR_BusSkim.[Total Time]",-0.0259,0,0,1,0,0,0,0,0},
-                {"PNR Rail IVTT","PNR_RailSkim.[Total Time]",-0.0259,0,0,0,1,0,0,0,0},
-                {"KNR Bus IVTT","KNR_BusSkim.[Total Time]",-0.0259,0,0,0,0,1,0,0,0},
-                {"KNR Rail IVTT","KNR_RailSkim.[Total Time]",-0.0259,0,0,0,0,0,1,0,0},
-                {"MT Bus IVTT","MT_BusSkim.[Total Time]",-0.0259,0,0,0,0,0,0,1,0},
-                {"MT Rail IVTT","MT_RailSkim.[Total Time]",-0.0259,0,0,0,0,0,0,0,1},
+                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time] * .80",-0.0259,0,1,0,0,0,0,0,0},
+                {"Walk Rail Other Time","W_RailSkim.[Total Time] - W_RailSkim.[In-Vehicle Time]",-0.0259,0,1,0,0,0,0,0,0},
+                {"PNR Bus Time","PNR_BusSkim.[Total Time]",-0.0259,0,0,1,0,0,0,0,0},
+                {"PNR Rail IVTT","PNR_RailSkim.[In-Vehicle Time] * .80",-0.0259,0,0,0,1,0,0,0,0},
+                {"PNR Rail Other Time","PNR_RailSkim.[Total Time] - PNR_RailSkim.[In-Vehicle Time]",-0.0259,0,0,0,1,0,0,0,0},
+                {"KNR Bus Time","KNR_BusSkim.[Total Time]",-0.0259,0,0,0,0,1,0,0,0},
+                {"KNR Rail IVTT","KNR_RailSkim.[In-Vehicle Time] * .80",-0.0259,0,0,0,0,0,1,0,0},
+                {"KNR Rail Other Time","KNR_RailSkim.[Total Time] - KNR_RailSkim.[In-Vehicle Time]",-0.0259,0,0,0,0,0,1,0,0},
+                {"MT Bus Time","MT_BusSkim.[Total Time]",-0.0259,0,0,0,0,0,0,1,0},
+                {"MT Rail IVTT","MT_RailSkim.[In-Vehicle Time] * .80",-0.0259,0,0,0,0,0,0,0,1},
+                {"MT Rail Other Time","MT_RailSkim.[Total Time] - MT_RailSkim.[In-Vehicle Time]",-0.0259,0,0,0,0,0,0,0,1},
                 {"Walk Bus Fare","W_BusSkim.Fare",-0.352,1,0,0,0,0,0,0,0},
                 {"Walk Rail Fare","W_RailSkim.Fare",-0.352,0,1,0,0,0,0,0,0},
                 {"PNR Bus Fare","PNR_BusSkim.Fare",-0.352,0,0,1,0,0,0,0,0},
@@ -1395,15 +1414,19 @@
                 {"ASC (PT_PNR)","Constant",0.3637,0,0,1,1,0,0,0,0},
                 {"ASC (PT_KNR)","Constant",-4.2058,0,0,0,0,1,1,0,0},
                 {"ASC (PT_MT)","Constant",3.1908,0,0,0,0,0,0,1,1},
-                {"ASC (Rail)","Constant",0.31,0,1,0,1,0,1,0,1},
-                {"Walk Bus IVTT","W_BusSkim.[Total Time]",-0.015,1,0,0,0,0,0,0,0},
-                {"Walk Rail IVTT","W_RailSkim.[Total Time]",-0.015,0,1,0,0,0,0,0,0},
-                {"PNR Bus IVTT","PNR_BusSkim.[Total Time]",-0.015,0,0,1,0,0,0,0,0},
-                {"PNR Rail IVTT","PNR_RailSkim.[Total Time]",-0.015,0,0,0,1,0,0,0,0},
-                {"KNR Bus IVTT","KNR_BusSkim.[Total Time]",-0.015,0,0,0,0,1,0,0,0},
-                {"KNR Rail IVTT","KNR_RailSkim.[Total Time]",-0.015,0,0,0,0,0,1,0,0},
-                {"MT Bus IVTT","MT_BusSkim.[Total Time]",-0.015,0,0,0,0,0,0,1,0},
-                {"MT Rail IVTT","MT_RailSkim.[Total Time]",-0.015,0,0,0,0,0,0,0,1},
+                {"ASC (Rail)","Constant",0.33,0,1,0,1,0,1,0,1},
+                {"Walk Bus Time","W_BusSkim.[Total Time]",-0.015,1,0,0,0,0,0,0,0},
+                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time] * .80",-0.015,0,1,0,0,0,0,0,0},
+                {"Walk Rail Other Time","W_RailSkim.[Total Time] - W_RailSkim.[In-Vehicle Time]",-0.015,0,1,0,0,0,0,0,0},
+                {"PNR Bus Time","PNR_BusSkim.[Total Time]",-0.015,0,0,1,0,0,0,0,0},
+                {"PNR Rail IVTT","PNR_RailSkim.[In-Vehicle Time] * .80",-0.015,0,0,0,1,0,0,0,0},
+                {"PNR Rail Other Time","PNR_RailSkim.[Total Time] - PNR_RailSkim.[In-Vehicle Time]",-0.015,0,0,0,1,0,0,0,0},
+                {"KNR Bus Time","KNR_BusSkim.[Total Time]",-0.015,0,0,0,0,1,0,0,0},
+                {"KNR Rail IVTT","KNR_RailSkim.[In-Vehicle Time] * .80",-0.015,0,0,0,0,0,1,0,0},
+                {"KNR Rail Other Time","KNR_RailSkim.[Total Time] - KNR_RailSkim.[In-Vehicle Time]",-0.015,0,0,0,0,0,1,0,0},
+                {"MT Bus Time","MT_BusSkim.[Total Time]",-0.015,0,0,0,0,0,0,1,0},
+                {"MT Rail IVTT","MT_RailSkim.[In-Vehicle Time] * .80",-0.015,0,0,0,0,0,0,0,1},
+                {"MT Rail Other Time","MT_RailSkim.[Total Time] - MT_RailSkim.[In-Vehicle Time]",-0.015,0,0,0,0,0,0,0,1},
                 {"Low Access-Egress Time (W_Bus)","W_BusSkim.[Access Walk Time] + W_BusSkim.[Egress Walk Time] < 15",1.1846,1,0,0,0,0,0,0,0},
                 {"Low Access-Egress Time (W_Rail)","W_RailSkim.[Access Walk Time] + W_RailSkim.[Egress Walk Time] < 15",1.1846,0,1,0,0,0,0,0,0},
                 {"Low Access-Egress Time (PNR_Bus)","PNR_BusSkim.[Access Walk Time] + PNR_BusSkim.[Egress Walk Time] < 15",1.1846,0,0,1,0,0,0,0,0},
@@ -1425,7 +1448,7 @@
             "Style":"Nesting Structure",
             "Value":{
                 {"Root","DriveAlone, Carpool, NonHHAuto, NonAuto",null},
-                {"NonAuto","Walk, Bike, W_Bus, SchoolBus",0.371}}
+                {"NonAuto","Walk, Bike, W_Bus, W_Rail, SchoolBus",0.371}}
         }
         Args.SchModeFAvailability = {
             "Type":"array",
@@ -1436,6 +1459,7 @@
                 {"Carpool","PersonHH.DropoffPersonID <> null"},
                 {"Walk","WalkSkim.Distance <= 2"},
                 {"Bike","BikeSkim.Distance <= 4"},
+                {"W_Rail","W_RailSkim.[Total Time] <= 30"},
                 {"W_Bus","W_BusSkim.[In-Vehicle Time] <= 30"}}
         }
         Args.SchModeRAvailability = {
@@ -1447,6 +1471,7 @@
                 {"Carpool","PersonHH.PickupPersonID <> null"},
                 {"Walk","WalkSkim.Distance <= 1.5"},
                 {"Bike","PersonHH.SchoolForwardModeCode = 4"},
+                {"W_Rail","W_RailSkim.[Total Time] <= 30"},
                 {"W_Bus","W_BusSkim.[In-Vehicle Time] <= 30"}}
         }
 	
@@ -1457,40 +1482,47 @@
             "Caption":"School Mode Utility (Forward)",
             "Style":"SchModeUtility",
             "Value":{
-                {"ASC (DriveAlone)","Constant",4.0881,1,0,0,0,0,0,0},
-                {"ASC (Carpool)","Constant",2.4051,0,1,0,0,0,0,0},
-                {"ASC (Walk)","Constant",3.3785,0,0,1,0,0,0,0},
-                {"ASC (Bike)","Constant",1.5054,0,0,0,1,0,0,0},
-                {"ASC (W_Bus)","Constant",0.7084,0,0,0,0,1,0,0},
-                {"ASC (School Bus)","Constant",0.6702,0,0,0,0,0,1,0},
-                {"ASC (NonHHAuto)","Constant",0.3655,0,0,0,0,0,0,1},
-                {"Walk Distance","WalkSkim.Distance",-1.48,0,0,1,0,0,0,0},
-                {"Bike Distance","BikeSkim.Distance",-0.685,0,0,0,1,0,0,0},
-                {"HH has vehicle(s) - DriveAlone","PersonHH.Vehicles > 0",0.404,1,0,0,0,0,0,0},
-                {"HH has vehicle(s) - Carpool","PersonHH.Vehicles > 0",1.14,0,1,0,0,0,0,0},
-                {"Auto Time (Drive modes)","AutoSkim.Time",-0.0472,1,1,0,0,0,0,1},
-                {"Auto Time (School bus)","AutoSkim.Time",-0.0117,0,0,0,0,0,1,0},
-                {"Low Access-Egress Time","W_BusSkim.[Access Walk Time] + W_BusSkim.[Egress Walk Time] < 15",0.613,0,0,0,0,1,0,0},
-                {"Bus Total Time","W_BusSkim.[Total Time]",-0.0117,0,0,0,0,1,0,0},
-                {"Income below 50K","PersonHH.IncomeLevel = 1",1.12,0,0,1,1,1,1,0}}
+                {"ASC (DriveAlone)","Constant",4.0881,1,0,0,0,0,0,0,0},
+                {"ASC (Carpool)","Constant",2.4051,0,1,0,0,0,0,0,0},
+                {"ASC (Walk)","Constant",3.3785,0,0,1,0,0,0,0,0},
+                {"ASC (Bike)","Constant",1.5054,0,0,0,1,0,0,0,0},
+                {"ASC (W_Bus)","Constant",0.7084,0,0,0,0,1,0,0,0},
+                {"ASC (W_Rail)","Constant",0.7084,0,0,0,0,0,1,0,0},
+                {"ASC (School Bus)","Constant",0.6702,0,0,0,0,0,0,1,0},
+                {"ASC (NonHHAuto)","Constant",0.3655,0,0,0,0,0,0,0,1},
+                {"Walk Distance","WalkSkim.Distance",-1.48,0,0,1,0,0,0,0,0},
+                {"Bike Distance","BikeSkim.Distance",-0.685,0,0,0,1,0,0,0,0},
+                {"HH has vehicle(s) - DriveAlone","PersonHH.Vehicles > 0",0.404,1,0,0,0,0,0,0,0},
+                {"HH has vehicle(s) - Carpool","PersonHH.Vehicles > 0",1.14,0,1,0,0,0,0,0,0},
+                {"Auto Time (Drive modes)","AutoSkim.Time",-0.0472,1,1,0,0,0,0,0,1},
+                {"Auto Time (School bus)","AutoSkim.Time",-0.0117,0,0,0,0,0,0,1,0},
+                {"Low Access-Egress Time","W_BusSkim.[Access Walk Time] + W_BusSkim.[Egress Walk Time] < 15",0.613,0,0,0,0,1,0,0,0},
+                {"Low Access-Egress Time Rail","W_RailSkim.[Access Walk Time] + W_RailSkim.[Egress Walk Time] < 15",0.613,0,0,0,0,0,1,0,0},
+                {"Bus Time","W_BusSkim.[Total Time]",-0.0117,0,0,0,0,1,0,0,0},
+                {"Rail IVTT","W_RailSkim.[In-Vehicle Time] * .80",-0.0117,0,0,0,0,0,1,0,0},
+                {"Rail Other","W_RailSkim.[Total Time] - W_RailSkim.[In-Vehicle Time]",-0.0117,0,0,0,0,0,1,0,0},
+                {"Income below 50K","PersonHH.IncomeLevel = 1",1.12,0,0,1,1,1,0,1,0}}
         }
         Args.SchoolModeRUtility = {
             "Type":"array",
             "Caption":"School Mode Utility (Return)",
             "Style":"SchModeUtility",
             "Value":{
-                {"ASC (Carpool)","Constant",2.1804,0,1,0,0,0,0,0},
-                {"ASC (Walk)","Constant",3.2439,0,0,1,0,0,0,0},
-                {"ASC (W_Bus)","Constant",-0.6836,0,0,0,0,1,0,0},
-                {"ASC (School Bus)","Constant",-0.4187,0,0,0,0,0,1,0},
-                {"ASC (NonHHAuto)","Constant",-0.2267,0,0,0,0,0,0,1},
-                {"Walk Distance","WalkSkim.Distance",-1.48,0,0,1,0,0,0,0},
-                {"HH has vehicle(s) - Carpool","PersonHH.Vehicles > 0",1.14,0,1,0,0,0,0,0},
-                {"Auto Time (Drive modes)","AutoSkim.Time",-0.0472,0,1,0,0,0,0,1},
-                {"Auto Time (School bus)","AutoSkim.Time",-0.0117,0,0,0,0,0,1,0},
-                {"Low Access-Egress Time","W_BusSkim.[Access Walk Time] + W_BusSkim.[Egress Walk Time] < 15",0.613,0,0,0,0,1,0,0},
-                {"Bus Total Time","W_BusSkim.[Total Time]",-0.0117,0,0,0,0,1,0,0},
-                {"Income below 50K","PersonHH.IncomeLevel = 1",1.12,0,0,1,0,1,0,0}}
+                {"ASC (Carpool)","Constant",2.1804,0,1,0,0,0,0,0,0},
+                {"ASC (Walk)","Constant",3.2439,0,0,1,0,0,0,0,0},
+                {"ASC (W_Bus)","Constant",-0.6836,0,0,0,0,1,0,0,0},
+                {"ASC (W_Rail)","Constant",-0.6836,0,0,0,0,0,1,0,0},
+                {"ASC (School Bus)","Constant",-0.4187,0,0,0,0,0,0,1,0},
+                {"ASC (NonHHAuto)","Constant",-0.2267,0,0,0,0,0,0,0,1},
+                {"Walk Distance","WalkSkim.Distance",-1.48,0,0,1,0,0,0,0,0},
+                {"HH has vehicle(s) - Carpool","PersonHH.Vehicles > 0",1.14,0,1,0,0,0,0,0,0},
+                {"Auto Time (Drive modes)","AutoSkim.Time",-0.0472,0,1,0,0,0,0,0,1},
+                {"Auto Time (School bus)","AutoSkim.Time",-0.0117,0,0,0,0,0,0,1,0},
+                {"Low Access-Egress Time","W_BusSkim.[Access Walk Time] + W_BusSkim.[Egress Walk Time] < 15",0.613,0,0,0,0,1,0,0,0},
+                {"Low Access-Egress Time Rail","W_RailSkim.[Access Walk Time] + W_RailSkim.[Egress Walk Time] < 15",0.613,0,0,0,0,0,1,0,0},
+                {"Bus Total Time","W_BusSkim.[Total Time]",-0.0117,0,0,0,0,1,0,0,0},
+                {"Rail Total Time","W_RailSkim.[Total Time]",-0.0117,0,0,0,0,0,1,0,0},
+                {"Income below 50K","PersonHH.IncomeLevel = 1",1.12,0,0,1,0,1,0,0,0}}
         }
 	
 	Section = "MandatoryStops|Frequency|Work Tours"
@@ -1800,14 +1832,15 @@
             "Caption":"Work/Univ SubTour Mode Utility",
             "Style":"SubTourModeUtility",
             "Value":{
-                {"ASC Auto Driver","Constant",5.7333,1,0,0,0,0},
-                {"ASC Auto Passenger","Constant",4.0073,0,1,0,0,0},
-                {"ASC Walk","Constant",6.5581,0,0,1,0,0},
-                {"ASC Bike","Constant",2.3405,0,0,0,1,0},
-                {"WorkTAZ same as StopTAZ","TourData.Destination = TourData.SubTourTAZ",2.872,0,0,1,1,0},
-                {"Distance if greater than 0.5 mile","(WalkSkim.Distance > 0.5)*WalkSkim.Distance",-3.088,0,0,1,0,0},
-                {"Distance if greater than 1.5 mile","(WalkSkim.Distance > 1.5)*WalkSkim.Distance",-99,0,0,1,0,0},
-                {"Distance if greater than 5 mile","(WalkSkim.Distance > 5)*WalkSkim.Distance",-99,0,0,0,1,0}}
+                {"ASC Auto Driver","Constant",5.7333,1,0,0,0,0,0},
+                {"ASC Auto Passenger","Constant",4.0073,0,1,0,0,0,0},
+                {"ASC Walk","Constant",6.5581,0,0,1,0,0,0},
+                {"ASC Bike","Constant",2.3405,0,0,0,1,0,0},
+                {"ASC Rail","Constant",2.3405,0,0,0,0,0,1},
+                {"WorkTAZ same as StopTAZ","TourData.Destination = TourData.SubTourTAZ",2.872,0,0,1,1,0,0},
+                {"Distance if greater than 0.5 mile","(WalkSkim.Distance > 0.5)*WalkSkim.Distance",-3.088,0,0,1,0,0,0},
+                {"Distance if greater than 1.5 mile","(WalkSkim.Distance > 1.5)*WalkSkim.Distance",-99,0,0,1,0,0,0},
+                {"Distance if greater than 5 mile","(WalkSkim.Distance > 5)*WalkSkim.Distance",-99,0,0,0,1,0,0}}
         }
         Args.SubTourDAPct = {
             "Type":"double",
@@ -2215,10 +2248,10 @@
                 {"ASC (Walk)","Constant",3.2247,0,1,0,0,0,0,0,0,0},
                 {"ASC (W_Transit)","Constant",2.3723,0,0,0,1,1,0,0,0,0},
                 {"ASC (MT_Transit)","Constant",2.3723,0,0,0,0,0,0,1,1,0},
-                {"ASC (Rail)","Constant",0.31,0,0,0,0,1,0,0,0,0},
+                {"ASC (Rail)","Constant",4.8796,0,0,0,0,1,0,0,0,0},
                 {"ASC (Other)","Constant",-1.2456,0,0,0,0,0,1,0,0,0},
                 {"Walk Bus IVTT","W_BusSkim.[In-Vehicle Time]",-0.2218,0,0,0,1,0,0,0,0,0},
-                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time]",-0.2218,0,0,0,0,1,0,0,0,0},
+                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time] * .80",-0.2218,0,0,0,0,1,0,0,0,0},
                 {"Parking Cost","nz(TAZData.ParkingCost.D)",-1.2939,1,0,0,0,0,0,0,0,0},
                 {"IntraTAZ Tour","HH.TAZID = HH.Joint_<purp>_Destination",2.774,0,1,0,0,0,0,0,0,0},
                 {"Auto Distance > 5 miles","AutoSkim.Distance > 5",2.148,1,0,0,0,0,0,0,0,0},
@@ -2772,7 +2805,7 @@
                 {"ASC (Walk)","Constant",3.1893,0,0,1,0,0,0,0,0,0,0},
                 {"ASC (W_Transit)","Constant",0.5118,0,0,0,0,1,1,0,0,0,0},
                 {"ASC (MT_Transit)","Constant",0.5118,0,0,0,0,0,0,0,1,1,0},
-                {"ASC (Rail)","Constant",0.31,0,0,0,0,0,1,0,0,0,0},
+                {"ASC (Rail)","Constant",0.198,0,0,0,0,0,1,0,0,0,0},
                 {"ASC (Other)","Constant",-1.057,0,0,0,0,0,0,1,0,0,0},
                 {"HHVehicles >= 2","PersonHH.Vehicles >= 2",0.4959,1,0,0,0,0,0,0,0,0,0},
                 {"HHVehicles >= 3 (Driver)","PersonHH.Vehicles >= 3",0.4713,1,0,0,0,0,0,0,0,0,0},
@@ -2798,7 +2831,7 @@
                 {"ActivityDuration > 3 hrs","PersonHH.Solo_Other<tourno>_Duration > 180",1.0511,0,1,0,0,0,0,0,0,0,0},
                 {"Parking Cost","nz(TAZData.ParkingCost.D)",-0.0525,1,0,0,0,0,0,0,0,0,0},
                 {"Walk Bus IVTT","W_BusSkim.[In-Vehicle Time]",-0.009,0,0,0,0,1,0,0,0,0,0},
-                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time]",-0.009,0,0,0,0,0,1,0,0,0,0},
+                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time] * .80",-0.009,0,0,0,0,0,1,0,0,0,0},
                 {"Toll (DriveAlone)","AutoSkim.TollCostSOV",-0.045,1,0,0,0,0,0,0,0,0,0},
                 {"Toll (Carpool)","AutoSkim.TollCostHOV/2.25",-0.045,0,1,0,0,0,0,0,0,0,0},
                 {"MT Fare","nz(TAZData.MTFare.O)",-1.2939,0,0,0,0,0,0,0,1,1,1},
@@ -2830,7 +2863,7 @@
                 {"ASC (Walk)","Constant",1.6659,0,0,1,0,0,0,0,0,0,0},
                 {"ASC (W_Transit)","Constant",-0.4978,0,0,0,0,1,1,0,0,0,0},
                 {"ASC (MT_Transit)","Constant",-0.4978,0,0,0,0,0,0,0,1,1,0},
-                {"ASC (Rail)","Constant",0.31,0,0,0,0,0,1,0,0,0,0},
+                {"ASC (Rail)","Constant",0.0814,0,0,0,0,0,1,0,0,0,0},
                 {"ASC (Other)","Constant",-1.7846,0,0,0,0,0,0,1,0,0,0},
                 {"HHVehicles >= 2 (Driver)","PersonHH.Vehicles >= 2",1.1466,1,0,0,0,0,0,0,0,0,0},
                 {"HHVehicles >= 2 (Passenger)","PersonHH.Vehicles >= 2",-0.8157,0,1,0,0,0,0,0,0,0,0},
@@ -2849,7 +2882,7 @@
                 {"ActivityDuration (0-30) min","PersonHH.Solo_Shop<tourno>_Duration > 0 and PersonHH.Solo_Shop<tourno>_Duration < 30",0.7377,0,0,1,0,0,0,0,0,0,0},
                 {"Parking Cost","nz(TAZData.ParkingCost.D)",-0.0216,1,0,0,0,0,0,0,0,0,0},
                 {"Walk Bus IVTT","W_BusSkim.[In-Vehicle Time]",-0.0037,0,0,0,0,1,0,0,0,0,0},
-                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time]",-0.009,0,0,0,0,0,1,0,0,0,0},
+                {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time] * .80",-0.0037,0,0,0,0,0,1,0,0,0,0},
                 {"Toll (DriveAlone)","AutoSkim.TollCostSOV",-0.045,1,0,0,0,0,0,0,0,0,0},
                 {"Toll (Carpool)","AutoSkim.TollCostHOV/2.25",-0.045,0,1,0,0,0,0,0,0,0,0},
                 {"MT Fare","nz(TAZData.MTFare.O)",-1.2939,0,0,0,0,0,0,0,1,1,1},
@@ -3106,67 +3139,736 @@
             "Value":"%Output Folder%\\OD\\Transit_OD.mtx"
         }
 	
-	Section = "Visitor Model"
+	Section = "Visitor ABM|Synthesis"
 	
-        Args.[Vis Hotel Occ Rate] = {
-            "Type":"double",
-            "Caption":"Hotel occupancy rate",
-            "Value":0.846
-        }
-        Args.[Vis Condo Occ Rate] = {
-            "Type":"double",
-            "Caption":"Condo occupancy rate",
-            "Value":0.846
-        }
-        Args.[Vis HH Occ Rate] = {
-            "Type":"double",
-            "Caption":"Occupancy rate",
-            "Value":0.022
-        }
-        Args.[Vis Hotel Business Ratio] = {
-            "Type":"double",
-            "Caption":"The ratio of visitors in hotels that are on island for business",
-            "Value":0.088
-        }
-        Args.[Vis Condo Business Ratio] = {
-            "Type":"double",
-            "Caption":"The ratio of visitors in condos that are on island for business",
-            "Value":0.063
-        }
-        Args.[Vis HH Business Ratio] = {
-            "Type":"double",
-            "Caption":"The ratio of visitors in households that are on island for business",
-            "Value":0.012
-        }
-        Args.[Vis Personal Party Size] = {
-            "Type":"double",
-            "Caption":"Party size for personal visitors",
-            "Value":2.64
-        }
-        Args.[Vis Business Party Size] = {
-            "Type":"double",
-            "Caption":"Party size for business visitors",
-            "Value":1.74
-        }
-        Args.[Vis Party Calibration Factor] = {
-            "Type":"double",
-            "Caption":"Calibration factor to adjust total daily visitors on island",
-            "Value":1
-        }
-        Args.[Vis Trip Rates] = {
+        Args.VisitorSeed = {
             "Type":"File",
-            "Caption":"Visitor trip rates",
-            "Value":"%Input Folder%\\visitors\\vis_generation.csv"
+            "Caption":"Visitor survey seed data",
+            "Description":"VisitorSeed",
+            "Value":"%Input Folder%\\visitors\\seed\\visitor_survey_seed.bin"
         }
-        Args.VisDirectionFactors = {
+        Args.VisitorMarginals = {
             "Type":"File",
-            "Caption":"Visitor trip rates",
-            "Value":"%Input Folder%\\visitors\\vis_directionality.csv"
+            "Caption":"Visitor marginal totals",
+            "Description":"VisitorMarginals",
+            "Value":"%Input Folder%\\visitors\\seed\\VisitorMarginals.bin"
         }
-        Args.VisOccupancyFactors = {
+        Args.SynthesizedVisitors = {
             "Type":"File",
-            "Caption":"Visitor trip rates",
-            "Value":"%Input Folder%\\visitors\\vis_occupancy.csv"
+            "Caption":"Visitor output synthesized data",
+            "Description":"SynthesizedVisitors",
+            "Value":"%Output Folder%\\visitors\\SynthesizedVisitors.bin"
+        }
+	
+	Section = "Visitor ABM|Key Decisions|Presence of Kids"
+	
+        Args.KidsPresenceUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Presence of kids in visitor group",
+            "Style":"KidsPresenceUtility",
+            "Value":{
+                {"ASC","Constant",-4.1978,1,0},
+                {"Household income is $60,000+","VisitorData.HHIncCode >= 12",0.5353,1,0},
+                {"Visit purpose is Vacation","VisitorData.PurposeCat = 1",0.5392,1,0},
+                {"Group has 3+ people","VisitorData.PartySize >= 3",3.8806,1,0}}
+        }
+	
+	Section = "Visitor ABM|Key Decisions|Lodging Choice"
+	
+        Args.LodgingLocClusters = {
+            "Type":"array",
+            "Caption":"Lodging Location Model: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"MajorResorts",0.735,2.493,null},
+                {2,"MinorResorts",1,1.552,null},
+                {3,"Other",0.947,null,null}}
+        }
+        Args.LodgingLocUtility = {
+            "Type":"array",
+            "Caption":"Lodging Location Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"High Income 100K+: Major Resort","VisitorData.HHIncCode >= 17 and TAZBin.VisitorClusterLodging.D = 1",0.2013},
+                {"Party Size <= 2: Other zones","VisitorData.PartySize <= 2 and TAZBin.VisitorClusterLodging.D = 3",0.5925},
+                {"HH with kids+: Major Resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.D = 1",0.1895},
+                {"Walk Index","TAZAccessibilities.WalkIndex.D",0.1028},
+                {"Size Variable","log(1 + TAZData.HR.D + 0.0019*TAZData.OccupiedHH.D + 0.5207*TAZData.RC.D)",0.5256}}
+        }
+	
+	Section = "Visitor ABM|Key Decisions|Rental Car Choice"
+	
+        Args.RentalCarUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Rental Car Choice",
+            "Style":"RentalCarUtility",
+            "Value":{
+                {"ASC","Constant",1.8881,1,0},
+                {"Household income is $65,000+","VisitorData.HHIncCode >= 13",0.2369,1,0},
+                {"Group staying in Honolulu","TAZBin.VisitorDistrict.O = 6",2.9382,0,1},
+                {"Group staying in Urban Center","TAZBin.VisitorDistrict.O = 5",1.3766,0,1},
+                {"Group staying in EWA","TAZBin.VisitorDistrict.O = 3",1.2396,0,1},
+                {"5 <= Group Size <= 7","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 7",0.2867,1,0},
+                {"Group is from Japan","VisitorData.CountryCat = 2",2.0454,0,1},
+                {"Group is from USA","VisitorData.CountryCat = 1",0.7275,1,0},
+                {"Group has kids and staying at major resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.O = 1",0.1524,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Frequency|Work"
+	
+        Args.VisitorWorkTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Work Tour Frequency",
+            "Style":"OneTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",2.6302,1,0},
+                {"Big Group (Party Size >= 5)","VisitorData.PartySize >= 5",0.877,0,1},
+                {"High Income Group (Income >= 60k)","VisitorData.HHIncCode >= 12",0.763,0,1},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",1.07,1,0},
+                {"Visitor party with kids under 18","VisitorData.HasKids = 1",0.887,1,0},
+                {"Single Visitor","VisitorData.PartySize = 1",1.8,0,1},
+                {"Urban Center (VisitorDistrict = 5)","TAZBin.VisitorDistrict.O = 5",0.895,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Frequency|Recreation"
+	
+        Args.VisitorRecTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Recreation Tour Frequency",
+            "Style":"TwoTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",1.5214,1,0,0},
+                {"ASC_One","Constant",1.769,0,1,0},
+                {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",2.73,1,0,0},
+                {"Business purpose and don't make work tours","VisitorData.PurposeCat = 2 and nz(VisitorData.NumberWorkTours) = 0",0.915,1,0,0},
+                {"Stay at Urban Center","TAZBin.VisitorDistrict.O = 5",0.718,1,0,0},
+                {"Have kids in a major or minor resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.O <= 2",0.259,1,0,0},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",1.25,1,0,0},
+                {"Stay at AirBnB","TAZBin.VisitorClusterLodging.O = 3",0.431,1,0,0},
+                {"Big Group","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 6",0.352,0,1,1},
+                {"Single Visitor","VisitorData.PartySize = 1",0.123,0,0,1},
+                {"Make work tour","VisitorData.NumberWorkTours = 1",-99,0,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Frequency|Other"
+	
+        Args.VisitorOtherTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Other Tour Frequency",
+            "Style":"TwoTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",1.1972,1,0,0},
+                {"ASC_One","Constant",1.1013,0,1,0},
+                {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",0.913,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",1.15,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",0.611,0,1,0},
+                {"Stay at AirBnB","TAZBin.VisitorClusterLodging.O = 3",0.316,1,0,0},
+                {"High Income Group (Income >= 60k)","VisitorData.HHIncCode >= 12",0.101,0,1,1},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",-0.533,0,0,1},
+                {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0245,0,1,0},
+                {"Retail and service employment density","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.0266,0,0,1},
+                {"Cannot do two tours if making work tours","VisitorData.NumberWorkTours = 1",-99,0,0,1},
+                {"Cannot do two tours if making two rec tours","VisitorData.NumberRecTours = 2",-99,0,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Frequency|Shop"
+	
+        Args.VisitorShopTourFreqUtility = {
+            "Type":"array",
+            "Caption":"Utility Specification: Visitor Shop Tour Frequency",
+            "Style":"TwoTourFreqUtility",
+            "Value":{
+                {"ASC_None","Constant",4.8343,1,0,0},
+                {"ASC_One","Constant",4.0415,0,1,0},
+                {"Business purpose and make work tours","VisitorData.PurposeCat = 2 and VisitorData.NumberWorkTours = 1",2.26,1,0,0},
+                {"Business purpose and don't make work tours","VisitorData.PurposeCat = 2 and nz(VisitorData.NumberWorkTours) = 0",0.616,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",2.29,1,0,0},
+                {"Also make recreation tours","VisitorData.NumberRecTours > 0",0.845,0,1,0},
+                {"Also make other tours","VisitorData.NumberOtherTours > 0",2.91,1,0,0},
+                {"Also make other tours","VisitorData.NumberOtherTours > 0",1.83,0,1,0},
+                {"Have kids in a major or minor resort","VisitorData.HasKids = 1 and TAZBin.VisitorClusterLodging.O <= 2",0.39,1,0,0},
+                {"High Income Group (Income >= 60k)","VisitorData.HHIncCode >= 12",0.129,0,1,1},
+                {"Big Group (Party Size >= 3 and <= 6)","VisitorData.PartySize >= 3 and VisitorData.PartySize <= 6",0.159,0,1,1},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",0.916,0,1,0},
+                {"Visitor party from Japan","VisitorData.CountryCat = 2",1.52,0,0,1},
+                {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.089,0,1,0},
+                {"RetailAndServiceEmploymentDensity","TAZAccessibilities.RetailandServiceEmploymentDensity.O/1000",0.254,0,0,1},
+                {"No 2 tours if making work tours","VisitorData.NumberWorkTours = 1",-99,0,0,1},
+                {"Two tours restriction","nz(VisitorData.NumberWorkTours) = 0 and (VisitorData.NumberRecTours + VisitorData.NumberOtherTours > 1)",-99,0,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Work"
+	
+        Args.WorkLocClustersVis = {
+            "Type":"array",
+            "Caption":"Work Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"Honolulu",1,-2.37,null},
+                {2,"UrbanCenter",0.92,-0.432,1.63},
+                {3,"Other",0.786,null,null}}
+        }
+        Args.WorkLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Work Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time (PartySize = 1)","AutoSkim.Time * (VisitorData.PartySize = 1)",-0.052},
+                {"Time (PartySize > 1)","AutoSkim.Time * (VisitorData.PartySize > 1)",-0.0773},
+                {"IntraZonal","Intrazonal.IZ",1.28},
+                {"Short Distance","AutoSkim.Distance <= 1",0.872},
+                {"Size Variable","log(1 + TAZData.TotalEmployment.D)",0.476}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Recreation"
+	
+        Args.RecLocClustersVis = {
+            "Type":"array",
+            "Caption":"Recreation Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"WaikikiBeach",0.116,3.632,null},
+                {2,"DiamondHead",1,1.023,null},
+                {3,"KoOlina",0.35,3.597,null},
+                {4,"AlaMoana",0.955,1.735,null},
+                {5,"OtherBeachesandParks",1,0.598,null},
+                {6,"Other",0.544,null,null}}
+        }
+        Args.RecLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Recreation Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time to Waikiki Beach","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 1)",-0.0765},
+                {"Time to Diamond Head","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 2)",-0.0466},
+                {"Time to Ko Olina","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 3)",-0.144},
+                {"Time to Ala Moana","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 4)",-0.3},
+                {"Time to other beaches/parks","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 5)",-0.0139},
+                {"Time to all other zones","AutoSkim.Time *(TAZBin.VisitorClusterRec.D = 6)",-0.0181},
+                {"IntraZonal","Intrazonal.IZ",0.0583},
+                {"Short Distance","AutoSkim.Distance <= 1",0.0488},
+                {"Size Variable","log(1 + nz(TAZData.VisArrivalsRec.D) + 0.1466*TAZData.Emp_Hotel.D + 2.9154*TAZData.Emp_Services.D)",0.174}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Other"
+	
+        Args.OtherLocClustersVis = {
+            "Type":"array",
+            "Caption":"Other Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"Honolulu",1,-0.173,null},
+                {2,"UrbanCenter",0.88,-1.34,0.445},
+                {3,"Other",0.889,null,null}}
+        }
+        Args.OtherLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Other Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time","AutoSkim.Time",-0.0315},
+                {"Major Resort Zone","TAZBin.VisitorClusterLodging.D = 1",1.01},
+                {"IntraZonal","Intrazonal.IZ",0.851},
+                {"Short Distance","AutoSkim.Distance <= 1",1.7},
+                {"Retail and Service Employment Density","TAZAccessibilities.RetailandServiceEmploymentDensity.D/1000",0.0126},
+                {"Size Variable","log(1 + TAZData.Emp_Services.D + 0.2541*TAZData.Emp_Hotel.D + 0.0271*TAZData.Emp_Public.D)",0.694}}
+        }
+	
+	Section = "Visitor ABM|Tours|Destination|Shop"
+	
+        Args.ShopLocClustersVis = {
+            "Type":"array",
+            "Caption":"Shop Destination Location: Clusters (Nests)",
+            "Style":"ClusterInfo",
+            "Value":{
+                {1,"Honolulu",0.571,1.26,1.14},
+                {2,"UrbanCenter",0.992,-0.827,1.59},
+                {3,"Other",1,null,null}}
+        }
+        Args.ShopLocUtilityVis = {
+            "Type":"array",
+            "Caption":"Shop Destination Location: Utility",
+            "Style":"DestUtility",
+            "Value":{
+                {"Time (PartySize = 1)","AutoSkim.Time * (VisitorData.PartySize = 1)",-0.0683},
+                {"Time (PartySize > 1)","AutoSkim.Time * (VisitorData.PartySize > 1)",-0.028},
+                {"Intrazonal","Intrazonal.IZ",0.127},
+                {"Walk Index","TAZAccessibilities.WalkIndex.D",0.26},
+                {"Short Distance","AutoSkim.Distance <= 1",0.355},
+                {"Retail and Service Employment Density","TAZAccessibilities.RetailandServiceEmploymentDensity.D/1000",0.0601},
+                {"Size Variable","log(1 + TAZData.Emp_Retail.D + 0.2441*TAZData.Emp_Hotel.D + 0.4805*TAZData.Emp_Services.D)",0.575}}
+        }
+	
+	Section = "Visitor ABM|Tours|Mode|Work"
+	
+        Args.WorkVisitorMCUtility = {
+            "Type":"array",
+            "Caption":"Visitor Work Tour Mode Choice Utility",
+            "Description":"WorkVisitorMCUtility",
+            "Style":"VisitorTourMCUtility",
+            "Value":{
+                {"ASC_sov","Constant",-2.7284,1,0,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-4.7797,0,1,0,0,0,0,0,0},
+                {"ASC_hov3","Constant",-4.0987,0,0,1,0,0,0,0,0},
+                {"ASC_other","Constant",-1.2341,0,0,0,0,1,0,0,0},
+                {"ASC_walk","Constant",-1.1783,0,0,0,0,0,1,0,0},
+                {"ASC_w_bus","Constant",-3.5847,0,0,0,0,0,0,1,0},
+                {"ASC_w_rail","Constant",-3.015,0,0,0,0,0,0,0,1},
+                {"Auto Time","AutoSkim.Time",-0.0027,1,1,1,0,0,0,0,0},
+                {"Auto Time (TNC)","AutoSkim.Time",-0.0522,0,0,0,1,0,0,0,0},
+                {"Bus Total Time","BusSkim.[Total Time]",-0.0202,0,0,0,0,0,0,1,0},
+                {"Rail Total Time","RailSkim.[Total Time]*0.8",-0.0202,0,0,0,0,0,0,0,1},
+                {"Walk Time","WalkSkim.Time",-0.0027,0,0,0,0,0,1,0,0},
+                {"Free parking spaces @ destination","TAZData.FreeParkingSpaces.D > 0",0.671,1,1,0,0,0,0,0,0},
+                {"Honolulu Area destination","TAZBin.VisitorDistrict.D = 6",2.83,0,0,0,0,0,0,1,1},
+                {"PartySize > 1","VisitorData.PartySize = 1",1.69,0,1,1,0,0,0,0,0},
+                {"Party has rented car","VisitorData.HasRentalCar = 1",-2.7,0,0,0,1,0,0,0,0},
+                {"Short Distance (Walk Distance < 0.5 mi)","WalkSkim.Distance < 0.5",2.59,0,0,0,0,0,1,0,0},
+                {"Walk Index @ Destination","TAZAccessibilities.WalkIndex.D",3.08,0,0,0,0,0,1,0,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Mode|Recreation"
+	
+        Args.RecVisitorMCUtility = {
+            "Type":"array",
+            "Caption":"Visitor Recreation Tour Mode Choice Utility",
+            "Description":"RecVisitorMCUtility",
+            "Style":"VisitorTourMCUtility",
+            "Value":{
+                {"ASC_sov","Constant",-1.3136,1,0,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-2.1886,0,1,0,0,0,0,0,0},
+                {"ASC_hov3","Constant",-2.3915,0,0,1,0,0,0,0,0},
+                {"ASC_other","Constant",-1.7772,0,0,0,0,1,0,0,0},
+                {"ASC_walk","Constant",4.5965,0,0,0,0,0,1,0,0},
+                {"ASC_w_bus","Constant",-3.2632,0,0,0,0,0,0,1,0},
+                {"ASC_w_rail","Constant",-2.6934,0,0,0,0,0,0,0,1},
+                {"Auto Time","AutoSkim.Time",-0.0229,1,1,1,0,1,0,0,0},
+                {"Auto Time (TNC)","AutoSkim.Time",-0.0545,0,0,0,1,0,0,0,0},
+                {"Walk Time","WalkSkim.Time",-0.0229,0,0,0,0,0,1,0,0},
+                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",1.88,0,1,1,0,0,0,0,0},
+                {"Party Size > 2 (hov3)","VisitorData.PartySize > 2",1.35,0,0,1,0,0,0,0,0},
+                {"Party Size < 3 (tnc)","VisitorData.PartySize < 3",-0.45,0,0,0,1,0,0,0,0},
+                {"Party has rented car (tnc)","VisitorData.HasRentalCar = 1",-1.57,0,0,0,1,0,0,0,0},
+                {"Party has rented car (transit)","VisitorData.HasRentalCar = 1",-2.72,0,0,0,0,0,0,1,1},
+                {"Intra Cluster (transit)","TAZBin.VisitorDistrict.O = TAZBin.VisitorDistrict.D",2.61,0,0,0,0,0,0,1,1},
+                {"Short Distance (Walk Distance < 0.5 mi)","WalkSkim.Distance < 0.5",0.58,0,0,0,0,0,1,0,0},
+                {"Major Resort Lodging","TAZBin.VisitorClusterLodging.O = 1",1.26,0,0,0,0,0,1,0,0},
+                {"Minor Resort Lodging","TAZBin.VisitorClusterLodging.O = 2",1.18,0,0,0,0,0,1,0,0},
+                {"Honolulu Area Home Base","TAZBin.VisitorDistrict.O = 6",0.331,0,0,0,0,0,1,0,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Mode|Other"
+	
+        Args.OtherVisitorMCUtility = {
+            "Type":"array",
+            "Caption":"Visitor Other Tour Mode Choice Utility",
+            "Description":"OtherVisitorMCUtility",
+            "Style":"VisitorTourMCUtility",
+            "Value":{
+                {"ASC_sov","Constant",-1.271,1,0,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-2.2615,0,1,0,0,0,0,0,0},
+                {"ASC_hov3","Constant",-1.9973,0,0,1,0,0,0,0,0},
+                {"ASC_other","Constant",-1.2686,0,0,0,0,1,0,0,0},
+                {"ASC_walk","Constant",0.5594,0,0,0,0,0,1,0,0},
+                {"ASC_w_bus","Constant",-1.8734,0,0,0,0,0,0,1,0},
+                {"ASC_w_rail","Constant",-1.3036,0,0,0,0,0,0,0,1},
+                {"Auto Time","AutoSkim.Time",-0.0133,1,1,1,0,0,0,0,0},
+                {"Auto Time (TNC)","AutoSkim.Time",-0.0459,0,0,0,1,0,0,0,0},
+                {"Walk Time","WalkSkim.Time",-0.0133,0,0,0,0,0,1,0,0},
+                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2.38,0,1,1,0,0,0,0,0},
+                {"Party Size > 2 (hov3)","VisitorData.PartySize > 2",0.61,0,0,1,0,0,0,0,0},
+                {"Party has rented car (tnc)","VisitorData.HasRentalCar = 1",-0.986,0,0,0,1,0,0,0,0},
+                {"Party has rented car (transit)","VisitorData.HasRentalCar = 1",-2.19,0,0,0,0,0,0,1,1},
+                {"Intra Cluster (transit)","TAZBin.VisitorDistrict.O = TAZBin.VisitorDistrict.D",0.943,0,0,0,0,0,0,1,1},
+                {"Visitors from Japan","VisitorData.CountryCat = 2",-0.818,0,0,0,0,0,0,1,1},
+                {"Short Distance (Walk Distance < 0.5 mi)","WalkSkim.Distance < 0.5",1.39,0,0,0,0,0,1,0,0},
+                {"Major Resort Lodging","TAZBin.VisitorClusterLodging.O = 1",1.25,0,0,0,0,0,1,0,0},
+                {"Minor Resort Lodging","TAZBin.VisitorClusterLodging.O = 2",1.06,0,0,0,0,0,1,0,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Mode|Shop"
+	
+        Args.ShopVisitorMCUtility = {
+            "Type":"array",
+            "Caption":"Visitor Shop Tour Mode Choice Utility",
+            "Description":"ShopVisitorMCUtility",
+            "Style":"VisitorTourMCUtility",
+            "Value":{
+                {"ASC_sov","Constant",-1.692,1,0,0,0,0,0,0,0},
+                {"ASC_hov2","Constant",-2.4416,0,1,0,0,0,0,0,0},
+                {"ASC_hov3","Constant",-2.7717,0,0,1,0,0,0,0,0},
+                {"ASC_other","Constant",-2.5728,0,0,0,0,1,0,0,0},
+                {"ASC_walk","Constant",1.269,0,0,0,0,0,1,0,0},
+                {"ASC_w_bus","Constant",-2.4267,0,0,0,0,0,0,1,0},
+                {"ASC_w_rail","Constant",-1.8569,0,0,0,0,0,0,0,1},
+                {"Auto Time","AutoSkim.Time",-0.0336,1,1,1,0,0,0,0,0},
+                {"Auto Time (TNC)","AutoSkim.Time",-0.0871,0,0,0,1,0,0,0,0},
+                {"Auto Time (Other)","AutoSkim.Time",-0.0263,0,0,0,0,1,0,0,0},
+                {"Walk Time","WalkSkim.Time",-0.0336,0,0,0,0,0,1,0,0},
+                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2.0,0,1,1,0,0,0,0,0},
+                {"Party Size > 2 (hov3)","VisitorData.PartySize > 2",1.17,0,0,1,0,0,0,0,0},
+                {"Party has rented car (tnc)","VisitorData.HasRentalCar = 1",-2.04,0,0,0,1,0,0,0,0},
+                {"Party has rented car (transit)","VisitorData.HasRentalCar = 1",-2.62,0,0,0,0,0,0,1,1},
+                {"Intra Cluster (transit)","TAZBin.VisitorDistrict.O = TAZBin.VisitorDistrict.D",1.93,0,0,0,0,0,0,1,1},
+                {"Visitors from Japan","VisitorData.CountryCat = 2",0.7,0,0,0,0,0,0,1,1},
+                {"Short Distance (Walk Distance < 0.5 mi)","WalkSkim.Distance < 0.5",1.3,0,0,0,0,0,1,0,0},
+                {"Major Resort Lodging","TAZBin.VisitorClusterLodging.O = 1",1.66,0,0,0,0,0,1,0,0},
+                {"Minor Resort Lodging","TAZBin.VisitorClusterLodging.O = 2",0.968,0,0,0,0,0,1,0,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Work"
+	
+        Args.WorkTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Work Tour Activity Time of Day",
+            "Style":"WorkTODUtilityVis",
+            "Value":{
+                {"ASC EA_PM","Constant",-0.6134,1,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",1.5767,0,1,0,0,0,0,0,0},
+                {"ASC AM_PM","Constant",2.3085,0,0,1,0,0,0,0,0},
+                {"ASC AM_EV","Constant",-0.4019,0,0,0,1,0,0,0,0},
+                {"ASC MD_MD","Constant",0.9375,0,0,0,0,1,0,0,0},
+                {"ASC MD_PM","Constant",0.6248,0,0,0,0,0,1,0,0},
+                {"ASC MD_EV","Constant",-0.7357,0,0,0,0,0,0,1,0},
+                {"Single Person","VisitorData.PartySize = 1",1.07,1,0,0,0,0,0,0,0},
+                {"Has Kids","VisitorData.HasKids = 1",2.14,0,0,0,0,1,1,0,0},
+                {"Work in major resort zone","TAZBin.VisitorClusterLodging.D = 1",-1.11,0,0,1,1,0,0,0,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Recreation"
+	
+        Args.RecTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Recreation Tour Activity Time of Day",
+            "Style":"RecTODUtilityVis",
+            "Value":{
+                {"ASC AM_AM","Constant",0.248,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",3.2436,0,0,1,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_PM","Constant",1.4053,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_MD","Constant",3.7044,0,0,0,0,1,0,0,0,0,0,0,0,0},
+                {"ASC MD_PM","Constant",3.5123,0,0,0,0,0,1,0,0,0,0,0,0,0},
+                {"ASC MD_EV","Constant",0.7534,0,0,0,0,0,0,1,0,0,0,0,0,0},
+                {"ASC PM_PM","Constant",1.8614,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"ASC PM_EV","Constant",2.3722,0,0,0,0,0,0,0,0,1,0,0,0,0},
+                {"ASC PM_NT","Constant",0.1064,0,0,0,0,0,0,0,0,0,1,0,0,0},
+                {"ASC EV_EV","Constant",-1.7676,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"ASC EV_NT","Constant",0.4582,0,0,0,0,0,0,0,0,0,0,0,1,0},
+                {"ASC NT_NT","Constant",-1.2214,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Also make work tour","VisitorData.NumberWorkTours = 1",2.2,1,0,0,0,0,0,0,0,1,1,1,1,1},
+                {"Short Distance AM (< 0.5 mi)","AutoSkim.Distance < 0.5",0.613,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"Short Distance (< 0.5 mi)","AutoSkim.Distance < 0.5",0.308,0,0,0,0,0,0,0,1,0,0,1,0,1},
+                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 6",0.813,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 6",1.98,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"Walk Mode (NT_NT)","VisitorData.<ModeField> = 6",2.07,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Stay at major resort","TAZBin.VisitorClusterLodging.O = 1",0.227,0,0,1,0,1,1,0,0,0,0,0,0,0},
+                {"Large Party (> 4)","VisitorData.PartySize > 4",0.386,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Visitor Party from Japan","VisitorData.CountryCat = 2",1.14,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Presence of kids (MD_EVandNT)","VisitorData.HasKids = 1",0.537,0,0,0,0,0,0,1,0,0,0,0,0,0},
+                {"Presence of kids (NT_NT)","VisitorData.HasKids = 1",0.588,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Visit Other Beaches","TAZBin.VisitorClusterRec.D = 5",0.57,1,0,0,0,0,0,0,0,0,0,1,1,1},
+                {"Visit DiamondHead","TAZBin.VisitorClusterRec.D = 2",-1.89,1,0,0,0,0,0,0,0,0,0,0,1,1},
+                {"Visit Honolulu Area (PM_PM)","TAZBin.VisitorDistrict.D = 6",0.586,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"Visit Honolulu Area (Later)","TAZBin.VisitorDistrict.D = 6",1.05,0,0,0,0,0,0,0,0,0,0,1,1,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Shop"
+	
+        Args.ShopTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Shop Tour Activity Time of Day",
+            "Style":"ShopTODUtilityVis",
+            "Value":{
+                {"ASC AM_AM","Constant",-1.8689,1,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",2.6439,0,1,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_MD","Constant",4.1043,0,0,1,0,0,0,0,0,0,0,0},
+                {"ASC MD_PM","Constant",3.6721,0,0,0,1,0,0,0,0,0,0,0},
+                {"ASC MD_EV","Constant",1.2995,0,0,0,0,1,0,0,0,0,0,0},
+                {"ASC PM_PM","Constant",1.4686,0,0,0,0,0,1,0,0,0,0,0},
+                {"ASC PM_EV","Constant",1.8298,0,0,0,0,0,0,1,0,0,0,0},
+                {"ASC EV_EV","Constant",-1.8301,0,0,0,0,0,0,0,0,1,0,0},
+                {"ASC EV_NT","Constant",-0.6638,0,0,0,0,0,0,0,0,0,1,0},
+                {"ASC NT_NT","Constant",-3.9321,0,0,0,0,0,0,0,0,0,0,1},
+                {"Also make work tour","VisitorData.NumberWorkTours = 1",1.59,0,0,0,0,0,0,1,1,1,1,1},
+                {"Short Distance (< 0.5 mi)","AutoSkim.Distance < 0.5",0.594,0,0,0,0,0,1,0,0,1,1,1},
+                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 6",0.909,1,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (MD_MD)","VisitorData.<ModeField> = 6",-0.482,0,0,1,0,0,0,0,0,0,0,0},
+                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 6",1.45,0,0,0,0,0,0,0,0,1,0,0},
+                {"Walk Mode (NT_NT)","VisitorData.<ModeField> = 6",2.2,0,0,0,0,0,0,0,0,0,0,1},
+                {"Presence of kids (MD_EV)","VisitorData.HasKids = 1",0.583,0,0,0,0,1,0,0,0,0,0,0},
+                {"Presence of kids (NT_NT)","VisitorData.HasKids = 1",0.997,0,0,0,0,0,0,0,0,0,0,1},
+                {"Visit Honolulu Area (PM_PM)","TAZBin.VisitorDistrict.D = 6",0.335,0,0,0,0,0,1,0,0,0,0,0},
+                {"Visit Honolulu Area (Later)","TAZBin.VisitorDistrict.D = 6",0.967,0,0,0,0,0,0,0,0,1,1,1},
+                {"Also make Rec tours (PM_PM)","VisitorData.NumberRecTours > 0",0.994,0,0,0,0,0,1,0,0,0,0,0},
+                {"Also make Rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.893,0,0,0,0,0,0,1,0,0,0,0},
+                {"Also make Other tour","VisitorData.NumberOtherTours > 0",-1.07,0,0,0,0,0,0,0,0,0,1,0}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Other"
+	
+        Args.OtherTourTODUtility = {
+            "Type":"array",
+            "Caption":"Visitor Other Tour Activity Time of Day",
+            "Style":"OtherTODUtilityVis",
+            "Value":{
+                {"ASC EA_AM","Constant",-5.5696,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_AM","Constant",-4.6093,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_MD","Constant",2.2211,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC AM_PM","Constant",1.2782,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_MD","Constant",3.3639,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"ASC MD_PM","Constant",3.3594,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0},
+                {"ASC MD_EV","Constant",1.0685,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
+                {"ASC MD_NT","Constant",1.062,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0},
+                {"ASC PM_PM","Constant",-0.1638,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"ASC PM_EV","Constant",1.0065,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
+                {"ASC PM_NT","Constant",-0.0593,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
+                {"ASC EV_EV","Constant",-4.2021,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"ASC EV_NT","Constant",-3.4543,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0},
+                {"ASC NT_NT","Constant",-6.2956,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Also make work tour","VisitorData.NumberWorkTours = 1",1.67,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1},
+                {"Short Distance AM_AM (< 0.5 mi)","AutoSkim.Distance < 0.5",0.499,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (AM_AM)","VisitorData.<ModeField> = 6",0.78,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (MD_MD)","VisitorData.<ModeField> = 6",-0.214,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Walk Mode (EV_EV)","VisitorData.<ModeField> = 6",0.306,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0},
+                {"Stay at major resort","TAZBin.VisitorClusterLodging.O = 1",-0.248,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+                {"Large Party (> 4)","VisitorData.PartySize > 4",0.367,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0},
+                {"Presence of kids","VisitorData.HasKids = 1",-0.934,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {"Visit Honolulu Area (MD_MD)","TAZBin.VisitorDistrict.D = 6",0.306,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0},
+                {"Visit Honolulu Area (PM_PM)","TAZBin.VisitorDistrict.D = 6",1.12,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0},
+                {"Visit Honolulu Area (Later)","TAZBin.VisitorDistrict.D = 6",1.65,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1},
+                {"Also make rec tours","VisitorData.NumberRecTours > 0",-0.796,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+                {"Also make rec tours (PM_EV)","VisitorData.NumberRecTours > 0",0.633,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
+                {"Make two or more work/rec tours","VisitorData.NumberRecTours > 1",0.663,0,1,0,0,0,0,0,0,0,1,0,0,1,0,1}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Profile_EA_AM_MD"
+	
+        Args.TODProfileEA = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for EA period",
+            "Description":"TODProfileEA",
+            "Style":"TODProfile",
+            "Value":{
+                {"3:00 - 4:00",null,6.35,null,null,null,null,null,null},
+                {"4:00 - 5:00",57.01,10.58,20.87,null,null,null,null,null},
+                {"5:00 - 6:00",42.99,83.07,79.13,null,null,null,null,null}}
+        }
+        Args.TODProfileAM = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for AM period",
+            "Description":"TODProfileAM",
+            "Style":"TODProfile",
+            "Value":{
+                {"6:00 - 7:00",15.26,12.38,10.77,2.66,null,12.7,3.71,13.87},
+                {"7:00 - 8:00",41.13,27.92,27.78,31.64,null,33.95,32.94,23.72},
+                {"8:00 - 9:00",43.61,59.7,61.45,65.7,null,53.35,63.35,62.41}}
+        }
+        Args.TODProfileMD = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for MD period",
+            "Description":"TODProfileMD",
+            "Style":"TODProfile",
+            "Value":{
+                {"9:00 - 10:00",45.84,26.86,25.79,17.81,1.27,5.46,13.84,5.4},
+                {"10:00 - 11:00",27.84,24.46,26.4,24.78,17.3,13.91,15.54,10.84},
+                {"11:00 - 12:00",11.12,16.5,13.93,19.39,21.35,17.88,16.69,17.39},
+                {"12:00 - 13:00",4.58,9.9,14.3,12.12,17.67,17.82,14.55,19.34},
+                {"13:00 - 14:00",5.68,11.17,10.41,11,21.46,23.89,20.64,22.42},
+                {"14:00 - 15:00",4.94,11.11,9.17,14.9,20.95,21.04,18.75,24.6}}
+        }
+	
+	Section = "Visitor ABM|Tours|Time of day|Profile_PM_EV_NT"
+	
+        Args.TODProfilePM = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for PM period",
+            "Description":"TODProfilePM",
+            "Style":"TODProfile",
+            "Value":{
+                {"15:00 - 16:00",29.22,26.64,11.43,22.45,20.7,34.43,29.95,28.54},
+                {"16:00 - 17:00",37.58,24.84,17.33,24.48,24.14,26.82,20.77,24.99},
+                {"17:00 - 18:00",0,23.15,25.29,22.69,33.27,23.93,21.55,22.67},
+                {"18:00 - 19:00",33.2,25.38,45.95,30.38,21.89,14.82,27.73,23.8}}
+        }
+        Args.TODProfileEV = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for EV period",
+            "Description":"TODProfileEV",
+            "Style":"TODProfile",
+            "Value":{
+                {"19:00 - 20:00",null,50.73,80.14,78.5,58.47,61.15,42.03,36.78},
+                {"20:00 - 21:00",null,49.27,19.86,21.5,41.53,38.85,57.97,63.22}}
+        }
+        Args.TODProfileNT = {
+            "Type":"array",
+            "Caption":"Activity start and end time profiles for NT period: 24:00 or later is next day",
+            "Description":"TODProfileNT",
+            "Style":"TODProfile",
+            "Value":{
+                {"21:00 - 22:00",null,76.37,50.31,75.17,null,41.62,76.69,81.01},
+                {"22:00 - 23:00",null,10.88,13.81,18.39,null,41.44,14.31,17.82},
+                {"23:00 - 24:00",null,0,1.75,6.43,null,11.39,5.47,1.17},
+                {"24:00 - 25:00",null,8.73,19.37,null,null,2.64,1.54,null},
+                {"25:00 - 26:00",null,1.75,14.76,null,null,1.92,2,null},
+                {"26:00 - 27:00",null,2.27,0,null,null,0.99,null,null}}
+        }
+	
+	Section = "Visitor ABM|Stops|Frequency"
+	
+        Args.VisitorStopsFreqUtility = {
+            "Type":"array",
+            "Caption":"Visitor intermediate stops frequency utility",
+            "Description":"VisitorStopsFreqUtility",
+            "Style":"VisStopsFreqUtility",
+            "Value":{
+                {"ASC_0_0","Constant",5.1558,1,0,0,0,0,0},
+                {"ASC_1_0","Constant",1.8498,0,1,0,0,0,0},
+                {"ASC_0_1","Constant",4.0634,0,0,1,0,0,0},
+                {"ASC_1_1","Constant",0.0791,0,0,0,0,1,0},
+                {"ASC_0_2","Constant",1.7372,0,0,0,0,0,1},
+                {"Low Walk Index","TAZAccessibilities.WalkIndex.D < 0.1",0.3028,0,0,0,0,1,1},
+                {"High Walk Index","TAZAccessibilities.WalkIndex.D > 0.4",0.3602,1,0,0,0,0,0},
+                {"Long Drive Dist","AutoSkim.Distance >= 5",0.7507,0,0,0,0,0,1},
+                {"High Attraction Density","TAZAccessibilities.AttractionDensity.D > 5000",0.1424,1,0,0,0,0,0},
+                {"Transit mode","VisitorData.ModeCode = 7 or VisitorData.ModeCode = 8",-99,0,1,1,1,1,1}}
+        }
+	
+	Section = "Visitor ABM|Stops|Purpose"
+	
+        Args.VisitorStopsPurpUtility = {
+            "Type":"array",
+            "Caption":"Visitor intermediate stops purpose utility",
+            "Description":"VisitorStopsPurpUtility",
+            "Style":"VisStopsPurpUtility",
+            "Value":{
+                {"ASC Rec","Constant",-1.3725,1,0,0},
+                {"ASC Shop","Constant",-1.9867,0,1,0},
+                {"Main tour activity is Rec","VisitorData.TourCode = 2",1.8461,1,0,0},
+                {"Main tour activity is Shop","VisitorData.TourCode = 4",4.4627,0,1,0},
+                {"Makes at least one Rec Tour","VisitorData.NumberRecTours > 0",-0.7798,1,0,0},
+                {"Makes at least one Shop Tour","VisitorData.NumberShopTours > 0",0.8167,0,1,0},
+                {"Makes at least one Other Tour","VisitorData.NumberOtherTours > 0",0.3008,0,0,1}}
+        }
+	
+	Section = "Visitor ABM|Stops|Duration|Recreation"
+	
+        Args.VisRecStopsDurUtility = {
+            "Type":"array",
+            "Caption":"Visitor Recreation Stops Duration Choice Model",
+            "Style":"VisRecStopsDurUtility",
+            "Value":{
+                {"Constant (0-30)","Constant",2.358,1,0,0,0,0,0,0,0},
+                {"Constant (30-45)","Constant",1.6497,0,1,0,0,0,0,0,0},
+                {"Constant (45-60)","Constant",1.2946,0,0,1,0,0,0,0,0},
+                {"Constant (60-75)","Constant",1.7266,0,0,0,1,0,0,0,0},
+                {"Constant (75-105)","Constant",2.0748,0,0,0,0,1,0,0,0},
+                {"Constant (105-135)","Constant",1.9231,0,0,0,0,0,1,0,0},
+                {"Constant (135-180)","Constant",0.7695,0,0,0,0,0,0,1,0},
+                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.6696,1,1,1,0,0,0,0,0},
+                {"Makes 2 tours","VisitorData.NumberTours = 2",0.2092,0,1,1,1,1,0,0,0},
+                {"Makes 1 tour","VisitorData.NumberTours = 1",0.7041,0,0,0,0,0,0,1,1},
+                {"Makes 3 or more stops","VisitorData.NForwardStops + VisitorData.NReturnStops >= 3",0.7849,1,1,0,0,0,0,0,0},
+                {"Makes 1 stop","VisitorData.NForwardStops + VisitorData.NReturnStops = 1",0.6822,0,0,0,0,0,1,1,1},
+                {"Main tour activity is Shop","VisitorData.TourCode = 4",0.692,1,1,0,0,0,0,0,0},
+                {"Main activity duration less than 2 hours","VisitorData.ActivityDuration < 120",0.9911,0,0,1,1,0,0,0,0}}
+        }
+	
+	Section = "Visitor ABM|Stops|Duration|Other"
+	
+        Args.VisOtherStopsDurUtility = {
+            "Type":"array",
+            "Caption":"Visitor Other Stops Duration Choice Model",
+            "Style":"VisOtherStopsDurUtility",
+            "Value":{
+                {"Constant (0-15)","Constant",0.6106,1,0,0,0,0,0,0},
+                {"Constant (15-30)","Constant",0.8126,0,1,0,0,0,0,0},
+                {"Constant (30-45)","Constant",0.7063,0,0,1,0,0,0,0},
+                {"Constant (45-90)","Constant",2.0515,0,0,0,1,0,0,0},
+                {"Constant (90-120)","Constant",0.7757,0,0,0,0,1,0,0},
+                {"Constant (120-150)","Constant",0.1588,0,0,0,0,0,1,0},
+                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.4721,1,1,1,1,0,0,0},
+                {"Makes 1 tour","VisitorData.NumberTours = 1",0.6024,0,0,0,1,1,1,1},
+                {"Main activity is less than 120 minutes","VisitorData.ActivityDuration < 120",0.1367,0,0,1,1,0,0,0},
+                {"Main tour activity is Other","VisitorData.TourCode = 3",0.1348,1,1,1,0,0,0,0}}
+        }
+	
+	Section = "Visitor ABM|Stops|Duration|Shop"
+	
+        Args.VisShopStopsDurUtility = {
+            "Type":"array",
+            "Caption":"Visitor Shop Stops Duration Choice Model",
+            "Style":"VisShopStopsDurUtility",
+            "Value":{
+                {"Constant (0-15)","Constant",0.8526,1,0,0,0,0,0},
+                {"Constant (15-45)","Constant",1.9377,0,1,0,0,0,0},
+                {"Constant (45-60)","Constant",0.9887,0,0,1,0,0,0},
+                {"Constant (60-90)","Constant",1.2773,0,0,0,1,0,0},
+                {"Constant (90-135)","Constant",0.772,0,0,0,0,1,0},
+                {"Makes 3 or more tours","VisitorData.NumberTours >= 3",0.1321,1,1,1,0,0,0},
+                {"Makes 1 tour","VisitorData.NumberTours = 1",0.7873,0,0,0,1,1,1},
+                {"Main activity is 250 minutes or longer","VisitorData.ActivityDuration >= 250",0.3725,1,0,0,0,0,0},
+                {"Main activity is less than 120 minutes","VisitorData.ActivityDuration < 120",0.5884,0,1,1,0,0,0},
+                {"Main tour activity is Shop","VisitorData.TourCode = 4",0.6105,1,1,0,0,0,0}}
+        }
+	
+	Section = "Visitor ABM|Mode Switch|Shift Percentages"
+	
+        Args.AutoToWalkShiftPct = {
+            "Type":"double",
+            "Caption":"Percent trips switching to Walk on Auto tours",
+            "Description":"AutoToWalkShiftPct",
+            "Style":"PctSlider",
+            "Value":35.1
+        }
+        Args.TNCToWalkShiftPct = {
+            "Type":"double",
+            "Caption":"Percent trips switching to Walk on TNC tours",
+            "Description":"TNCToWalkShiftPct",
+            "Style":"PctSlider",
+            "Value":23
+        }
+        Args.BusToWalkShiftPct = {
+            "Type":"double",
+            "Caption":"Percent trips switching to Walk on Bus tours",
+            "Description":"BusToWalkShiftPct",
+            "Style":"PctSlider",
+            "Value":23.7
+        }
+        Args.BusToTNCShiftPct = {
+            "Type":"double",
+            "Caption":"Percent trips switching to TNC on Bus tours",
+            "Description":"BusToTNCShiftPct",
+            "Style":"PctSlider",
+            "Value":12.5
+        }
+	
+	Section = "Visitor ABM|Output|Tours/Trips/OD"
+	
+        Args.VisitorTours = {
+            "Type":"File",
+            "Caption":"Visitor output tours data",
+            "Description":"VisitorTours",
+            "Value":"%Output Folder%\\visitors\\VisitorTours.bin"
+        }
+        Args.VisitorTrips = {
+            "Type":"File",
+            "Caption":"Visitor output trips data",
+            "Description":"VisitorTrips",
+            "Value":"%Output Folder%\\visitors\\VisitorTrips.bin"
+        }
+        Args.AM_Visitor_OD = {
+            "Type":"File",
+            "Caption":"AM Visitor OD Matrix",
+            "Value":"%Output Folder%\\visitors\\AM_VisitorOD.mtx"
+        }
+        Args.PM_Visitor_OD = {
+            "Type":"File",
+            "Caption":"PM Visitor OD Matrix",
+            "Value":"%Output Folder%\\visitors\\PM_VisitorOD.mtx"
+        }
+        Args.OP_Visitor_OD = {
+            "Type":"File",
+            "Caption":"OP Visitor OD Matrix",
+            "Value":"%Output Folder%\\visitors\\OP_VisitorOD.mtx"
         }
 	
 	Section = "Commercial Vehicles/Trucks"
@@ -3215,7 +3917,7 @@
         Args.AssignIterations = {
             "Type":"int",
             "Caption":"Assignment Iterations",
-            "Value":501
+            "Value":1000
         }
         Args.AssignmentConvergence = {
             "Type":"double",
@@ -3267,6 +3969,12 @@
             "Caption":"Heavy truck value of time ($/hr)",
             "Value":40.48
         }
+        Args.VisOtherModeOcc = {
+            "Type":"double",
+            "Caption":"Occupancy factor for visitor other (shuttle) trips",
+            "Description":"VisOtherModeOcc",
+            "Value":12.5
+        }
 	
 	Section = "AssignmentOutputs"
 	
@@ -3292,19 +4000,19 @@
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\AM_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\AM_IterationLog.bin"
         }
         Args.PM_IterLog = {
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\PM_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\PM_IterationLog.bin"
         }
         Args.OP_IterLog = {
             "Type":"File",
             "VisualizeMenu":
             {"ConvChart"},
-            "Value":"%Output Folder%\\Assignment\\OP_IterationLog.bin"
+            "Value":"%Output Folder%\\Assignment\\Roadway\\OP_IterationLog.bin"
         }
 	
 	Section = "PT Assignment Outputs"

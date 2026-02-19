@@ -224,6 +224,7 @@ Macro "Synthesize Population"(Args)
     o.ReportExtraPersonsField("SEX", "gender") // Add extra field from Person Seed and change the name
     o.ReportExtraPersonsField("ESR", "EmploymentStatus")
     o.ReportExtraPersonsField("INDP", "INDP")
+    o.ReportExtraPersonsField("RAC1P", "Race")
     
     // Optional IPU by-products
     outputFolder = Args.[Output Folder] + "\\Population\\"

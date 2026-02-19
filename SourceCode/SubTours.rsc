@@ -211,12 +211,18 @@ endMacro
 Macro "SubTour Mode"(Args)
     objT = CreateObject("Table", Args.MandatoryTours)
 
+    // Filter out rail modes if rail is not present
+    ret = RunMacro("Filter Mode Utility Spec", {
+        util: Args.SubTourModeUtility,
+        Args: Args
+    })
+
     obj = CreateObject("PMEChoiceModel", {SourcesObject: Args.SourcesObject, ModelName: "Work Based Tour Mode Choice"})
     obj.OutputModelFile = Args.[Output Folder] + "\\Intermediate\\SubTourMode.mdl"
     obj.AddTableSource({SourceName: "TourData", View: objT.GetView(), IDField: "TourID"})
     obj.AddMatrixSource({SourceName: "WalkSkim", File: Args.WalkSkim, RowIndex: "InternalTAZ", ColIndex: "InternalTAZ"})
     obj.AddPrimarySpec({Name: "TourData", Filter: "SubTour = 1", OField: "Destination", DField: "SubTourTAZ"})
-    obj.AddUtility({UtilityFunction: Args.SubTourModeUtility})
+    obj.AddUtility({UtilityFunction: ret.Utility})
     obj.AddOutputSpec({ChoicesField: "SubTourMode"})
     obj.ReportShares = 1
     obj.RandomSeed = 4599989

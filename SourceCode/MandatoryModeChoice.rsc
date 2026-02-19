@@ -75,13 +75,19 @@ Macro "Mandatory Mode Choice"(Args)
         Return(true)
 
     // Module for school tours (Forward Mode)
+    ret = RunMacro("Filter Mode Utility Spec", {
+        util: Args.SchoolModeFUtility,
+        avail: Args.SchModeFAvailability,
+        nest: Args.SchoolModes,
+        Args: Args
+    })
     spec = {abmManager: abm, 
             Type: 'School',
             Category: 'School',
             Filter: 'AttendSchool = 1',
-            Alternatives: Args.SchoolModes, 
-            Utility: Args.SchoolModeFUtility,
-            Availability: Args.SchModeFAvailability,
+            Alternatives: ret.NestingStructure, 
+            Utility: ret.Utility,
+            Availability: ret.Availability,
             LocationField: "SchoolTAZ",
             ChoiceField: 'SchoolForwardMode',
             ChoiceCodeField: 'SchoolForwardModeCode',
@@ -95,14 +101,20 @@ Macro "Mandatory Mode Choice"(Args)
         Return(true)
 
     // Module for school tours (Return Mode)
+    ret = RunMacro("Filter Mode Utility Spec", {
+        util: Args.SchoolModeRUtility,
+        avail: Args.SchModeRAvailability,
+        nest: Args.SchoolModes,
+        Args: Args
+    })
     spec = {abmManager: abm, 
             Type: 'School',
             Category: 'School',
             Filter: "(AttendSchool = 1 and SchoolForwardMode <> 'Bike' and SchoolForwardMode <> 'DriveAlone')",
             Direction: 'Return',
-            Alternatives: Args.SchoolModes, 
-            Utility: Args.SchoolModeRUtility,
-            Availability: Args.SchModeRAvailability,
+            Alternatives: ret.NestingStructure, 
+            Utility: ret.Utility,
+            Availability: ret.Availability,
             LocationField: "SchoolTAZ",
             ChoiceField: 'SchoolReturnMode',
             ChoiceCodeField: 'SchoolReturnModeCode',
@@ -547,33 +559,15 @@ Macro "Construct MC Spec"(Args, spec)
 
     // Filter utilities
     avail = Args.(type + "ModeAvailability")
-    {finalUtil, finalAvail} = RunMacro("Filter Mode Utility Spec", finalUtil, avail, Args)
-
-    // Deal finally with the nesting structure
-    activeTransitModes = RunMacro("Get Active Transit Modes", Args)
-    if activeTransitModes.Position('bus') = 0 then
-        Throw("No bus mode in mode choice utility for: " + type)
-    nests = Args.(type + "Modes")
-    finalNests = CopyArray(nests)
-    trMainAlts = {'PT_Walk', 'PT_PNR', 'PT_KNR'}
-    for mainAlt in trMainAlts do
-        pos = nests.Parent.Position(mainAlt)
-        childAltString = nests.Alternatives[pos]
-        prunedAltString = RunMacro("Prune Transit Alt String", childAltString, activeTransitModes, Args)
-        finalNests.Alternatives[pos] = prunedAltString
-    end
-    // Check auto nest for MT
-    for i = 1 to finalNests.Alternatives.length do
-        childAltString = finalNests.Alternatives[i]
-        prunedAltString = RunMacro("Prune MT Alt String", childAltString, Args)
-        finalNests.Alternatives[i] = prunedAltString
-    end
+    nest = Args.(type + "Modes")
+    ret = RunMacro("Filter Mode Utility Spec", {
+        util: finalUtil,
+        avail: avail,
+        nest: nest,
+        Args: Args
+    })
 
     // Return
-    ret = null
-    ret.Utility = CopyArray(finalUtil)
-    ret.Availability = CopyArray(finalAvail)
-    ret.NestingStructure = CopyArray(finalNests)
     Return(ret)
 endMacro
 
@@ -620,79 +614,129 @@ Macro "Append Utility"(util1, util2)
 endMacro
 
 /*
-Kyle: this is a copy of the above macro that I'm using to filter rail/microtransit
-from the non-mandatory tours.
-TODO: create a single macro to work for both mandatory and non-mandatory.
+Removes non active transit modes from a utility, availability, and nest spec.
+Used by both mandatory and nonmandatory models. In the work and univ models,
+"Construct MC Spec" is called first because those specs are broken up
+by modal nest (auto, transit, nm) and that macro stitches them together.
+For school and non-mandatory models, their specs are simple and so
+this is called directly.
 
-Remove non active transit modes from the transit utility spec
+Inputs
+
+  * util
+    * Array
+    * Utility spec from the .parameters file
+  * avail
+    * Array
+    * Availability spec from the .parameters file
+  * nest
+    * Optional array
+    * Nesting spec from the .parameters file. If not provided, then a filtered
+      nest will not be returned. (e.g. for MNL models)
 */
 
-Macro "Filter Mode Utility Spec"(util, avail, Args)
+Macro "Filter Mode Utility Spec"(MacroOpts)
+    
+    util =  MacroOpts.util
+    avail =  MacroOpts.avail
+    nest = MacroOpts.nest
+    Args = MacroOpts.Args
+    
     commonCols = {"Description", "Expression", "Coefficient"}
     colNames = util.Map(do (f) Return(f[1]) end)
 
     // Determine if rail and microtransit are present
     activeTransitModes = RunMacro("Get Active Transit Modes", Args)
+    if activeTransitModes.Position('bus') = 0 then
+        Throw("No bus mode in mode choice utility for: " + type)
     railPresent = RunMacro("Is value in array", activeTransitModes, "Rail")
     mtPresent = RunMacro("MT Districts Exist?", Args)
 
-    // Check each column in the utility spec and retain only those that are active
-    tempUtil = null
-    retainedAlts = null
-    for col in colNames do
-        if commonCols.Position(col) > 0 then do // Retain the common cols
+    if util <> null then do
+        // Check each column in the utility spec and retain only those that are active
+        tempUtil = null
+        retainedAlts = null
+        for col in colNames do
+            if commonCols.Position(col) > 0 then do // Retain the common cols
+                tempUtil.(col) = CopyArray(util.(col))
+                continue
+            end
+
+            // Skip microtransit modes if no districts are defined
+            is_mt = Left(Lower(col), 2) = "mt" 
+            if is_mt and !mtPresent then continue
+
+            // Skip rail if no rail routes in scenario
+            is_rail = RunMacro("Is value in array", {"rail"}, col)
+            if is_rail and !railPresent then continue
+            
+            retainedAlts = retainedAlts + {col}
             tempUtil.(col) = CopyArray(util.(col))
-            continue
         end
 
-        // Skip microtransit modes if no districts are defined
-        is_mt = Left(Lower(col), 2) = "mt" 
-        if is_mt and !mtPresent then continue
-
-        // Skip rail if no rail routes in scenario
-        is_rail = RunMacro("Is value in array", {"rail"}, col)
-        if is_rail and !railPresent then continue
-        
-        retainedAlts = retainedAlts + {col}
-        tempUtil.(col) = CopyArray(util.(col))
-    end
-
-    // Now remove rows (utility terms) that are not used in any of the
-    // retained alternatives
-    vSum = nz(a2v(tempUtil.(retainedAlts[1])))
-    for i = 2 to retainedAlts.length do
-        vCol = a2v(tempUtil.(retainedAlts[i]))
-        vSum = vSum + nz(vCol)
-    end
-    // If vSum for any row is 0, then this row can be deleted
-    outUtil = null
-    nRows = vSum.length
-    for i = 1 to nRows do
-        if vSum[i] > 0 then do
-            for col in commonCols + retainedAlts do
-                vec = tempUtil.(col)
-                val = vec[i]
-                outUtil.(col) = outUtil.(col) + {val}
+        // Now remove rows (utility terms) that are not used in any of the
+        // retained alternatives
+        vSum = nz(a2v(tempUtil.(retainedAlts[1])))
+        for i = 2 to retainedAlts.length do
+            vCol = a2v(tempUtil.(retainedAlts[i]))
+            vSum = vSum + nz(vCol)
+        end
+        // If vSum for any row is 0, then this row can be deleted
+        outUtil = null
+        nRows = vSum.length
+        for i = 1 to nRows do
+            if vSum[i] > 0 then do
+                for col in commonCols + retainedAlts do
+                    vec = tempUtil.(col)
+                    val = vec[i]
+                    outUtil.(col) = outUtil.(col) + {val}
+                end
             end
         end
+
+        ret.Utility = CopyArray(outUtil)
     end
 
     // Deal with availability next removing rows (modes) that are not used
     // in the utility spec
-    alts = avail.Alternative
-    exprs = avail.Expression
-    finalAvail = null
-    for i = 1 to alts.length do
-        alt = alts[i]
-        if retainedAlts.Position(alt) > 0 then do // Keep term
-            finalAvail.Alternative = finalAvail.Alternative + {alt}
-            finalAvail.Expression = finalAvail.Expression + {exprs[i]}
-        end 
+    if avail <> null then do
+        alts = avail.Alternative
+        exprs = avail.Expression
+        finalAvail = null
+        for i = 1 to alts.length do
+            alt = alts[i]
+            if retainedAlts.Position(alt) > 0 then do // Keep term
+                finalAvail.Alternative = finalAvail.Alternative + {alt}
+                finalAvail.Expression = finalAvail.Expression + {exprs[i]}
+            end 
+        end
+
+        ret.Availability = CopyArray(finalAvail)
     end
 
-    util = CopyArray(outUtil)
-    avail = CopyArray(finalAvail)
-    Return({util, avail})
+    // Deal finally with the nesting structure
+    if nest <> null then do
+        finalNest = CopyArray(nest)
+        trMainAlts = {'PT_Walk', 'PT_PNR', 'PT_KNR', 'NonAuto'}
+        for mainAlt in trMainAlts do
+            pos = nest.Parent.Position(mainAlt)
+            if pos = 0 then continue
+            childAltString = nest.Alternatives[pos]
+            prunedAltString = RunMacro("Prune Transit Alt String", childAltString, activeTransitModes, Args)
+            finalNest.Alternatives[pos] = prunedAltString
+        end
+        // Check auto nest for MT
+        for i = 1 to finalNest.Alternatives.length do
+            childAltString = finalNest.Alternatives[i]
+            prunedAltString = RunMacro("Prune MT Alt String", childAltString, Args)
+            finalNest.Alternatives[i] = prunedAltString
+        end
+
+        ret.NestingStructure = CopyArray(finalNest)
+    end
+
+    // Return
+    Return(ret)
 endMacro
 
 
@@ -706,15 +750,20 @@ Macro "Is value in array"(arr, val)
     Return(retain)
 endMacro
 
+/*
+Removes rail leaves if it isn't present in the RTS
+*/
 
 Macro "Prune Transit Alt String"(str, activeTransitModes, Args)
     
+    railPresent = RunMacro("Is value in array", activeTransitModes, "Rail")
+
     subModes = ParseString(str, " ,")
     outStr = null
     for mode in subModes do
         // skip rail if no rail routes in scenario
-        if RunMacro("Is value in array", activeTransitModes, mode) then // Alternative present
-            outStr = outStr + mode + ", "
+        if Lower(mode) contains "rail" and !railPresent then continue
+        outStr = outStr + mode + ", "
     end
     
     // Remove final trailing ", "

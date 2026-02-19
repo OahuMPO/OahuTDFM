@@ -3,6 +3,7 @@
 */
 
 Macro "Network Calculations" (Args)
+    Args.ABMFlag = 0
     RunMacro("CopyDataToOutputFolder", Args)
     RunMacro("Filter Transit Modes", Args)
     RunMacro("Expand DTWB", Args)
@@ -91,51 +92,6 @@ Macro "Filter Transit Modes" (Args)
         tbl.DropFields("rail")
         temp = null
         tbl.Export({FileName: mode_file})
-    end
-
-    // Remove modes from MC parameter files
-    RunMacro("Filter Visitor Transit Modes", Args)
-endmacro
-
-/*
-Removes modes from the visitor csv parameter files if they don't exist
-in the scenario.
-*/
-
-Macro "Filter Visitor Transit Modes" (Args)
-    
-    mode_table = Args.TransitModeTable
-    // access_modes = Args.access_modes
-    mc_dir = Args.[Input Folder] + "/visitors/mc"
-    
-    transit_modes = RunMacro("Get Transit Net Def Col Names", mode_table)
-
-    // get visitor trip purposes
-    factor_file = Args.VisOccupancyFactors
-    fac_tbl = CreateObject("Table", factor_file)
-    trip_types = fac_tbl.trip_type
-    trip_types = SortVector(trip_types, {Unique: "true"})
-
-    for trip_type in trip_types do
-        coef_file = mc_dir + "/" + trip_type + ".csv"
-        coef_tbl = CreateObject("Table", coef_file)
-
-        // Start by selecting all non-transit modes
-        coef_tbl.SelectByQuery({
-            SetName: "export",
-            Query: "Alternative = 'auto' or Alternative = 'tnc' or Alternative = 'walk' or Alternative = 'bike'"
-        })
-        // Now add transit modes that exist to the selection
-        for mode in transit_modes do
-            coef_tbl.SelectByQuery({
-                SetName: "export",
-                Operation: "more",
-                Query: "Alternative = '" + mode + "'"
-            })  
-        end
-        temp = coef_tbl.Export({ViewName: "temp"})
-        coef_tbl = null
-        temp.Export({FileName: coef_file})
     end
 endmacro
 
@@ -408,10 +364,13 @@ Macro "Smooth Area Type" (Args, map, views)
             bLyr = AddLayer(map,"buffer",bufferDBD,"buffer")
 
             // Select zones within the 1 mile buffer that have not already
-            // been smoothed.
+            // been smoothed and are not already set to this area type based
+            // on density.
             SetLayer(taz_lyr)
-            n2 = SelectByVicinity("in_buffer", "several", "buffer|", , )
+            n2 = SelectByVicinity("in_buffer", "several", bLyr + "|", , )
             qry = "Select * where ATSmoothed = 1"
+            n2 = SelectByQuery("in_buffer", "Less", qry)
+            qry = "Select * where AreaType = '" + type + "'"
             n2 = SelectByQuery("in_buffer", "Less", qry)
 
             if n2 > 0 then do
@@ -490,7 +449,7 @@ Macro "Tag Highway with Area Type" (Args, map, views)
             // Select links within the buffer that haven't been updated already
             SetLayer(llyr)
             n2 = SelectByVicinity(
-                "links", "several", taz_lyr + "|selection", 0, 
+                "links", "several", bLyr + "|", 0, 
                 {"Source And": "primary"}
             )
             query = "Select * where AreaType <> null"
@@ -775,7 +734,7 @@ endmacro
 */
 
 macro "BuildNetworks Oahu" (Args, Result)
-
+    Args.ABMFlag = 0
     RunMacro("BuildHighwayNetwork Oahu", Args)
     RunMacro("Check Highway Network", Args)
     if RunMacro("MT Districts Exist?", Args) then do
@@ -862,8 +821,8 @@ Macro "Check Highway Network" (Args)
     obj.Convergence = .01
     obj.DemandMatrix ({MatrixFile: mtx_file})
     obj.AddClass({Demand: "SOV"})
-    obj.FlowTable = GetRandFileName("*.bin")
     for period in periods do
+        obj.FlowTable = GetRandFileName("*.bin")
         obj.Network = skim_dir + "/highwaynet_" + period + ".net"
         obj.DelayFunction = {Function: "bpr.vdf", Fields : {"FreeFlowTime",
             "Capacity", "Alpha", "Beta", "None"}}
@@ -906,6 +865,8 @@ Macro "Create Transit Networks" (Args)
 
             // stop attributes
             o.StopToNodeTagField = "Node_ID"
+            o.AddStopField({Name: "dwell_on", Field: "dwell_on"})
+            o.AddStopField({Name: "dwell_off", Field: "dwell_off"})
 
             // link attributes
             o.AddLinkField({Name: "bus_time", TransitFields: {"ABTransitTime" + period, "BATransitTime" + period},
@@ -941,10 +902,10 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     skim_dir = Args.OutputSkims
     tnwFile = skim_dir + "\\transit\\" + period + "_" + acceMode + ".tnw"
 
-    // If this is microtransit access, open the parking/access matrix file
+    // If this is microtransit access, open the parking access table
     if acceMode = "mt" then do
         mt_access_mtx = Args.("MTAccessMatrix" + period)
-        mt_park = CreateObject("Matrix", mt_access_mtx)
+        parking_usage_file = Substitute(mt_access_mtx, ".mtx", "_parking_usage.bin", )
     end
 
     o = CreateObject("Network.SetPublicPathFinder", {RS: rsFile, NetworkName: tnwFile})
@@ -985,10 +946,11 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
             if acceMode = "pnr" 
                 then ParkFilter = ParkFilter + {"PNR = 1"}
             if acceMode = "mt" then do
-                // ParkFilter = ParkFilter + {"MTDist <> null"}
-                ParkTimeMatrix = ParkTimeMatrix + {mt_park.TotalTime}
-                ParkCostMatrix = ParkCostMatrix + {mt_park.Fare}
-                ParkDistanceMatrix = ParkDistanceMatrix + {mt_park.Distance}
+                ParkFilter = ParkFilter + {"MTDist <> null"}
+                ParkingUsageTable = ParkingUsageTable + {parking_usage_file}
+                // make it so only origins/destinations listed in the parking usage
+                // table can find paths.
+                RestrictToUsageTable = RestrictToUsageTable + {"true"}
             end
         end // else (if acceMode)
     end // for transMode
@@ -1001,9 +963,8 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     DrvOpts.PermitAllWalk = PermitAllW
     DrvOpts.AllowWalkAccess = AllowWacc
     DrvOpts.ParkingNodes = ParkFilter
-    DrvOpts.ParkTimeMatrix = ParkTimeMatrix
-    DrvOpts.ParkCostMatrix = ParkCostMatrix
-    DrvOpts.ParkDistanceMatrix = ParkDistanceMatrix
+    DrvOpts.ParkingUsageTable = ParkingUsageTable
+    DrvOpts.RestrictToUsageTable = RestrictToUsageTable
     if period = "PM" then
         o.DriveEgress(DrvOpts)
     else
@@ -1026,7 +987,12 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
     o.Combination(
         {CombinationFactor: .1
         })
-
+    o.StopTimeFields({
+        InitialPenalty: null,
+        //TransferPenalty: "xfer_pen",
+        DwellOn: "dwell_on",
+        DwellOff: "dwell_off"
+    })
     o.TimeGlobals(
         {Headway:         14,
          InitialPenalty:  0,
@@ -1052,8 +1018,7 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
         // in turn point to the AB/BA fields on the link layer.
          TimeByMode:          "IVTT",
          ModesUsedField:      ModeUseFld,
-         OnlyCombineSameMode: true,
-         FreeTransfers:       2
+         OnlyCombineSameMode: "true"
         })
     
     o.ModeTimeFields({
@@ -1081,15 +1046,15 @@ Macro "Set Transit Network" (Args, period, acceMode, currTransMode)
          TransferWait:    3.0,
          Dwelling:        2.0,
          WalkTimeFactor:  3.0,
-         DriveTimeFactor: 1.0
+         DriveTimeFactor: 10 // encourage people to drive to nearest stop/lot
         })
 
     o.Fare(
         {Type:              "Flat",
          RouteFareField:    "Fare",
-         RouteXFareField:   "Fare",
-         FareValue:         0.0,
-         TransferFareValue: 0.0
+        //  RouteXFareField:   "XferFare",
+         FareValue:         0.0, // default value
+         TransferFareValue: 0.0 // defaul value
         })
 
     if currTransMode <> null then
@@ -1170,17 +1135,38 @@ Macro "Create Microtransit Access Matrix" (Args)
         for core in core_names do
             m.(core) := m.(core) * m.IntraDist
         end
-        
-        // Transpose PM matrix. The result of the above skim is a drive accesss
-        // matrix, but the PM network is set to drive egress. 
+
+        // Create a parking usage table of just the matrix records that aren't null.
+        // This will list which parking nodes are available for each origin.
+        m = null
+        m = CreateObject("Matrix", out_file)
+        mtx_view = OpenTable("mtx view", "Matrix", {m.GetFileName(), m.__data.rowindex, m.__data.colindex})
+        tbl = CreateObject("Table", mtx_view)
+        tbl.SelectByQuery({
+            SetName: "temp",
+            Filter: "Time <> null"
+        })
+        table_file = Substitute(out_file, ".mtx", "_parking_usage.bin", )
+        tbl.Export({
+            FileName: table_file,
+            FieldNames: {"Row", "Column"}
+        })
+        tbl = null
+        tbl = CreateObject("Table", table_file)
+        tbl.AddField({FieldName: "CLASS", Type: "integer"})
+        tbl.MoveField({FieldName: "CLASS", Before: "Row"})
+        tbl.RenameField({FieldName: "Row", NewName: "ORIGIN"})
+        tbl.AddField({FieldName: "DESTINATION", Type: "integer"})
+        tbl.MoveField({FieldName: "DESTINATION", After: "ORIGIN"})
+        tbl.RenameField({FieldName: "Column", NewName: "ACCESS_PARK"})
+        tbl.AddField({FieldName: "WEIGHT", Type: "integer"})
+
+        // if PM, the the ORIGIN and DESTINATION fields need to switch
         if period = "PM" then do
-            t_file = Substitute(out_file, ".mtx", "_transposed.mtx", )
-            t = m.Transpose({OutputFile: t_file})
-            t = null
-            m = null
-            obj = null
-            DeleteFile(out_file)
-            RenameFile(t_file, out_file)
+            tbl.DESTINATION = tbl.ORIGIN
+            tbl.ORIGIN = null
+            tbl.RenameField({FieldName: "ACCESS_PARK", NewName: "EGRESS_PARK"})
         end
+        tbl = null
     end
 endmacro

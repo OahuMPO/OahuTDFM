@@ -258,7 +258,10 @@ Macro "Calculate Delta TT"(Args, spec)
 
     stopfilter = spec.StopFilter
     periodfilter = spec.PeriodFilter
-    deltaCalcFilter = printf("(%s) and (%s)", {stopfilter, periodfilter})
+    if periodfilter <> null then
+        deltaCalcFilter = printf("(%s) and (%s)", {stopfilter, periodfilter})
+    else
+        deltaCalcFilter = stopfilter
 
     // Export relevant records to a table
     SetView(vwT)

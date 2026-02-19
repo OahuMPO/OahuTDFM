@@ -20,8 +20,8 @@ Macro "Model.Attributes" (Args,Result)
         {"ReadOnly", 0},
         {"Requires",
             {{"Program", "TransCAD"},
-            {"Version", 9},
-            {"Build", 32930}}},
+            {"Version", 10},
+            {"Build", 40715}}},
         {"ResizeImage", 1},
         {"SourceMacro", "Model.Attributes"},
         {"Time Stamp Format", "yyyyMMdd_HHmm"},
@@ -97,6 +97,8 @@ EndMacro
 
 Macro "Model.OnModelStart" (Args,Result)
 Body:
+    Args.ABMFlag = 1 // Set to default value
+    
     // Create Empty Folders
     folders = {Args.[Output Folder],
                Args.[Output Folder] + "\\Intermediate\\",
@@ -118,10 +120,18 @@ Body:
 
     // Set time period arguments
     periods = null
-    periods.AM.StartTime = 360 // 6 AM
-    periods.AM.EndTime = 540   // 9 AM
-    periods.PM.StartTime = 900 // 3 PM
-    periods.PM.EndTime = 1140  // 7 PM
+    periods.EA.StartTime = 180  // 3 AM
+    periods.EA.EndTime = 360    // 6 AM
+    periods.AM.StartTime = 360  // 6 AM
+    periods.AM.EndTime = 540    // 9 AM
+    periods.MD.StartTime = 540  // 9 AM
+    periods.MD.EndTime = 900    // 3 PM
+    periods.PM.StartTime = 900  // 3 PM
+    periods.PM.EndTime = 1140   // 7 PM
+    periods.EV.StartTime = 1140  // 7 PM
+    periods.EV.EndTime = 1260    // 9 PM
+    periods.NT.StartTime = 1260  // 9 PM
+    periods.NT.EndTime = 1620    // 3 AM next day
     Return({TimePeriods: periods})
 EndMacro
 
@@ -129,9 +139,15 @@ EndMacro
 Macro "Model.OnModelDone" (Args,Result)
 Body:
     mr = CreateObject("Model.Runtime")
-    mr.RunCode("Export ABM Data", Args, {Overwrite: 1})
-    RunMacro("ReleaseSingleton", "ABM_Manager")
-    RunMacro("ReleaseSingleton", "ABM.TimeManager")
+    if Args.ABMFlag > 0 then do
+        if Args.ABMFlag = 1 then
+            mr.RunCode("Export ABM Data", Args, {Overwrite: 1})
+        else if Args.ABMFlag = 2 then
+            mr.RunCode("Export Visitor ABM Data", Args, {Overwrite: 1})
+        RunMacro("ReleaseSingleton", "ABM_Manager")
+        RunMacro("ReleaseSingleton", "ABM.TimeManager")
+    end
+    Args.ABMFlag = 1 // Set to default value
     Return(Result)
 EndMacro
 

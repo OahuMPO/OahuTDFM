@@ -1,8 +1,14 @@
 master_tazs
-36
-"ID",I,1,4,0,4,0,,"","",,"Sum",
+88,codepage=65001
+"ID",I,1,4,0,10,0,,"","",,"Sum",
 "TAZID",I,5,4,0,8,0,,"Copy","Official TAZ IDs||The ID column is managed automatically and can update|in unexpected ways if editing. This field can be controlled|manually to ensure proper IDs.",,"Copy",
 "PUMA",C,9,16,0,16,0,,"","",,"Sum",
 "District23",I,25,4,0,8,0,,"","",,"Sum",
 "District7",I,29,4,0,8,0,,"","",,"Sum",
 "UrbanizedArea",I,33,4,0,8,0,,"","",,"Sum",
+"PlanningArea",C,37,32,0,32,0,,"","",,"Copy",
+"Neighborhood",I,69,4,0,8,0,,"","",,"Sum",
+"VisitorDistrict",I,73,4,0,8,0,,"","Visitor district|1. North Shore|2. West Coast|3. Ewa|4. Central Oahu|5. Urban Center|6. Honolulu|7. East Coast",,"Sum",
+"VisitorClusterLodging",I,77,4,0,8,0,,"","Visitor lodging designation|1: Major resorts|2: Minor resorts|3: Other",,"Sum",
+"VisitorClusterOther",I,81,4,0,8,0,,"","Derived from Visitor District|1. Honolulu|2. Urban center|3. Other",,"Sum",
+"VisitorClusterRec",I,85,4,0,8,0,,"","Visitor recreation code designation|1. Waikiki Beach Area|2. Diamond Head Recreation Area|3. Ko Olina|4. Ala Moana|5. Other beaches|6. All other",,"Sum",

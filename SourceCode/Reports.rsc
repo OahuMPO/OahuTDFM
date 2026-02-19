@@ -1,12 +1,15 @@
 Macro "Reports" (Args)
+    Args.ABMFlag = 0
     RunMacro("Load Link Layer", Args)
     RunMacro("Calculate Daily Fields", Args)
+    RunMacro("Load Trip Tables", Args)
     RunMacro("Create Count Difference Map", Args)
     RunMacro("VOC Maps", Args)
     RunMacro("Speed Maps", Args)
     RunMacro("Count PRMSEs", Args)
     RunMacro("Summarize Links", Args)
     RunMacro("Transit Summary", Args)
+    RunMacro("Planning Area Summaries", Args)
     return(1)
 endmacro
 
@@ -50,8 +53,8 @@ Macro "Load Link Layer" (Args)
             })
 
             // Get data vectors
-            v_fft = nz(tbl.ABFreeFlowTime)
-            v_ct = nz(tbl.(dir + period + "Time"))
+            v_fft = nz(tbl.(dir + "FreeFlowTime"))
+            v_ct = nz(tbl.(dir + "_Time_" + period))
             v_vol = nz(tbl.(dir + "_Flow_" + period))
 
             // Calculate delay
@@ -190,6 +193,83 @@ Macro "Calculate Daily Fields" (Args)
   DropLayerFromWorkspace(llyr)
 EndMacro
 
+/*
+This loads trip stats like length, time, ff time, and delay onto
+the trip tables.
+*/
+
+Macro "Load Trip Tables" (Args)
+
+  periods = {"AM", "PM", "OP"}
+  res_trip_file = Args.ABM_Trips
+  visitor_trip_file = Args.VisitorTrips
+  skim_dir = Args.[Output Folder] + "\\skims"
+
+  res_tbl = CreateObject("Table", res_trip_file)
+  res_tbl.AddField("Miles")
+  res_tbl.AddField("TravTime")
+  res_tbl.AddField("TravFFTime")
+  res_tbl.AddField("Delay")
+  res_specs = res_tbl.GetFieldSpecs({NamedArray: "true"})
+  vis_tbl = CreateObject("Table", visitor_trip_file)
+  vis_tbl.AddField("Miles")
+  vis_tbl.AddField("TravTime")
+  vis_tbl.AddField("TravFFTime")
+  vis_tbl.AddField("Delay")
+  vis_specs = vis_tbl.GetFieldSpecs({NamedArray: "true"})
+
+  for period in periods do
+    skim_file = skim_dir + "\\HighwaySkim" + period + ".mtx"
+    
+    // Export skim matrix to table
+    mtx = CreateObject("Matrix", skim_file)
+    temp_file = GetTempFileName("*.bin")
+    mtx.ExportToTable({
+      FileName: temp_file,
+      Cores: {"Time", "FreeFlowTime", "Distance"}
+    })
+    mtx = null
+
+    // Resident trips
+    tbl = CreateObject("Table", temp_file)
+    tbl_specs = tbl.GetFieldSpecs({NamedArray: "true"})
+    join = res_tbl.Join({
+      Table: tbl,
+      LeftFields: {"Origin","Destination"},
+      RightFields: {"Origin","Destination"}
+    })
+    join.SelectByQuery({
+      SetName: period,
+      Query: "Period = '" + period + 
+        "' and (Mode = 'drivealone' or Mode = 'carpool' or Mode = 'nonhhauto')"
+    })
+    join.(res_specs.Miles) = join.(tbl_specs.Distance)
+    join.(res_specs.TravTime) = join.(tbl_specs.Time)
+    join.(res_specs.TravFFTime) = join.(tbl_specs.FreeFlowTime)
+    join = null
+
+    // Visitor trips
+    join = vis_tbl.Join({
+      Table: tbl,
+      LeftFields: {"Origin","Destination"},
+      RightFields: {"Origin","Destination"}
+    })
+    join.SelectByQuery({
+      SetName: period,
+      Query: "Period = '" + period + 
+        "' and (Mode = 'sov' or Mode = 'hov2' or Mode = 'hov3' or Mode = 'tnc')"
+    })
+    join.(vis_specs.Miles) = join.(tbl_specs.Distance)
+    join.(vis_specs.TravTime) = join.(tbl_specs.Time)
+    join.(vis_specs.TravFFTime) = join.(tbl_specs.FreeFlowTime)
+    join = null
+  end
+
+  res_tbl.ChangeSet()
+  res_tbl.Delay = res_tbl.TravTime - res_tbl.TravFFTime
+  vis_tbl.ChangeSet()
+  vis_tbl.Delay = vis_tbl.TravTime - vis_tbl.TravFFTime
+EndMacro
 
 /*
 Create maps that compare model volumes to counts.
@@ -364,7 +444,7 @@ Macro "Speed Maps" (Args)
   hwy_dbd = Args.HighwayDatabase
   periods = {"AM", "PM", "OP"}
   output_dir = Args.[Output Folder] + "/_reports/maps"
-  RunMacro("Create Directory", output_dir)
+  if GetDirectoryInfo(output_dir, "All") = null then CreateDirectory(output_dir)
 
   for period in periods do
 
@@ -390,20 +470,20 @@ Macro "Speed Maps" (Args)
     ShowTheme(, theme_name)
 
     // Apply color theme based on the % speed reduction
-    ab_expr_field = CreateExpression(
-      llyr, "AB" + period + "SpeedRedux",
-      "min((AB_Speed_" + period + " - PostedSpeed) / PostedSpeed * 100, 0)",
-      {Type: "Real", Decimals: 0}
-    )
-    ba_expr_field = CreateExpression(
-      llyr, "BA" + period + "SpeedRedux",
-      "min((BA_Speed_" + period + " - PostedSpeed) / PostedSpeed * 100, 0)",
-      {Type: "Real", Decimals: 0}
-    )
+    tbl = null
+    tbl = CreateObject("Table", {View: llyr})
+    dirs = {"AB", "BA"}
+    for dir in dirs do
+      tbl.AddField({FieldName: dir + period + "SpeedRedux", Type: "integer"})
+      v_cong_speed = tbl.(dir + "_Speed_" + period)
+      v_posted_speed = tbl.PostedSpeed
+      tbl.(dir + period + "SpeedRedux") = min((v_cong_speed - v_posted_speed) / v_posted_speed * 100, 0)
+    end
     num_classes = 5
     theme_title = period + " Speed Reduction %"
+    ab_field = "AB" + period + "SpeedRedux"
     cTheme = CreateTheme(
-      theme_title, llyr + "." + ab_expr_field, "Manual",
+      theme_title, llyr + "." + ab_field, "Manual",
       num_classes,
       {
         {"Values",{
@@ -563,4 +643,135 @@ Macro "Transit Summary" (Args)
     loaded_network: Args.HighwayDatabase,
     scen_rts: Args.TransitRoutes
   })
+EndMacro
+
+/*
+Creates summary tables by planning area
+*/
+
+Macro "Planning Area Summaries" (Args)
+
+    taz_file = Args.TAZGeography
+    tour_file = Args.MandatoryTours
+    skim_file = Args.HighwaySkimAM
+    hwy_file = Args.HighwayDatabase
+
+    tours = CreateObject("Table", tour_file)
+    taz = CreateObject("Table", taz_file)
+    skim = CreateObject("Matrix", skim_file)
+
+    tours.AddField({FieldName: "PlanningArea", Type: "string", Width: 36})
+    tours.AddField("skim_time")
+
+    // Fill in planning area
+    tour_specs = tours.GetFieldSpecs({NamedArray: true})
+    taz_specs = taz.GetFieldSpecs({NamedArray: true})
+    join = tours.Join({
+      Table: taz,
+      LeftFields: "Origin",
+      RightFields: "TAZID"
+    })
+    join.(tour_specs.PlanningArea) = join.(taz_specs.PlanningArea)
+    join = null
+
+    // Fill in skim time
+    FillViewFromMatrix(
+      tours.GetView() + "|", 
+      tour_specs.Origin, 
+      tour_specs.Destination, 
+      {{tour_specs.skim_time, skim.Time}}
+    )
+
+    // Select commute tours only and aggregate by planning area
+    // Also don't include walk tours because their times are too short
+    tours.SelectByQuery({
+      SetName: "work_tours",
+      Query: "Select * where TourPurpose = 'Work' and ForwardMode <> 'Walk'"
+    })
+    agg = tours.Aggregate({
+      GroupBy: {"PlanningArea", "ForwardMode"},
+      FieldStats: {
+        skim_time: {"average"},
+        TourID: {"count"}
+      }
+    })
+    agg.RenameField({FieldName: "average_skim_time", NewName: "avg_commute_time"})
+    agg.RenameField({FieldName: "count_TourID", NewName: "num_tours"})
+
+    // Write out the table
+    dir = Args.[Output Folder] + "/_reports/commute_by_planning_area"
+    if GetDirectoryInfo(dir, "All") = null then CreateDirectory(dir)
+    out_file = dir + "/commute_by_planning_area_and_mode.csv"
+    agg.Export({FileName: out_file})
+
+    // Do the same thing but this time only grouped by planning area
+    tours.SelectByQuery({
+      SetName: "work_tours",
+      Query: "Select * where TourPurpose = 'Work' and ForwardMode <> 'Walk'"
+    })
+    agg = null
+    agg = tours.Aggregate({
+      GroupBy: {"PlanningArea"},
+      FieldStats: {
+        skim_time: {"average"},
+        TourID: {"count"}
+      }
+    })
+    agg.RenameField({FieldName: "average_skim_time", NewName: "avg_commute_time"})
+    agg.RenameField({FieldName: "count_TourID", NewName: "num_tours"})
+    out_file = dir + "/commute_by_planning_area.csv"
+    agg.Export({FileName: out_file})
+    
+    agg = null
+    tours = null
+    taz = null
+    skim = null
+
+    // ***********
+    // Summarize total transit boardings/alightings by planning area
+    // ***********
+
+    out_dir  = Args.[Output Folder] + "/_reports/transit"
+    if GetDirectoryInfo(out_dir, "All") = null then CreateDirectory(out_dir)
+    transit_asn_dir = Args.[Output Folder] + "/Assignment/Transit"
+    tables = RunMacro("Get Transit Output Tables", transit_asn_dir)
+    onoff = tables.onoff
+    temp_file = out_dir + "/temp.bin"
+    onoff.write_bin(temp_file)
+    onoff = null
+    onoff = CreateObject("Table", temp_file)
+    onoff.AddField({FieldName: "PlanningArea", Type: "string", Width: 36})
+
+    // Tag node layer with planning area
+    map = CreateObject("Map", hwy_file)
+    {nlyr, llyr} = map.GetLayerNames()
+    {tlyr} = map.AddLayer({FileName: taz_file})
+    node_tbl = CreateObject("Table", nlyr)
+    node_tbl.AddField({FieldName: "PlanningArea", Type: "string", Width: 36})
+    taz_tbl = CreateObject("Table", tlyr)
+    node_specs = node_tbl.GetFieldSpecs({NamedArray: true})
+    onoff_specs = onoff.GetFieldSpecs({NamedArray: true})
+    taz_specs = taz_tbl.GetFieldSpecs({NamedArray: true})
+    SetLayer(nlyr)
+    TagLayer(
+      "Value", 
+      nlyr + "|", 
+      node_specs.PlanningArea, 
+      tlyr, 
+      taz_specs.PlanningArea
+    )
+
+    // Join the planning area to the on-off table and xfer data
+    join = onoff.Join({
+      Table: node_tbl,
+      LeftFields: "TaggedNode",
+      RightFields: "ID"
+    })
+    join.(onoff_specs.PlanningArea) = join.(node_specs.PlanningArea)
+    join = null
+    onoff.Export({FileName: out_dir + "/all_onoff.csv"})
+    
+    onoff = null
+    DeleteFile(temp_file)
+    DeleteFile(Substitute(temp_file, ".bin", ".dcb", ))
 EndMacro
