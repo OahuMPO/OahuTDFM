@@ -2,12 +2,12 @@
 
         Args.[Scenario Folder] = {
             "Type":"Folder",
-            "Value":"%Base Folder%\\Scenarios\\base_2022"
+            "Value":"%Base Folder%\\Scenarios\\2025_base"
         }
         Args.[Master SE] = {
             "Type":"File",
             "Description":"Master SED Demographics",
-            "Value":"%Master Folder%\\sedata\\base_2022.bin"
+            "Value":"%Master Folder%\\sedata\\base_2025.bin"
         }
 
 	Section = "Parameters|Files and Folders"
