@@ -2,7 +2,7 @@
 240,codepage=1252
 "TAZ",I,1,4,0,11,0,,"","",,"Sum",
 "OccupiedHH",I,5,4,0,8,0,,"","Households|Occupied Housing Units as defined by Census",,"Sum",
-"Population",I,9,4,0,8,0,,"","Total population|(HH plus GQ)",,"Sum",
+"Population",I,9,4,0,8,0,,"","Population living in households",,"Sum",
 "GroupQuarterPopulation",I,13,4,0,8,0,,"","Population living in group quarters|Only dorm GQ are captured in this field.",,"Sum",
 "Median_Inc",I,17,4,0,8,0,,"","Median income",,"Sum",
 "Pct_Worker",I,21,4,0,8,0,,"","% of HH population that work",,"Sum",
