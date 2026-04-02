@@ -33,7 +33,7 @@ Macro "DisaggregateSED"(Args)
 
     // Run models to disaggregate curves
     // 1. ==== Size
-    opt = {View: vw, Curve: Args.SizeCurves, KeyExpression: "(Population-GroupQuarterPopulation)/OccupiedHH", LookupField: "avg_size"}
+    opt = {View: vw, Curve: Args.SizeCurves, KeyExpression: "Population/OccupiedHH", LookupField: "avg_size"}
     RunMacro("Disaggregate SE HH Data", opt)
 
     // 2. ==== Income
@@ -41,12 +41,12 @@ Macro "DisaggregateSED"(Args)
     RunMacro("Disaggregate SE HH Data", opt)
 
     // 3. ==== Workers
-    opt = {View: vw, Curve: Args.WorkerCurves, KeyExpression: "((Pct_Worker/100)*(Population-GroupQuarterPopulation))/OccupiedHH", LookupField: "avg_workers"}
+    opt = {View: vw, Curve: Args.WorkerCurves, KeyExpression: "((Pct_Worker/100)*Population)/OccupiedHH", LookupField: "avg_workers"}
     RunMacro("Disaggregate SE HH Data", opt)
 
     // Fill number of kids, adults and seniors
-    vecs = GetDataVectors(vw + '|', {"Population", "GroupQuarterPopulation", "Pct_Child", "Pct_Senior"}, {OptArray: 1})
-    vecs.HH_Pop = vecs.Population - vecs.GroupQuarterPopulation
+    vecs = GetDataVectors(vw + '|', {"Population", "Pct_Child", "Pct_Senior"}, {OptArray: 1})
+    vecs.HH_Pop = vecs.Population
     vecsSet = null
     vecsSet.Kids = r2i(vecs.HH_Pop * vecs.Pct_Child/100)
     vecsSet.Seniors = r2i(vecs.HH_Pop * vecs.Pct_Senior/100)
