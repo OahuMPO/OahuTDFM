@@ -7,7 +7,7 @@
         Args.[Master SE] = {
             "Type":"File",
             "Description":"Master SED Demographics",
-            "Value":"%Master Folder%\\sedata\\base_2025.bin"
+            "Value":"%Master Folder%\\sedata\\se_2025.bin"
         }
 
 	Section = "Parameters|Files and Folders"
