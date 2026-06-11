@@ -2,12 +2,12 @@
 	
         Args.[Scenario Folder] = {
             "Type":"Folder",
-            "Value":"%Base Folder%\\Scenarios\\base_2022"
+            "Value":"%Base Folder%\\Scenarios\\2025_base"
         }
         Args.[Master SE] = {
             "Type":"File",
             "Description":"Master SED Demographics",
-            "Value":"%Master Folder%\\sedata\\base_2022.bin"
+            "Value":"%Master Folder%\\sedata\\se_2025.bin"
         }
 	
 	Section = "Parameters|Files and Folders"
@@ -2246,7 +2246,7 @@
                 {"ASC (Walk)","Constant",3.2247,0,1,0,0,0,0,0,0,0},
                 {"ASC (W_Transit)","Constant",2.3723,0,0,0,1,1,0,0,0,0},
                 {"ASC (MT_Transit)","Constant",2.3723,0,0,0,0,0,0,1,1,0},
-                {"ASC (Rail)","Constant",4.8796,0,0,0,0,1,0,0,0,0},
+                {"ASC (Rail)","Constant",-8.5393,0,0,0,0,1,0,0,0,0},
                 {"ASC (Other)","Constant",-1.2456,0,0,0,0,0,1,0,0,0},
                 {"Walk Bus IVTT","W_BusSkim.[In-Vehicle Time]",-0.2218,0,0,0,1,0,0,0,0,0},
                 {"Walk Rail IVTT","W_RailSkim.[In-Vehicle Time] * .80",-0.2218,0,0,0,0,1,0,0,0,0},
@@ -2803,7 +2803,7 @@
                 {"ASC (Walk)","Constant",3.1893,0,0,1,0,0,0,0,0,0,0},
                 {"ASC (W_Transit)","Constant",0.5118,0,0,0,0,1,1,0,0,0,0},
                 {"ASC (MT_Transit)","Constant",0.5118,0,0,0,0,0,0,0,1,1,0},
-                {"ASC (Rail)","Constant",0.198,0,0,0,0,0,1,0,0,0,0},
+                {"ASC (Rail)","Constant",-0.3465,0,0,0,0,0,1,0,0,0,0},
                 {"ASC (Other)","Constant",-1.057,0,0,0,0,0,0,1,0,0,0},
                 {"HHVehicles >= 2","PersonHH.Vehicles >= 2",0.4959,1,0,0,0,0,0,0,0,0,0},
                 {"HHVehicles >= 3 (Driver)","PersonHH.Vehicles >= 3",0.4713,1,0,0,0,0,0,0,0,0,0},
@@ -2861,7 +2861,7 @@
                 {"ASC (Walk)","Constant",1.6659,0,0,1,0,0,0,0,0,0,0},
                 {"ASC (W_Transit)","Constant",-0.4978,0,0,0,0,1,1,0,0,0,0},
                 {"ASC (MT_Transit)","Constant",-0.4978,0,0,0,0,0,0,0,1,1,0},
-                {"ASC (Rail)","Constant",0.0814,0,0,0,0,0,1,0,0,0,0},
+                {"ASC (Rail)","Constant",-0.1425,0,0,0,0,0,1,0,0,0,0},
                 {"ASC (Other)","Constant",-1.7846,0,0,0,0,0,0,1,0,0,0},
                 {"HHVehicles >= 2 (Driver)","PersonHH.Vehicles >= 2",1.1466,1,0,0,0,0,0,0,0,0,0},
                 {"HHVehicles >= 2 (Passenger)","PersonHH.Vehicles >= 2",-0.8157,0,1,0,0,0,0,0,0,0,0},

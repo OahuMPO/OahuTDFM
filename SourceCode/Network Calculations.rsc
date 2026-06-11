@@ -270,7 +270,6 @@ Macro "Determine Area Type" (Args)
         {
             "Area",
             "Population",
-            "GroupQuarterPopulation",
             "Emp_Agriculture",
             "Emp_Manufacturing",
             "Emp_Wholesale",
@@ -298,7 +297,7 @@ Macro "Determine Area Type" (Args)
         data.Emp_Public + 
         data.Emp_Hotel + 
         data.Emp_Military
-    data.HH_POP = data.Population - data.GroupQuarterPopulation
+    data.HH_POP = data.Population
     factor = data.HH_POP.sum() / tot_emp.sum()
     density = (data.HH_POP + tot_emp * factor) / data.area
     emp_density = tot_emp / data.area
