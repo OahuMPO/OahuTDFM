@@ -794,6 +794,17 @@
                                                           {"Name": "135-150", "Type": "boolean", "Align": "center"}}
                                         })
 
+  Styles.AirportMCUtility = Pme.Table({Height: 16, Autosize: "True", Values: "Columns",
+                                                Columns:    {{Name: "Description", Type: "string",  Fixed: "false", Width:  "20%"},
+															 {Name: "Expression", Type: "string",  Fixed: "false", Width:  "30%"},
+                                                             {Name: "Segment", Type: "string",  Fixed: "false", Width:  "8%"},
+                                                             {Name: "Coefficient",   Type: "real",    Fixed: "false", Decimals: "4", Width:  "10%"},
+                                                             {"Name": "Auto", "Type": "boolean", "Align": "center"},
+                                                             {"Name": "Shuttle", "Type": "boolean", "Align": "center"},
+                                                             {"Name": "W_Bus", "Type": "boolean", "Align": "center"},
+                                                             {"Name": "W_Rail", "Type": "boolean", "Align": "center"}}
+                                        })
+
   Styles.PctSlider  = Pme.RealSlider({Min: 0.0, Max: 100.0})
 
   Styles.lanecapStyle = Pme.Table(RunMacro("Extend Object", all_tables,
