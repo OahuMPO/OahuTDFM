@@ -3924,7 +3924,8 @@
                 {"Bus Service AM","BusSkim.[In-Vehicle Time] > 0","AM",0.431,0,0,1,0},
                 {"Bus Service MD","BusSkim.[In-Vehicle Time] > 0","OP",0.431,0,0,1,0},
                 {"Rail Service AM","RailSkim.[In-Vehicle Time] > 0","AM",0.431,0,0,0,1},
-                {"Rail Service MD","RailSkim.[In-Vehicle Time] > 0","OP",0.431,0,0,0,1}}
+                {"Rail Service MD","RailSkim.[In-Vehicle Time] > 0","OP",0.431,0,0,0,1},
+                {"ASC Rail Adjustment","Constant",null,0.25,0,0,0,1}}
         }
 	
 	Section = "AssignmentInputs"
