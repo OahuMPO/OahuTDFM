@@ -642,8 +642,10 @@ Macro "Filter Mode Utility Spec"(MacroOpts)
     nest = MacroOpts.nest
     Args = MacroOpts.Args
     
-    commonCols = {"Description", "Expression", "Coefficient", "Segment"}
+    commonCols = {"Description", "Expression", "Coefficient"}
     colNames = util.Map(do (f) Return(f[1]) end)
+    if colNames.position("Segment") > 0 then 
+        commonCols = commonCols + {"Segment"}
 
     // Determine if rail and microtransit are present
     activeTransitModes = RunMacro("Get Active Transit Modes", Args)
