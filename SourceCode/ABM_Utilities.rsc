@@ -731,8 +731,12 @@ Macro "Add Airport OD"(Args)
         od_mtx = CreateObject("Matrix", od_mtx_file)
         air_mtx_file = air_dir + "/air_trips_od_veh_" + period + ".mtx"
         air_mtx = CreateObject("Matrix", air_mtx_file)
+        cores = air_mtx.GetCoreNames()
 
-        od_mtx.carpool := nz(od_mtx.carpool) + nz(air_mtx.air_vis) + nz(air_mtx.air_res)
+        od_mtx.carpool := nz(od_mtx.carpool) + nz(air_mtx.air_vis_Auto) + nz(air_mtx.air_res_Auto)
+        od_mtx.w_bus := nz(od_mtx.w_bus) + nz(air_mtx.air_vis_W_Bus) + nz(air_mtx.air_res_W_Bus)
+        if cores.position("air_vis_W_rail") > 0 then
+            od_mtx.w_rail := nz(od_mtx.w_rail) + nz(air_mtx.air_vis_W_rail) + nz(air_mtx.air_res_W_rail)    
     end
 endMacro
 
