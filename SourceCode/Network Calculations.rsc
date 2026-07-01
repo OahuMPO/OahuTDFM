@@ -847,7 +847,7 @@ Macro "Create Transit Networks" (Args)
     // Retag stops to nodes. While this step is done by the route manager
     // during scenario creation, a user might create a new route to test after
     // creating the scenario. This makes sure it 'just works'.
-    TagRouteStopsWithNode(rtLyr,, "Node_ID", 0.2)
+    TagRouteStopsWithNode(rtLyr,, "NodeID", 10)
 
     for period in Periods do
         for acceMode in AccessModes do
@@ -863,7 +863,7 @@ Macro "Create Transit Networks" (Args)
             o.AddRouteField({Name: "Fare", Field: "Fare"})
 
             // stop attributes
-            o.StopToNodeTagField = "Node_ID"
+            o.StopToNodeTagField = "NodeID"
             o.AddStopField({Name: "dwell_on", Field: "dwell_on"})
             o.AddStopField({Name: "dwell_off", Field: "dwell_off"})
 

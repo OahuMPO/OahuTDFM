@@ -11,10 +11,10 @@ Select from this layer based on project ID.
 Export this selection to a new bin file.
 Format the new table to look like what is required by the creation macro
   hover over it and hit F1 for help, which shows the table needed
-  Includes creating a new field called Node_ID
+  Includes creating a new field called NodeID
 Loop over each row to get the nearest node from the new layer.
   Log where stops don't have a scenario node nearby.
-Place this value into Node_ID.
+Place this value into NodeID.
 Run the create-from-table batch macro.
   Compare distance to previous route to check for large deviations.
 */
@@ -495,7 +495,7 @@ Macro "Merge Route Systems" (MacroOpts)
     if dont_include.position(field_name) > 0 then continue
     route_fields = route_fields + {{field_name, field_name}}
   end
-  stop_fields = {{"shape_stop", "shape_stop"}, {"Node_ID", "Node_ID"}}
+  stop_fields = {{"shape_stop", "shape_stop"}, {"NodeID", "NodeID"}}
 
   opts = null
   opts.[Route Fields] = route_fields
@@ -514,7 +514,7 @@ endmacro
 
 /*
 Updates the scenario route system attributes based on the TransitProjectList.csv
-Also tags stops with node IDs in the 'node_id' field.
+Also tags stops with node IDs in the 'NodeID' field.
 */
 
 Macro "Update Scenario Attributes" (MacroOpts)
@@ -568,9 +568,9 @@ Macro "Update Scenario Attributes" (MacroOpts)
   end
 
   // Tag stops to nodes within
-  a_field = {{"Node_ID", "Integer", 10, , , , , "ID of node closest to stop"}}
+  a_field = {{"NodeID", "Integer", 10, , , , , "ID of node closest to stop"}}
   RunMacro("Add Fields", {view: slyr, a_fields: a_field})
-  n = TagRouteStopsWithNode(rlyr,,"Node_ID",.2)
+  n = TagRouteStopsWithNode(rlyr,,"NodeID",.2)
 EndMacro
 
 /*
