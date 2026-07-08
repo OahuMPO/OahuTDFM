@@ -354,6 +354,14 @@ Macro "SoloTours Mode Eval"(Args, MCOpts)
     tod = MCOpts.TimePeriod
     abm = MCOpts.abmManager
     tourNo = Right(p,1)
+
+    // Small-sample guard (mirrors "SoloTours Mode PostProcess"): a segment such as
+    // a 2nd solo Shop tour departing AM can have ZERO eligible persons in a subset
+    // population, leaving the PME primary view empty so Evaluate() throws
+    // "No selected records in Primary View". Skip empty segments.
+    setInfo = abm.CreatePersonSet({Filter: MCOpts.Filter, Activate: 1})
+    if setInfo.Size = 0 then Return()
+
     modelName = "Solo_" + purpose + "_" + tod + "_Mode"
     ptSkimFile = printf("%s\\output\\skims\\transit\\%s_w_bus.mtx", {Args.[Scenario Folder], tod})
     objTAZ = CreateObject("Table", Args.DemographicOutputs)
