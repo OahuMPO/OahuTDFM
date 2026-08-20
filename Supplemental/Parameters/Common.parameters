@@ -1,5 +1,5 @@
 	Section = "Main Parameters"
-
+	
         Args.[Scenario Folder] = {
             "Type":"Folder",
             "Value":"%Base Folder%\\Scenarios\\2025_base"
@@ -9,7 +9,7 @@
             "Description":"Master SED Demographics",
             "Value":"%Master Folder%\\sedata\\se_2025.bin"
         }
-
+	
 	Section = "Parameters|Files and Folders"
 	
         Args.[Base Folder] = {
@@ -28,7 +28,6 @@
             "Type":"hidden",
             "Value":"BaseYear"
         }
-
         Args.[Common Folder] = {
             "Type":"Folder",
             "Caption":"Common Folder",
@@ -344,7 +343,6 @@
             "Description":"Input TAZ Geography",
             "Value":"%Input Folder%\\tazs\\scenario_tazs.dbd"
         }
-
         Args.Demographics = {
             "Type":"File",
             "Description":"Input SED Demographics",
@@ -3505,7 +3503,7 @@
                 {"Auto Time (TNC)","AutoSkim.Time",-0.0871,0,0,0,1,0,0,0,0},
                 {"Auto Time (Other)","AutoSkim.Time",-0.0263,0,0,0,0,1,0,0,0},
                 {"Walk Time","WalkSkim.Time",-0.0336,0,0,0,0,0,1,0,0},
-                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2.0,0,1,1,0,0,0,0,0},
+                {"Party has kids with rental car (hov)","VisitorData.HasKids = 1 and VisitorData.HasRentalCar = 1",2,0,1,1,0,0,0,0,0},
                 {"Party Size > 2 (hov3)","VisitorData.PartySize > 2",1.17,0,0,1,0,0,0,0,0},
                 {"Party has rented car (tnc)","VisitorData.HasRentalCar = 1",-2.04,0,0,0,1,0,0,0,0},
                 {"Party has rented car (transit)","VisitorData.HasRentalCar = 1",-2.62,0,0,0,0,0,0,1,1},
@@ -3910,6 +3908,24 @@
             "Type":"File",
             "Caption":"Airport Time of Day Factors",
             "Value":"%Input Folder%\\airport\\air_tod.csv"
+        }
+        Args.AirportMCUtility = {
+            "Type":"array",
+            "Caption":"Airport Mode Choice Utility",
+            "Description":"AirportMCUtility",
+            "Style":"AirportMCUtility",
+            "Value":{
+                {"ASC_Auto","Constant",null,2.89,1,0,0,0},
+                {"Honolulu Destination","SEData.VisitorDistrict.D = 6",null,0.814,0,1,0,0},
+                {"IVTT Bus","BusSkim.[In-Vehicle Time]",null,-0.0233,0,0,1,0},
+                {"Access Walk Time Bus","BusSkim.[Access Walk Time]",null,-0.0233,0,0,1,0},
+                {"IVTT Rail","RailSkim.[In-Vehicle Time] * 0.9",null,-0.0233,0,0,0,1},
+                {"Access Walk Time Rail","RailSkim.[Access Walk Time] * 0.9",null,-0.0233,0,0,0,1},
+                {"Bus Service AM","BusSkim.[In-Vehicle Time] > 0","AM",0.431,0,0,1,0},
+                {"Bus Service MD","BusSkim.[In-Vehicle Time] > 0","OP",0.431,0,0,1,0},
+                {"Rail Service AM","RailSkim.[In-Vehicle Time] > 0","AM",0.431,0,0,0,1},
+                {"Rail Service MD","RailSkim.[In-Vehicle Time] > 0","OP",0.431,0,0,0,1},
+                {"ASC Rail Adjustment","Constant",null,0.25,0,0,0,1}}
         }
 	
 	Section = "AssignmentInputs"
